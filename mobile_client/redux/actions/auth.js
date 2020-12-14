@@ -1,33 +1,95 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useSelector} from 'react-redux';
 export const AUTHENTICATE = 'AUTHENTICATE'; 
 export const LOGOUT_USER = 'LOGOUT_USER';
+export const VERIFY_OTP = 'VERIFY_OTP';
+
+const baseUrl = "http://192.168.0.35:8000/";
 
 let timer;
 
-export const authenticate = (userId, token, expiryTime) => {
+export const authenticate = (user, token) => {
   return dispatch => {
-    dispatch(setLogoutTimer(expiryTime));
-    dispatch({ type: AUTHENTICATE, userId: userId, token: token });
+    dispatch({ 
+      type: AUTHENTICATE, 
+      userId: user, 
+      token: token
+     });
   };
-};
+}
 
-export const signup = (email, password) => {
+export const getOtp = ()=>{
+  const token = AsyncStorage.getItem('userData').token;
+  return async dispatch=>{
+    const response = await fetch(
+      "http://192.168.0.35:3000/auth/verify/",
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization' : "Bearer " + token, // otp sent to mail
+          'Access-Control-Allow-Origin' : '*'
+        }
+      }
+    );
+    console.log(response.json())
+  }
+}
+
+export const verifyOtp = (otp)=>{
+  const token = useSelector(state=>state.auth.token)
+  return async dispatch=>{
+    const response = await fetch(
+      baseUrl + "auth/verify",
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization' : "Bearer " + token,
+          'Access-Control-Allow-Origin' : '*'
+        },
+        body: JSON.stringify({
+          otp : otp  // otp verification request after entering mailed otp
+        })
+      }
+    );
+
+    console.log(response.json())
+  }
+}
+
+export const signup = (
+    firstName,
+    lastName,
+    email,
+   password,
+    number,
+    birthDate,
+    weight
+   ) => {
     return async dispatch => {
       const response = await fetch(
-        'signup endpoint',
+        baseUrl + "auth/register/",
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin' : '*'
           },
           body: JSON.stringify({
+            first_name : firstName,
+            last_name: lastName,
             email: email,
             password: password,
+            contact : number,
+            birthday : birthDate,
+            weight : weight
           })
         }
       );
+
+      console.log(response.json())
   
-      if (!response.ok) {
+      /*if (!response.ok) {
         const errorResData = await response.json();
         const errorId = errorResData.error.message;
         let message = 'Something went wrong!';
@@ -47,23 +109,20 @@ export const signup = (email, password) => {
           parseInt(resData.expiresIn) *1000
         )
       );
-      const expirationDate = new Date(
-        new Date().getTime() + parseInt(resData.expiresIn) * 1000 
-      );
-      saveDataToStorage(resData.idToken, resData.localId, expirationDate);
+      saveDataToStorage(resData.idToken, resData.localId, expirationDate);*/
     };
   };
   
 
 export const loginUser = (email, password)=>{
-    const loginUrl = 
-    '';
+    const loginUrl = baseUrl + "login/";
 
     return async dispatch=>{
         const response = await fetch(loginUrl,{
             method: 'POST',
             headers : {
-                'content-type' : 'application/json'
+                'content-type' : 'application/json',
+                'Access-Control-Allow-Origin' : '*'
             },
             body: JSON.stringify({
                 email,
@@ -71,7 +130,8 @@ export const loginUser = (email, password)=>{
             })
 
         });
-        if (!response.ok) {
+        console.log(response.json());
+        /*if (!response.ok) {
             const errorResData = await response.json();
             const errorId = errorResData.error.message;
             console.log(errorId)
@@ -94,15 +154,11 @@ export const loginUser = (email, password)=>{
               parseInt(resData.expiresIn) *1000
             )
           );
-          const expirationDate = new Date(
-            new Date().getTime() + parseInt(resData.expiresIn) * 1000 
-          );
-          saveDataToStorage(resData.idToken, resData.localId, expirationDate);
+          saveDataToStorage(resData.idToken, resData.localId, expirationDate);*/
     }
 }
 
 export const logoutUser = ()=>{
-  clearLogoutTimer();
   AsyncStorage.removeItem('userData');
   return ({ type : LOGOUT_USER })
 }
@@ -121,13 +177,12 @@ const setLogoutTimer = expirationTime => {
   };
 };
 
-const saveDataToStorage = (token, userId, expirationDate) => {
+const saveDataToStorage = (token, user) => {
   AsyncStorage.setItem(
     'userData',
     JSON.stringify({
       token: token,
-      userId: userId,
-      expiryDate: expirationDate.toISOString()
+      user: user
     })
   );
 };

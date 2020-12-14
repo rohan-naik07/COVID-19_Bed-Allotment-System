@@ -1,17 +1,25 @@
-import { LOGOUT_USER,AUTHENTICATE } from '../actions/auth';
+import { 
+  LOGOUT_USER,
+  AUTHENTICATE,
+  VERIFY_OTP } from '../actions/auth';
 
 const initialState = {
   token: null,
-  userId: null
+  otp : null
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case AUTHENTICATE:
       return {
-        token: action.token,
-        userId: action.userId
+        ...state,
+        token: action.token
       };
+    case VERIFY_OTP :
+      return {
+        ...state,
+        otp : action.otp
+      }
     case  LOGOUT_USER:
       return initialState;
     default:

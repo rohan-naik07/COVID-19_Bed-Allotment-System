@@ -1,3 +1,7 @@
 venv
 .idea
 templates
+BedAllotmentSystem\settings.py
+.expo
+.vscode
+node_modules
