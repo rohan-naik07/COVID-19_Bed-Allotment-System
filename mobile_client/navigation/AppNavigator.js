@@ -9,9 +9,9 @@ import HomeScreen from '../screens/HomeScreen';
 
 const defaultNavStyles = {
     headerStyle : {
-        backgroundColor : 'white'
+        backgroundColor : Colors.blue
     },
-    headerTintColor : Colors.primary
+    headerTintColor : Colors.accent
   }
 
 

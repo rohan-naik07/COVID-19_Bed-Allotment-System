@@ -23,7 +23,6 @@ class UserSerializer(serializers.ModelSerializer):
                                    birthday=validated_data['birthday'],
                                    weight=validated_data['weight'])
         user.set_password(validated_data['password'])
-        print(user)
         user.save()
 
         return user

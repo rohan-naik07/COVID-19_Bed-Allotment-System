@@ -2,36 +2,38 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
 export const AUTHENTICATE = 'AUTHENTICATE'; 
 export const LOGOUT_USER = 'LOGOUT_USER';
-export const VERIFY_OTP = 'VERIFY_OTP';
+export const VERIFY_OTP_PASSED = 'VERIFY_OTP_PASSED';
+export const VERIFY_OTP_FAILED = 'VERIFY_OTP_FAILED'
 
 const baseUrl = "http://192.168.0.35:8000/";
 
-let timer;
-
-export const authenticate = (user, token) => {
+export const authenticate = (token) => {
   return dispatch => {
     dispatch({ 
-      type: AUTHENTICATE, 
-      userId: user, 
+      type: AUTHENTICATE,
       token: token
      });
   };
 }
 
-export const getOtp = ()=>{
-  const token = AsyncStorage.getItem('userData').token;
-  return async dispatch=>{
+export const getOtp = (token)=>{
+  return async ()=>{
+    console.log(token)
     const response = await fetch(
-      "http://192.168.0.35:3000/auth/verify/",
+      "http://192.168.0.35:8000/auth/verify/",
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization' : "Bearer " + token, // otp sent to mail
+          'Authorization' : `Bearer ${token.toString()}`, // otp sent to mail
           'Access-Control-Allow-Origin' : '*'
         }
       }
     );
-    console.log(response.json())
+    const responseData = await response.json();
+
+    if (!responseData.success) {
+      throw new Error(responseData.message);
+    }
   }
 }
 
@@ -39,7 +41,7 @@ export const verifyOtp = (otp)=>{
   const token = useSelector(state=>state.auth.token)
   return async dispatch=>{
     const response = await fetch(
-      baseUrl + "auth/verify",
+      baseUrl + "auth/verify/",
       {
         method: 'POST',
         headers: {
@@ -53,7 +55,18 @@ export const verifyOtp = (otp)=>{
       }
     );
 
-    console.log(response.json())
+    const responseData = await response.json();
+    
+    if (!responseData.success) {
+      dispatch({
+        type : VERIFY_OTP_FAILED
+      });
+      throw new Error(responseData.message);
+    }
+
+    dispatch({
+      type : VERIFY_OTP_PASSED
+    });
   }
 }
 
@@ -86,36 +99,24 @@ export const signup = (
           })
         }
       );
-
-      console.log(response.json())
-  
-      /*if (!response.ok) {
-        const errorResData = await response.json();
-        const errorId = errorResData.error.message;
-        let message = 'Something went wrong!';
-        if (errorId === 'EMAIL_EXISTS') {
-          message = 'This email exists already!';
-        }
-        throw new Error(message);
+      const responseData = await response.json();
+    
+      if (!responseData.success) {
+        throw new Error(responseData.message);
       }
   
-      const resData = await response.json();
-      console.log(resData);
-
       dispatch(
         authenticate(
-          resData.localId,
-          resData.idToken,
-          parseInt(resData.expiresIn) *1000
+          responseData.token
         )
       );
-      saveDataToStorage(resData.idToken, resData.localId, expirationDate);*/
+      saveDataToStorage(responseData.token);
     };
   };
   
 
 export const loginUser = (email, password)=>{
-    const loginUrl = baseUrl + "login/";
+    const loginUrl = baseUrl + "auth/login/";
 
     return async dispatch=>{
         const response = await fetch(loginUrl,{
@@ -125,64 +126,43 @@ export const loginUser = (email, password)=>{
                 'Access-Control-Allow-Origin' : '*'
             },
             body: JSON.stringify({
-                email,
-                password
+                email:email,
+                password:password
             })
 
         });
-        console.log(response.json());
-        /*if (!response.ok) {
-            const errorResData = await response.json();
-            const errorId = errorResData.error.message;
-            console.log(errorId)
-            let message = 'Something went wrong!';
+        const responseData = await response.json();
+        console.log(responseData);
+    
+        if (!responseData.success) {
+          throw new Error(responseData.message);
+        }
 
-            if (errorId === 'EMAIL_NOT_FOUND') {
-              message = 'This email could not be found!';
-            } else if (errorId === 'INVALID_PASSWORD') {
-              message = 'This password is not valid!';
-            }
-            throw new Error(message);
-          }
-        
-          const resData = await response.json();
-          console.log(resData);
-          dispatch(
-            authenticate(
-              resData.localId,
-              resData.idToken,
-              parseInt(resData.expiresIn) *1000
-            )
-          );
-          saveDataToStorage(resData.idToken, resData.localId, expirationDate);*/
+        if(!responseData.is_verified){
+          dispatch({
+            type : VERIFY_OTP_FAILED
+          })
+        }
+
+        dispatch(
+          authenticate(
+            responseData.token
+          )
+        );
+        saveDataToStorage(responseData.token);
     }
 }
 
 export const logoutUser = ()=>{
-  AsyncStorage.removeItem('userData');
+  AsyncStorage.removeItem('jwtToken');
   return ({ type : LOGOUT_USER })
 }
 
-const clearLogoutTimer = () => {
-  if (timer) {
-    clearTimeout(timer);
-  }
-};
-
-const setLogoutTimer = expirationTime => {
-  return dispatch => {
-    timer = setTimeout(() => {
-      dispatch(logoutUser());
-    }, expirationTime);
-  };
-};
-
-const saveDataToStorage = (token, user) => {
+const saveDataToStorage = (token) => {
   AsyncStorage.setItem(
-    'userData',
+    'jwtToken',
     JSON.stringify({
-      token: token,
-      user: user
+      token: token
     })
   );
 };

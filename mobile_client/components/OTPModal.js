@@ -7,7 +7,7 @@ import {
   Modal,
   Text
 } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import * as productsActions from '../redux/actions/auth';
 import Input from '../components/Input';
 
@@ -15,6 +15,7 @@ import Input from '../components/Input';
 const OTPModal=props => {
   const dispatch = useDispatch();
   const [otp,setOtp] = useState("");
+  const token = useSelector(state=>state.auth.token)
   const onInputChange = (text)=>{
     setOtp(text);
   }
@@ -22,13 +23,11 @@ const OTPModal=props => {
   const { open,toggleModal } = props
 
   useEffect(()=>{
-    
-    if(open){
+    if(open && token){
       console.log('Sending OTP Request...');
-      //dispatch(productsActions.getOtp());
-    }
-      
-  },[open])
+      dispatch(productsActions.getOtp(token));
+    } 
+  },[open,token])
 
   
   const submitHandler = useCallback(() => {
@@ -76,7 +75,7 @@ const OTPModal=props => {
                       color={Colors.primary}
                       title="Cancel"
                       onPress={() => {
-                      props.toggleModal();
+                      toggleModal();
                     }}/>
                  </View>
               </View>  

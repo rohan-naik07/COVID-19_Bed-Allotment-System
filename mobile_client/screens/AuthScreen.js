@@ -9,7 +9,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import OTPModal from '../components/OTPModal'
 import Input from '../components/Input';
 import Card from '../components/Card';
@@ -47,6 +47,7 @@ const AuthScreen = props => {
   const [error, setError] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
+  const isVerified = useSelector(state=>state.auth.otpVerified);
   const dispatch = useDispatch();
 
   const [formState, dispatchFormState] = useReducer(formReducer, {
@@ -56,7 +57,7 @@ const AuthScreen = props => {
       firstName : '',
       lastName : '',
       weight : 0,  // initialized input state values
-      number : 0,
+      contact : 0,
       birthDate : "2016-05-15"
     },
     inputValidities: {
@@ -65,7 +66,8 @@ const AuthScreen = props => {
       firstName : false,
       lastName : false,// initialized input state validities
       weight : false,
-      number : false
+      number : false,
+      birthDate : false
     },
     formIsValid: false
   });
@@ -78,13 +80,14 @@ const AuthScreen = props => {
 
   const authHandler = async () => {
     let action;
+    console.log(formState.inputValues)
     if (isSignup) {
       action = authActions.signup(
         formState.inputValues.firstName,
         formState.inputValues.lastName,
         formState.inputValues.email,
         formState.inputValues.password,
-        formState.inputValues.number,
+        formState.inputValues.contact,
         formState.inputValues.birthDate,
         formState.inputValues.weight
       );
@@ -98,7 +101,11 @@ const AuthScreen = props => {
     //setIsLoading(true);
     try {
       await dispatch(action);
-      setModalVisible(true);
+      if(!isSignup && !isVerified){
+        setModalVisible(true);
+      }
+      if(isSignup)
+        setModalVisible(true);
     } catch (err) {
       setError(err.message);
       setIsLoading(false);
@@ -117,14 +124,6 @@ const AuthScreen = props => {
     },
     [dispatchFormState]
   );
-
-  /*
-  <OTPModal 
-      open={modalVisible} 
-      toggleModal={()=>{
-          setModalVisible(!modalVisible);   
-      }}>
-  */
 
   return (
     <View
@@ -163,9 +162,9 @@ const AuthScreen = props => {
               initialValue=""
             />
 
-{isSignup ? 
+          {isSignup ? 
             <Input
-              id="fname"
+              id="firstName"
               label="First Name"
               required
               autoCapitalize="none"
@@ -175,7 +174,7 @@ const AuthScreen = props => {
             /> : <View></View> }
             {isSignup ? 
               <Input
-              id="lname"
+              id="lastName"
               label="Last Name"
               required
               autoCapitalize="none"
@@ -232,26 +231,28 @@ const AuthScreen = props => {
                   type: FORM_INPUT_UPDATE,
                   value: date,
                   isValid: true,
-                  input: "date"
+                  input: "birthDate"
                 });
               }}
             /> : null
             }
          
             <View style={{...styles.buttonContainer,...{
-              borderColor : Colors.primary,
+              backgroundColor : Colors.blue,
               borderWidth : 1
             }}}>
               {isLoading ? (
                 <ActivityIndicator size="small" color={Colors.primary} />
               ) : (
                 <TouchableOpacity onPress={authHandler}>
-                  <Text style={styles.textContainer}>{isSignup ? 'Sign Up' : 'Login'}</Text>
+                  <Text style={{...styles.textContainer,...{
+                    color : 'white'
+                  }}}>{isSignup ? 'Sign Up' : 'Login'}</Text>
                 </TouchableOpacity>
               )}
             </View>
             <View style={{...styles.buttonContainer,...{
-              borderColor : Colors.accent,
+              backgroundColor : Colors.accent,
               borderWidth : 1
             }}}>
             <TouchableOpacity  onPress={() => {
@@ -268,7 +269,7 @@ const AuthScreen = props => {
 };
 
 AuthScreen.navigationOptions = {
-  headerTitle: 'Welcome'
+  headerTitle: 'Covid Bed Allotment'
 };
 
 const styles = StyleSheet.create({
@@ -281,9 +282,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   authContainer: {
-    width: '90%',
+    width: '100%',
     maxWidth: 400,
-    maxHeight: 400,
+    maxHeight: 500,
     padding: 20
   },
   textContainer:{
