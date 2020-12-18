@@ -16,6 +16,7 @@ import Card from '../components/Card';
 import Colors from '../constants/Colors';
 import * as authActions from '../redux/actions/auth';
 import DatePicker from 'react-native-datepicker'
+import Snackbar from 'react-native-snackbar';
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
 
@@ -78,6 +79,12 @@ const AuthScreen = props => {
     }
   }, [error]);
 
+  useEffect(()=>{
+    if(isVerified){
+      props.navigation.navigate('Home')
+    }
+  },[isVerified])
+
   const authHandler = async () => {
     let action;
     console.log(formState.inputValues)
@@ -98,15 +105,24 @@ const AuthScreen = props => {
       );
     }
     setError(null);
-    //setIsLoading(true);
+    setIsLoading(true);
     try {
-      await dispatch(action);
-      if(!isSignup && !isVerified){
-        setModalVisible(true);
-      }
       if(isSignup)
         setModalVisible(true);
+      await dispatch(action);
+      setIsLoading(false);
+      if(isSignup)
+        Snackbar.show({
+          text: 'User Registered Sucessfully',
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      else 
+        Snackbar.show({
+          text: 'Logged In Successfully',
+          duration: Snackbar.LENGTH_SHORT,
+        });
     } catch (err) {
+      setModalVisible(false)
       setError(err.message);
       setIsLoading(false);
     }
@@ -125,12 +141,20 @@ const AuthScreen = props => {
     [dispatchFormState]
   );
 
+  if(error){
+    //snackbar
+    console.log(error)
+  }
+
+
   return (
     <View
       style={styles.screen}>
         <LinearGradient colors={['white', 'white']} style={styles.gradient}>
         <OTPModal 
-      open={modalVisible} 
+      open={modalVisible}
+      navigation = {props.navigation}
+      isSignup = {isSignup} 
       toggleModal={()=>{
           setModalVisible(!modalVisible);   
       }}/>
@@ -242,7 +266,7 @@ const AuthScreen = props => {
               borderWidth : 1
             }}}>
               {isLoading ? (
-                <ActivityIndicator size="small" color={Colors.primary} />
+                <ActivityIndicator size="small" color={Colors.accent} />
               ) : (
                 <TouchableOpacity onPress={authHandler}>
                   <Text style={{...styles.textContainer,...{

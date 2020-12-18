@@ -1,11 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useSelector} from 'react-redux';
 export const AUTHENTICATE = 'AUTHENTICATE'; 
 export const LOGOUT_USER = 'LOGOUT_USER';
 export const VERIFY_OTP_PASSED = 'VERIFY_OTP_PASSED';
 export const VERIFY_OTP_FAILED = 'VERIFY_OTP_FAILED'
 
-const baseUrl = "http://192.168.0.35:8000/";
+const baseUrl = "http://192.168.1.100:8000/";
 
 export const authenticate = (token) => {
   return dispatch => {
@@ -20,11 +19,11 @@ export const getOtp = (token)=>{
   return async ()=>{
     console.log(token)
     const response = await fetch(
-      "http://192.168.0.35:8000/auth/verify/",
+       baseUrl + "auth/verify/",
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization' : `Bearer ${token.toString()}`, // otp sent to mail
+          'Authorization' : `Token ${token.toString()}`, // otp sent to mail
           'Access-Control-Allow-Origin' : '*'
         }
       }
@@ -37,8 +36,8 @@ export const getOtp = (token)=>{
   }
 }
 
-export const verifyOtp = (otp)=>{
-  const token = useSelector(state=>state.auth.token)
+export const verifyOtp = (otp,token)=>{
+ 
   return async dispatch=>{
     const response = await fetch(
       baseUrl + "auth/verify/",
@@ -46,7 +45,7 @@ export const verifyOtp = (otp)=>{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization' : "Bearer " + token,
+          'Authorization' : `Token ${token.toString()}`, // otp sent to mail
           'Access-Control-Allow-Origin' : '*'
         },
         body: JSON.stringify({
@@ -56,7 +55,7 @@ export const verifyOtp = (otp)=>{
     );
 
     const responseData = await response.json();
-    
+    console.log(responseData);
     if (!responseData.success) {
       dispatch({
         type : VERIFY_OTP_FAILED
@@ -142,8 +141,13 @@ export const loginUser = (email, password)=>{
           dispatch({
             type : VERIFY_OTP_FAILED
           })
+        } else{
+          console.log('User is verified')
+          dispatch({
+            type : VERIFY_OTP_PASSED
+          })
         }
-
+        
         dispatch(
           authenticate(
             responseData.token

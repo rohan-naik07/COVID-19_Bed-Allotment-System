@@ -1,61 +1,129 @@
 import Colors from '../constants/Colors';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState,useReducer} from 'react';
 import {
   Button,
   StyleSheet,
   View,
   Modal,
-  Text
+  Text,
+  ActivityIndicator,
+  TextInput
 } from 'react-native';
 import { useDispatch,useSelector } from 'react-redux';
 import * as productsActions from '../redux/actions/auth';
 import Input from '../components/Input';
+import Snackbar from 'react-native-snackbar';
 
 
 const OTPModal=props => {
   const dispatch = useDispatch();
+  const [error,setError] = useState(null);
   const [otp,setOtp] = useState("");
+  const [loading,setLoading] = useState(false);
   const token = useSelector(state=>state.auth.token)
-  const onInputChange = (text)=>{
-    setOtp(text);
-  }
+  const isVerified = useSelector(state=>state.auth.otpVerified)
 
-  const { open,toggleModal } = props
+  const { open,toggleModal,isSignUp } = props
 
   useEffect(()=>{
-    if(open && token){
-      console.log('Sending OTP Request...');
-      dispatch(productsActions.getOtp(token));
-    } 
+    const sendOtp = async ()=>{
+      if(open && token){
+        console.log('Sending OTP Request...');
+        Snackbar.show({
+          text: 'Hello world',
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        try{
+          setLoading(true);
+          await dispatch(productsActions.getOtp(token));
+        } catch (e){
+          setError(e.message);
+        }
+        setLoading(false);
+      } 
+    }
+    sendOtp();
+
   },[open,token])
 
-  
-  const submitHandler = useCallback(() => {
-    dispatch(productsActions.verifyOtp(parseInt(otp)));
-  }, [dispatch]);
+  const cancelHandler = useCallback(() => {
+    if(isSignUp){
+      props.navigation.navigate("Home")
+      return;
+    }
+    if(token ){
+      console.log("LOGOUT")
+      dispatch(productsActions.logoutUser())
+    }
+    toggleModal();
+    //snackbar
+  },[dispatch,token,toggleModal,isSignUp])
 
-     return(
+  useEffect(() => {
+    if (error) {
+      Alert.alert('An Error Occurred!', error, [{ text: 'Okay' }]);
+    }
+  }, [error]);
+
+  const submitHandler = async () => {
+    console.log(otp)
+    try{
+      setLoading(true);
+      await dispatch(productsActions.verifyOtp(parseInt(otp),token));
+      Snackbar.show({
+        text: 'Otp Verified Sucessfully',
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    } catch (e){
+      setLoading(false);
+      setError(e.message);
+      console.log(e.message)
+      return;
+    }
+    setLoading(false);
+    props.navigation.navigate('Home')
+  }
+
+
+  if(loading && open){
+    //snackbar
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={open}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+          <ActivityIndicator size="small" color={Colors.accent} />
+          </View>
+        </View>
+      </Modal>
+    )
+  }
+
+  
+
+  return(
       <Modal
           animationType="fade"
           transparent={true}
-          visible={props.open}>
-
+          visible={open}>
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <View style={styles.modalHeader}>
                 <Text style={styles.textHeader}>Verify OTP</Text>
               </View>
-              
-              <Input
-                id="OTP"
-                label="We have emailed you an OTP. Please provide it below"
-                errorText="Please enter a valid price!"
-                keyboardType="decimal-pad"
-                returnKeyType="next"
-                initialValue = {0}
-                onInputChange={onInputChange}
-                required
-              />
+
+              <View style={styles.formControl}>
+                <Text style={styles.label}>We have emailed you an OTP. Please provide it below</Text>
+                  <TextInput
+                    keyboardType="decimal-pad"
+                    returnKeyType="next"
+                    style={styles.input}
+                    value={otp}
+                    onChangeText={text=>setOtp(text)}
+                  />
+              </View>
 
               <View style={{
                 flexDirection:'row',
@@ -66,17 +134,15 @@ const OTPModal=props => {
               }}>
                 <View style={{...styles.button,...styles.submit}}>
                     <Button
-                      color={Colors.accent}
+                      color={Colors.blue}
                       title="Verify"
                       onPress={submitHandler}/>
                   </View>
                   <View style={{...styles.button,...styles.submit}}>
                     <Button
-                      color={Colors.primary}
+                      color={Colors.accent}
                       title="Cancel"
-                      onPress={() => {
-                      toggleModal();
-                    }}/>
+                      onPress={cancelHandler}/>
                  </View>
               </View>  
             </View>
@@ -126,7 +192,6 @@ const OTPModal=props => {
       },
       modalHeader : {
         borderWidth : 1,
-        borderColor : Colors.primary,
         borderRadius : 20,
         padding : 10
       },
