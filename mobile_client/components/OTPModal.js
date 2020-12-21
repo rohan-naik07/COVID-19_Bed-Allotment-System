@@ -11,8 +11,6 @@ import {
 } from 'react-native';
 import { useDispatch,useSelector } from 'react-redux';
 import * as productsActions from '../redux/actions/auth';
-import Input from '../components/Input';
-import Snackbar from 'react-native-snackbar';
 
 
 const OTPModal=props => {
@@ -21,18 +19,12 @@ const OTPModal=props => {
   const [otp,setOtp] = useState("");
   const [loading,setLoading] = useState(false);
   const token = useSelector(state=>state.auth.token)
-  const isVerified = useSelector(state=>state.auth.otpVerified)
 
   const { open,toggleModal,isSignUp } = props
 
   useEffect(()=>{
     const sendOtp = async ()=>{
       if(open && token){
-        console.log('Sending OTP Request...');
-        Snackbar.show({
-          text: 'Hello world',
-          duration: Snackbar.LENGTH_SHORT,
-        });
         try{
           setLoading(true);
           await dispatch(productsActions.getOtp(token));
@@ -70,10 +62,6 @@ const OTPModal=props => {
     try{
       setLoading(true);
       await dispatch(productsActions.verifyOtp(parseInt(otp),token));
-      Snackbar.show({
-        text: 'Otp Verified Sucessfully',
-        duration: Snackbar.LENGTH_SHORT,
-      });
     } catch (e){
       setLoading(false);
       setError(e.message);
@@ -94,7 +82,10 @@ const OTPModal=props => {
         visible={open}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-          <ActivityIndicator size="small" color={Colors.accent} />
+            <View style={{width : '100%'}}>
+              <ActivityIndicator size="small" color={Colors.accent} />
+              <Text style={{textAlign : 'center'}}>Sending OTP....</Text>
+            </View>
           </View>
         </View>
       </Modal>
@@ -113,7 +104,6 @@ const OTPModal=props => {
               <View style={styles.modalHeader}>
                 <Text style={styles.textHeader}>Verify OTP</Text>
               </View>
-
               <View style={styles.formControl}>
                 <Text style={styles.label}>We have emailed you an OTP. Please provide it below</Text>
                   <TextInput

@@ -16,7 +16,6 @@ import Card from '../components/Card';
 import Colors from '../constants/Colors';
 import * as authActions from '../redux/actions/auth';
 import DatePicker from 'react-native-datepicker'
-import Snackbar from 'react-native-snackbar';
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
 
@@ -87,7 +86,6 @@ const AuthScreen = props => {
 
   const authHandler = async () => {
     let action;
-    console.log(formState.inputValues)
     if (isSignup) {
       action = authActions.signup(
         formState.inputValues.firstName,
@@ -110,17 +108,6 @@ const AuthScreen = props => {
       if(isSignup)
         setModalVisible(true);
       await dispatch(action);
-      setIsLoading(false);
-      if(isSignup)
-        Snackbar.show({
-          text: 'User Registered Sucessfully',
-          duration: Snackbar.LENGTH_SHORT,
-        });
-      else 
-        Snackbar.show({
-          text: 'Logged In Successfully',
-          duration: Snackbar.LENGTH_SHORT,
-        });
     } catch (err) {
       setModalVisible(false)
       setError(err.message);
@@ -130,7 +117,6 @@ const AuthScreen = props => {
 
   const inputChangeHandler = useCallback(
     (inputIdentifier, inputValue, inputValidity) => {
-      console.log(inputValue)
       dispatchFormState({
         type: FORM_INPUT_UPDATE,
         value: inputValue,
@@ -140,11 +126,6 @@ const AuthScreen = props => {
     },
     [dispatchFormState]
   );
-
-  if(error){
-    //snackbar
-    console.log(error)
-  }
 
 
   return (
@@ -260,7 +241,7 @@ const AuthScreen = props => {
               }}
             /> : null
             }
-         
+          <TouchableOpacity onPress={authHandler}>
             <View style={{...styles.buttonContainer,...{
               backgroundColor : Colors.blue,
               borderWidth : 1
@@ -268,23 +249,24 @@ const AuthScreen = props => {
               {isLoading ? (
                 <ActivityIndicator size="small" color={Colors.accent} />
               ) : (
-                <TouchableOpacity onPress={authHandler}>
+                
                   <Text style={{...styles.textContainer,...{
                     color : 'white'
                   }}}>{isSignup ? 'Sign Up' : 'Login'}</Text>
-                </TouchableOpacity>
+               
               )}
             </View>
+            </TouchableOpacity>
+            <TouchableOpacity  onPress={() => {
+                  setIsSignup(prevState => !prevState);
+                }}>
             <View style={{...styles.buttonContainer,...{
               backgroundColor : Colors.accent,
               borderWidth : 1
             }}}>
-            <TouchableOpacity  onPress={() => {
-                  setIsSignup(prevState => !prevState);
-                }}>
               <Text style={styles.textContainer}>{`Switch to ${isSignup ? 'Login' : 'Sign Up'}`}</Text>
-            </TouchableOpacity>
             </View>
+            </TouchableOpacity>
           </ScrollView>
         </Card>
       </LinearGradient>

@@ -4,7 +4,7 @@ export const LOGOUT_USER = 'LOGOUT_USER';
 export const VERIFY_OTP_PASSED = 'VERIFY_OTP_PASSED';
 export const VERIFY_OTP_FAILED = 'VERIFY_OTP_FAILED'
 
-const baseUrl = "http://192.168.1.100:8000/";
+const baseUrl = "http://192.168.1.101:8000/";
 
 export const authenticate = (token) => {
   return dispatch => {
@@ -17,7 +17,6 @@ export const authenticate = (token) => {
 
 export const getOtp = (token)=>{
   return async ()=>{
-    console.log(token)
     const response = await fetch(
        baseUrl + "auth/verify/",
       {
@@ -55,7 +54,6 @@ export const verifyOtp = (otp,token)=>{
     );
 
     const responseData = await response.json();
-    console.log(responseData);
     if (!responseData.success) {
       dispatch({
         type : VERIFY_OTP_FAILED
@@ -131,7 +129,6 @@ export const loginUser = (email, password)=>{
 
         });
         const responseData = await response.json();
-        console.log(responseData);
     
         if (!responseData.success) {
           throw new Error(responseData.message);
