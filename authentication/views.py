@@ -58,6 +58,7 @@ class LoginView(APIView):
                 'success': True,
                 'is_verified': serializer.data.get('is_verified')
             }
+            print(serializer.data.get('token'))
             return Response(context, status=status.HTTP_200_OK)
 
         context = {
@@ -89,7 +90,7 @@ class VerifyView(APIView):
                 f"Dear {request.user.first_name} {request.user.last_name},\nThe One Time Password required for "
                 f"verification of email provided - {request.user.email} is given below.\n\nOTP : {otp.otp}\nThank you",
                 settings.EMAIL_HOST_USER,
-                ["newalkarpranjal2410.pn@gmail.com"],
+                ["rohan.nn1203@gmail.com"],
                 fail_silently=False
             )
             context = {
@@ -107,6 +108,7 @@ class VerifyView(APIView):
     def post(self, request):
         user = request.user
         key = request.data.get('otp')
+        print(key)
         try:
             otp = OTP.objects.get(user=user, otp=key)
             user.is_verified = True
@@ -121,4 +123,4 @@ class VerifyView(APIView):
                 'message': 'OTP entered is incorrect!',
                 'success': False,
             }
-            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(context, status=status.HTTP_406_NOT_ACCEPTABLE)

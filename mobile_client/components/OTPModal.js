@@ -44,7 +44,6 @@ const OTPModal=props => {
       return;
     }
     if(token ){
-      console.log("LOGOUT")
       dispatch(productsActions.logoutUser())
     }
     toggleModal();

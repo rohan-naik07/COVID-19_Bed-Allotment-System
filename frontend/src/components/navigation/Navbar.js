@@ -7,6 +7,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
+import Button from '@material-ui/core/Button';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -19,12 +20,20 @@ import {getCookie, getToken} from "../authentication/cookies";
 import {Login} from "../authentication/Login";
 import {SignUp} from "../authentication/SignUp";
 import {OTP} from "../authentication/OTP";
+import Badge from '@material-ui/core/Badge';
+import MailIcon from '@material-ui/icons/Mail';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Hidden from "@material-ui/core/Hidden";
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
     root: {
         display: 'flex',
+    },
+    grow: {
+        flexGrow: 1,
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
@@ -33,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
     },
     menuButton: {
         marginRight: theme.spacing(2),
+    },
+    space : {
+        marginRight: theme.spacing(3),
     },
     drawer: {
         width: drawerWidth,
@@ -43,6 +55,12 @@ const useStyles = makeStyles((theme) => ({
     },
     drawerContainer: {
         overflow: 'auto',
+    },
+    sectionDesktop: {
+        display: 'none',
+        [theme.breakpoints.up('md')]: {
+          display: 'flex',
+        },
     },
     content: {
         flexGrow: 1,
@@ -70,7 +88,13 @@ export default function ClippedDrawer() {
     const [loggedIn, setLoggedIn] = React.useState(false);
     const [logout, setLogout] = React.useState(false);
     const [otp, setOTP] = React.useState(false);
+    const [anchorEl, setAnchorEl] = React.useState(null);
 
+    const handleProfileMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    
+    const menuId = 'primary-search-account-menu';
     useEffect(() => {
         let token = getToken();
         if (token !== '') {
@@ -85,7 +109,7 @@ export default function ClippedDrawer() {
         <div className={classes.root}>
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
-                <Toolbar>
+                <Toolbar variant='dense'> 
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"
@@ -98,7 +122,37 @@ export default function ClippedDrawer() {
                     <Typography variant="h6" noWrap>
                         COBAS
                     </Typography>
+                    <div className={classes.space}/>
+                    <Hidden smDown>
+                        <Tabs value={0} indicatorColor="primary" textColor="primary" className={classes.tabs}>
+                            <Tab label="Home" />
+                            <Tab label="About Us" />
+                            {loggedIn?(
+                                <Tab label="Search" />
+                            ):null}
+                        </Tabs>
+                    </Hidden>
+                    <div className={classes.grow} />
+                    {!loggedIn ? 
+                    <div className={classes.sectionDesktop}>
+                    <IconButton aria-label="show 4 new mails" color="inherit">
+                    <Badge color="secondary">
+                        <MailIcon />
+                    </Badge>
+                    </IconButton>
+                    <IconButton
+                    edge="end"
+                    aria-label="account of current user"
+                    aria-controls={menuId}
+                    aria-haspopup="true"
+                    onClick={handleProfileMenuOpen}
+                    color="inherit"
+                    >
+                    <AccountCircle />
+                    </IconButton>
+                </div> : null} 
                 </Toolbar>
+                
             </AppBar>
             <Drawer
                 className={classes.drawer}
