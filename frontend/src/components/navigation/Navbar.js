@@ -7,15 +7,13 @@ import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import Button from '@material-ui/core/Button';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from '@material-ui/icons/Menu';
 import clsx from "clsx";
-import {AccountCircle, ExitToApp, LockOpen, People} from "@material-ui/icons";
+import {AccountCircle, LockOpen} from "@material-ui/icons";
 import {getCookie, getToken} from "../authentication/cookies";
 import {Login} from "../authentication/Login";
 import {SignUp} from "../authentication/SignUp";
@@ -25,6 +23,10 @@ import MailIcon from '@material-ui/icons/Mail';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Hidden from "@material-ui/core/Hidden";
+import {Logout} from "../authentication/Logout";
+import {Switch, Route, useHistory, useLocation} from "react-router";
+import Home from "../home/Home";
+import About from "../about/About";
 
 const drawerWidth = 240;
 
@@ -88,22 +90,46 @@ export default function ClippedDrawer() {
     const [loggedIn, setLoggedIn] = React.useState(false);
     const [logout, setLogout] = React.useState(false);
     const [otp, setOTP] = React.useState(false);
-    const [anchorEl, setAnchorEl] = React.useState(null);
-
-    const handleProfileMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
+    const [tab, setTab] = React.useState(0);
+    const location = useLocation();
+    const history = useHistory();
     
     const menuId = 'primary-search-account-menu';
     useEffect(() => {
         let token = getToken();
-        if (token !== '') {
+        if(token !== '') {
             setLoggedIn(true);
-            if (getCookie('verification')) {
+            if(getCookie('verification'))
+            {
                 setOTP(true);
             }
         }
-    }, [])
+        const path = location.pathname;
+        switch (path) {
+            case '/':
+                setTab(0);
+                break;
+            case '/about':
+                setTab(1);
+                break;
+            default:
+                setTab(null);
+        }
+    }, [location, login, signUp, logout])
+
+    const handleTabChange = (event, newTab) => {
+        setTab(newTab);
+        switch(newTab) {
+            case 0:
+                history.push('/');
+                break;
+            case 1:
+                history.push('/about');
+                break;
+            default:
+                history.push('/');
+        }
+    };
 
     return (
         <div className={classes.root}>
@@ -124,35 +150,30 @@ export default function ClippedDrawer() {
                     </Typography>
                     <div className={classes.space}/>
                     <Hidden smDown>
-                        <Tabs value={0} indicatorColor="primary" textColor="primary" className={classes.tabs}>
+                        <Tabs value={tab} indicatorColor="primary" textColor="primary" onChange={handleTabChange}>
                             <Tab label="Home" />
                             <Tab label="About Us" />
-                            {loggedIn?(
-                                <Tab label="Search" />
-                            ):null}
                         </Tabs>
                     </Hidden>
                     <div className={classes.grow} />
                     {!loggedIn ? 
                     <div className={classes.sectionDesktop}>
-                    <IconButton aria-label="show 4 new mails" color="inherit">
-                    <Badge color="secondary">
-                        <MailIcon />
-                    </Badge>
-                    </IconButton>
-                    <IconButton
-                    edge="end"
-                    aria-label="account of current user"
-                    aria-controls={menuId}
-                    aria-haspopup="true"
-                    onClick={handleProfileMenuOpen}
-                    color="inherit"
-                    >
-                    <AccountCircle />
-                    </IconButton>
-                </div> : null} 
+                        <IconButton aria-label="show 4 new mails" color="inherit">
+                            <Badge color="secondary">
+                                <MailIcon />
+                            </Badge>
+                        </IconButton>
+                        <IconButton
+                            edge="end"
+                            aria-label="account of current user"
+                            aria-controls={menuId}
+                            aria-haspopup="true"
+                            color="inherit"
+                        >
+                            <AccountCircle />
+                        </IconButton>
+                    </div> : null}
                 </Toolbar>
-                
             </AppBar>
             <Drawer
                 className={classes.drawer}
@@ -163,53 +184,44 @@ export default function ClippedDrawer() {
                     paper: classes.drawerPaper,
                 }}
             >
-                <Toolbar />
+                <Toolbar variant='dense' />
                 <div className={classes.drawerContainer}>
-                    <List>
-                        <ListItem button key={'Login'} onClick={() => setLogin(true)}>
-                            <ListItemIcon><LockOpen /></ListItemIcon>
-                            <ListItemText primary={'Login'} />
-                        </ListItem>
-                        <ListItem button key={'SignUp'} onClick={() => setSignUp(true)}>
-                            <ListItemIcon><AccountCircle /></ListItemIcon>
-                            <ListItemText primary={'Sign Up'} />
-                        </ListItem>
-                    </List>
+                    {!loggedIn?(
+                        <List>
+                            <ListItem button key={'Login'} onClick={() => setLogin(true)}>
+                                <ListItemIcon><LockOpen /></ListItemIcon>
+                                <ListItemText primary={'Login'} />
+                            </ListItem>
+                            <ListItem button key={'SignUp'} onClick={() => setSignUp(true)}>
+                                <ListItemIcon><AccountCircle /></ListItemIcon>
+                                <ListItemText primary={'Sign Up'} />
+                            </ListItem>
+                        </List>
+                    ):(
+                        <List>
+                            <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
+                                <ListItemIcon><LockOpen /></ListItemIcon>
+                                <ListItemText primary={'Logout'} />
+                            </ListItem>
+                        </List>
+                    )}
                     <Divider />
                 </div>
             </Drawer>
             <Login open={login} setOpen={setLogin} setOTP={setOTP}/>
             <SignUp open={signUp} setOpen={setSignUp} otp={otp} setOTP={setOTP}/>
             <OTP open={otp} setOpen={setOTP} setLoggedIn={setLoggedIn}/>
+            <Logout open={logout} setOpen={setLogout} setLoggedIn={setLoggedIn}/>
             <main
                 className={clsx(classes.content, {
                     [classes.contentShift]: open,
                 })}
             >
-                <Toolbar />
-                <Typography paragraph>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                    ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-                    facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-                    gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-                    donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-                    adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-                    Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-                    imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-                    arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-                    donec massa sapien faucibus et molestie ac.
-                </Typography>
-                <Typography paragraph>
-                    Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
-                    facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
-                    tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
-                    consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-                    vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
-                    hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
-                    tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
-                    nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
-                    accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
-                </Typography>
+                <Toolbar variant='dense'/>
+                <Switch>
+                    <Route exact path='/' component={Home}/>
+                    <Route exact path='/about' component={About}/>
+                </Switch>
             </main>
         </div>
     );

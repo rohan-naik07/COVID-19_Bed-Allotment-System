@@ -73,10 +73,10 @@ export const Login = ({ open, setOpen, setOTP }) => {
                 setOpen(false);
                 enqueueSnackbar('Logged In Successfully!', { variant: 'success', key: 'login_success'})
                 setTimeout(() => closeSnackbar('login_success'), 5000)
-                if(!response.data.is_otp_verified)
+                if(!response.data.is_verified)
                 {
                     setOTP(true);
-                    setCookie(response.data.is_otp_verified, 'verification')
+                    setCookie(response.data.is_verified, 'verification')
                     enqueueSnackbar('Sending OTP...', {variant: 'info', key: 'send-otp'})
                     axios({
                         method: 'GET',
@@ -85,7 +85,7 @@ export const Login = ({ open, setOpen, setOTP }) => {
                             "Content-Type" : "application/json",
                             "Authorization": `Token ${getToken()}`,
                         },
-                        url: '/auth/verify-otp/'
+                        url: '/auth/verify/'
                     }).then(response => {
                         closeSnackbar('send-otp')
                         enqueueSnackbar('OTP sent to your email Successfully!', {variant: 'success', key: 'success-send'})

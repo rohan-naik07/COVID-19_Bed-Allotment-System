@@ -36,7 +36,7 @@ export const OTP = ({ open, setOpen, setLoggedIn }) => {
                 "Content-Type" : "application/json",
                 Authorization: `Token ${getToken()}`,
             },
-            url: '/auth/verify-otp/'
+            url: '/auth/verify/'
         }).then(response => {
             closeSnackbar('resend')
             enqueueSnackbar('Resent Successfully!', {variant: 'success', key: 'success-resend'})
@@ -68,7 +68,7 @@ export const OTP = ({ open, setOpen, setLoggedIn }) => {
             data: {
                 otp: state.verify,
             },
-            url: '/auth/verify-otp/'
+            url: '/auth/verify/'
         }).then(response => {
             document.cookie = "verification=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             closeSnackbar('verification')

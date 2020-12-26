@@ -7,7 +7,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useTheme from "@material-ui/core/styles/useTheme";
 import { useSnackbar } from "notistack";
-import {useHistory} from "react-router";
+import { useHistory } from "react-router";
 
 export const Logout = ({ open, setOpen, setLoggedIn }) => {
     const theme = useTheme();
