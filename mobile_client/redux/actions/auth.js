@@ -1,133 +1,169 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 export const AUTHENTICATE = 'AUTHENTICATE'; 
 export const LOGOUT_USER = 'LOGOUT_USER';
+export const VERIFY_OTP_PASSED = 'VERIFY_OTP_PASSED';
+export const VERIFY_OTP_FAILED = 'VERIFY_OTP_FAILED'
 
-let timer;
+const baseUrl = "http://192.168.1.101:8000/";
 
-export const authenticate = (userId, token, expiryTime) => {
+export const authenticate = (token) => {
   return dispatch => {
-    dispatch(setLogoutTimer(expiryTime));
-    dispatch({ type: AUTHENTICATE, userId: userId, token: token });
+    dispatch({ 
+      type: AUTHENTICATE,
+      token: token
+     });
   };
-};
+}
 
-export const signup = (email, password) => {
+export const getOtp = (token)=>{
+  return async ()=>{
+    const response = await fetch(
+       baseUrl + "auth/verify/",
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization' : `Token ${token.toString()}`, // otp sent to mail
+          'Access-Control-Allow-Origin' : '*'
+        }
+      }
+    );
+    const responseData = await response.json();
+
+    if (!responseData.success) {
+      throw new Error(responseData.message);
+    }
+  }
+}
+
+export const verifyOtp = (otp,token)=>{
+ 
+  return async dispatch=>{
+    const response = await fetch(
+      baseUrl + "auth/verify/",
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization' : `Token ${token.toString()}`, // otp sent to mail
+          'Access-Control-Allow-Origin' : '*'
+        },
+        body: JSON.stringify({
+          otp : otp  // otp verification request after entering mailed otp
+        })
+      }
+    );
+
+    const responseData = await response.json();
+    if (!responseData.success) {
+      dispatch({
+        type : VERIFY_OTP_FAILED
+      });
+      throw new Error(responseData.message);
+    }
+
+    dispatch({
+      type : VERIFY_OTP_PASSED
+    });
+  }
+}
+
+export const signup = (
+    firstName,
+    lastName,
+    email,
+   password,
+    number,
+    birthDate,
+    weight
+   ) => {
     return async dispatch => {
       const response = await fetch(
-        'signup endpoint',
+        baseUrl + "auth/register/",
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin' : '*'
           },
           body: JSON.stringify({
+            first_name : firstName,
+            last_name: lastName,
             email: email,
             password: password,
+            contact : number,
+            birthday : birthDate,
+            weight : weight
           })
         }
       );
-  
-      if (!response.ok) {
-        const errorResData = await response.json();
-        const errorId = errorResData.error.message;
-        let message = 'Something went wrong!';
-        if (errorId === 'EMAIL_EXISTS') {
-          message = 'This email exists already!';
-        }
-        throw new Error(message);
+      const responseData = await response.json();
+    
+      if (!responseData.success) {
+        throw new Error(responseData.message);
       }
   
-      const resData = await response.json();
-      console.log(resData);
-
       dispatch(
         authenticate(
-          resData.localId,
-          resData.idToken,
-          parseInt(resData.expiresIn) *1000
+          responseData.token
         )
       );
-      const expirationDate = new Date(
-        new Date().getTime() + parseInt(resData.expiresIn) * 1000 
-      );
-      saveDataToStorage(resData.idToken, resData.localId, expirationDate);
+      saveDataToStorage(responseData.token);
     };
   };
   
 
 export const loginUser = (email, password)=>{
-    const loginUrl = 
-    '';
+    const loginUrl = baseUrl + "auth/login/";
 
     return async dispatch=>{
         const response = await fetch(loginUrl,{
             method: 'POST',
             headers : {
-                'content-type' : 'application/json'
+                'content-type' : 'application/json',
+                'Access-Control-Allow-Origin' : '*'
             },
             body: JSON.stringify({
-                email,
-                password
+                email:email,
+                password:password
             })
 
         });
-        if (!response.ok) {
-            const errorResData = await response.json();
-            const errorId = errorResData.error.message;
-            console.log(errorId)
-            let message = 'Something went wrong!';
+        const responseData = await response.json();
+    
+        if (!responseData.success) {
+          throw new Error(responseData.message);
+        }
 
-            if (errorId === 'EMAIL_NOT_FOUND') {
-              message = 'This email could not be found!';
-            } else if (errorId === 'INVALID_PASSWORD') {
-              message = 'This password is not valid!';
-            }
-            throw new Error(message);
-          }
+        if(!responseData.is_verified){
+          dispatch({
+            type : VERIFY_OTP_FAILED
+          })
+        } else{
+          console.log('User is verified')
+          dispatch({
+            type : VERIFY_OTP_PASSED
+          })
+        }
         
-          const resData = await response.json();
-          console.log(resData);
-          dispatch(
-            authenticate(
-              resData.localId,
-              resData.idToken,
-              parseInt(resData.expiresIn) *1000
-            )
-          );
-          const expirationDate = new Date(
-            new Date().getTime() + parseInt(resData.expiresIn) * 1000 
-          );
-          saveDataToStorage(resData.idToken, resData.localId, expirationDate);
+        dispatch(
+          authenticate(
+            responseData.token
+          )
+        );
+        saveDataToStorage(responseData.token);
     }
 }
 
 export const logoutUser = ()=>{
-  clearLogoutTimer();
-  AsyncStorage.removeItem('userData');
+  AsyncStorage.removeItem('jwtToken');
   return ({ type : LOGOUT_USER })
 }
 
-const clearLogoutTimer = () => {
-  if (timer) {
-    clearTimeout(timer);
-  }
-};
-
-const setLogoutTimer = expirationTime => {
-  return dispatch => {
-    timer = setTimeout(() => {
-      dispatch(logoutUser());
-    }, expirationTime);
-  };
-};
-
-const saveDataToStorage = (token, userId, expirationDate) => {
+const saveDataToStorage = (token) => {
   AsyncStorage.setItem(
-    'userData',
+    'jwtToken',
     JSON.stringify({
-      token: token,
-      userId: userId,
-      expiryDate: expirationDate.toISOString()
+      token: token
     })
   );
 };

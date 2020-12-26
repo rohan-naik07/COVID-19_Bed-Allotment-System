@@ -15,16 +15,16 @@ const StartScreen = props =>{
 
     useEffect(()=>{
         const tryLogin = async () => { 
-            const userData = await AsyncStorage.getItem('userData');
-            if (!userData) {
+            const userToken = await AsyncStorage.getItem('jwtToken');
+            if (!userToken) {
               console.log('id absent')
                 props.navigation.navigate('Auth');
                 return;
               }
 
-              const transformedData = JSON.parse(userData);
-              const { token, userId, expiryDate } = transformedData;
-              const expirationDate = new Date(expiryDate);
+              const transformedData = JSON.parse(userToken);
+              const { token } = transformedData;
+              /*const expirationDate = new Date(expiryDate);
         
               if (expirationDate <= new Date() || !token || !userId) { // token expired or token/userid is null
                 console.log('token expired')
@@ -32,18 +32,18 @@ const StartScreen = props =>{
                 return;
               }
         
-              const expirationTime = expirationDate.getTime() - new Date().getTime(); // update the expiraation date
+              const expirationTime = expirationDate.getTime() - new Date().getTime(); // update the expiraation date*/
 
               console.log('id present')
               props.navigation.navigate('Home');
-              dispatch(authActions.authenticate(userId, token, expirationTime)); // store updated values to store
+              dispatch(authActions.authenticate(token)); // store updated values to store
         }
         tryLogin();
     },[dispatch])
 
     return (
         <View style={styles.screen}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={Colors.accent} />
       </View>
     )
     

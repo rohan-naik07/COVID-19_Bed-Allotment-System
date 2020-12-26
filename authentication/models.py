@@ -6,8 +6,8 @@ from django.utils import timezone
 # Create your models here.
 class User(AbstractUser):
     username = models.EmailField(unique=True)
-    birthday = models.DateField(auto_now=False, auto_now_add=False)
-    contact = models.PositiveBigIntegerField(unique=True)
+    birthday = models.DateField(auto_now=False, auto_now_add=False,null=True)
+    contact = models.PositiveBigIntegerField(unique=True,null=True)
     weight = models.FloatField(default=70)
     is_verified = models.BooleanField(default=False)
 

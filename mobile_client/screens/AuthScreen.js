@@ -9,12 +9,13 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useDispatch } from 'react-redux';
-
+import { useDispatch,useSelector } from 'react-redux';
+import OTPModal from '../components/OTPModal'
 import Input from '../components/Input';
 import Card from '../components/Card';
 import Colors from '../constants/Colors';
 import * as authActions from '../redux/actions/auth';
+import DatePicker from 'react-native-datepicker'
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
 
@@ -44,17 +45,29 @@ const formReducer = (state, action) => {
 const AuthScreen = props => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
+  const isVerified = useSelector(state=>state.auth.otpVerified);
   const dispatch = useDispatch();
 
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
       email: '',
-      password: ''
+      password: '',
+      firstName : '',
+      lastName : '',
+      weight : 0,  // initialized input state values
+      contact : 0,
+      birthDate : "2016-05-15"
     },
     inputValidities: {
       email: false,
-      password: false
+      password: false,
+      firstName : false,
+      lastName : false,// initialized input state validities
+      weight : false,
+      number : false,
+      birthDate : false
     },
     formIsValid: false
   });
@@ -65,12 +78,23 @@ const AuthScreen = props => {
     }
   }, [error]);
 
+  useEffect(()=>{
+    if(isVerified){
+      props.navigation.navigate('Home')
+    }
+  },[isVerified])
+
   const authHandler = async () => {
     let action;
     if (isSignup) {
       action = authActions.signup(
+        formState.inputValues.firstName,
+        formState.inputValues.lastName,
         formState.inputValues.email,
-        formState.inputValues.password
+        formState.inputValues.password,
+        formState.inputValues.contact,
+        formState.inputValues.birthDate,
+        formState.inputValues.weight
       );
     } else {
       action = authActions.loginUser(
@@ -81,9 +105,11 @@ const AuthScreen = props => {
     setError(null);
     setIsLoading(true);
     try {
-      //await dispatch(action);
-      props.navigation.navigate('Home');
+      if(isSignup)
+        setModalVisible(true);
+      await dispatch(action);
     } catch (err) {
+      setModalVisible(false)
       setError(err.message);
       setIsLoading(false);
     }
@@ -101,14 +127,21 @@ const AuthScreen = props => {
     [dispatchFormState]
   );
 
+
   return (
     <View
-      style={styles.screen}
-    >
-      <LinearGradient colors={['white', 'white']} style={styles.gradient}>
+      style={styles.screen}>
+        <LinearGradient colors={['white', 'white']} style={styles.gradient}>
+        <OTPModal 
+      open={modalVisible}
+      navigation = {props.navigation}
+      isSignup = {isSignup} 
+      toggleModal={()=>{
+          setModalVisible(!modalVisible);   
+      }}/>
         <Card style={styles.authContainer}>
-          <ScrollView>
-            <Input
+          <ScrollView >
+          <Input
               id="email"
               label="E-Mail"
               keyboardType="email-address"
@@ -124,35 +157,116 @@ const AuthScreen = props => {
               label="Password"
               keyboardType="default"
               secureTextEntry
+              password
               required
               minLength={5}
               autoCapitalize="none"
+              autoCompleteType = 'password'
               errorText="Please enter a valid password."
               onInputChange={inputChangeHandler}
               initialValue=""
             />
+
+          {isSignup ? 
+            <Input
+              id="firstName"
+              label="First Name"
+              required
+              autoCapitalize="none"
+              errorText="Please enter a valid name"
+              onInputChange={inputChangeHandler}
+              initialValue=""
+            /> : <View></View> }
+            {isSignup ? 
+              <Input
+              id="lastName"
+              label="Last Name"
+              required
+              autoCapitalize="none"
+              errorText="Please enter a valid name"
+              onInputChange={inputChangeHandler}
+              initialValue=""
+            /> : <View></View>}
+           
+            {isSignup ? 
+              <Input
+              id="contact"
+              label="Contact Number"
+              keyboardType="number-pad"
+              textContentType = 'telephoneNumber'
+              required
+              minLength={10}
+              autoCapitalize="none"
+              errorText="Please enter a valid contact Number"
+              onInputChange={inputChangeHandler}
+              initialValue=""
+            /> : <View></View>
+            }
+            {isSignup ? 
+              <Input
+              id="weight"
+              label="Weight"
+              keyboardType="number-pad"
+              required
+              autoCapitalize="none"
+              errorText="Please enter a valid weight"
+              onInputChange={inputChangeHandler}
+              initialValue=""
+            /> : <View></View>
+            }
+
+            {isSignup ? 
+            <DatePicker
+              style={{width: '100%',marginTop:10}}
+              mode="date"
+              placeholder="Select your Birth Date"
+              format="YYYY-MM-DD"
+              confirmBtnText="Confirm"
+              cancelBtnText="Cancel"
+              customStyles={{
+                dateIcon: {
+                  position: 'absolute',
+                  left: 0,
+                  top: 4,
+                  marginLeft: 0
+                }
+              }}
+              onDateChange={(date)=>{
+                dispatchFormState({
+                  type: FORM_INPUT_UPDATE,
+                  value: date,
+                  isValid: true,
+                  input: "birthDate"
+                });
+              }}
+            /> : null
+            }
+          <TouchableOpacity onPress={authHandler}>
             <View style={{...styles.buttonContainer,...{
-              borderColor : Colors.primary,
+              backgroundColor : Colors.blue,
               borderWidth : 1
             }}}>
               {isLoading ? (
-                <ActivityIndicator size="small" color={Colors.primary} />
+                <ActivityIndicator size="small" color={Colors.accent} />
               ) : (
-                <TouchableOpacity onPress={authHandler}>
-                  <Text style={styles.textContainer}>{isSignup ? 'Sign Up' : 'Login'}</Text>
-                </TouchableOpacity>
+                
+                  <Text style={{...styles.textContainer,...{
+                    color : 'white'
+                  }}}>{isSignup ? 'Sign Up' : 'Login'}</Text>
+               
               )}
             </View>
-            <View style={{...styles.buttonContainer,...{
-              borderColor : Colors.accent,
-              borderWidth : 1
-            }}}>
+            </TouchableOpacity>
             <TouchableOpacity  onPress={() => {
                   setIsSignup(prevState => !prevState);
                 }}>
+            <View style={{...styles.buttonContainer,...{
+              backgroundColor : Colors.accent,
+              borderWidth : 1
+            }}}>
               <Text style={styles.textContainer}>{`Switch to ${isSignup ? 'Login' : 'Sign Up'}`}</Text>
-            </TouchableOpacity>
             </View>
+            </TouchableOpacity>
           </ScrollView>
         </Card>
       </LinearGradient>
@@ -161,7 +275,7 @@ const AuthScreen = props => {
 };
 
 AuthScreen.navigationOptions = {
-  headerTitle: 'Welcome'
+  headerTitle: 'Covid Bed Allotment'
 };
 
 const styles = StyleSheet.create({
@@ -171,12 +285,12 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   authContainer: {
-    width: '80%',
+    width: '100%',
     maxWidth: 400,
-    maxHeight: 400,
+    maxHeight: 500,
     padding: 20
   },
   textContainer:{
