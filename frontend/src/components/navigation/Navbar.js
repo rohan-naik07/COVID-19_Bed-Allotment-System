@@ -17,6 +17,7 @@ import {AccountCircle, LockOpen} from "@material-ui/icons";
 import {getCookie, getToken} from "../authentication/cookies";
 import {Login} from "../authentication/Login";
 import {SignUp} from "../authentication/SignUp";
+import UserProfile from "../profile/UserProfile";
 import {OTP} from "../authentication/OTP";
 import Badge from '@material-ui/core/Badge';
 import MailIcon from '@material-ui/icons/Mail';
@@ -91,6 +92,14 @@ export default function ClippedDrawer() {
     const [logout, setLogout] = React.useState(false);
     const [otp, setOTP] = React.useState(false);
     const [tab, setTab] = React.useState(0);
+    const [openProfile, setOpenProfile] = React.useState(false);
+
+    const handleProfileClickOpen = () => {
+      setOpenProfile(true);
+    };
+    const handleProfileClose = () => {
+      setOpenProfile(false);
+    };
     const location = useLocation();
     const history = useHistory();
     
@@ -169,6 +178,7 @@ export default function ClippedDrawer() {
                             aria-controls={menuId}
                             aria-haspopup="true"
                             color="inherit"
+                            onClick = {handleProfileClickOpen}
                         >
                             <AccountCircle />
                         </IconButton>
@@ -212,6 +222,7 @@ export default function ClippedDrawer() {
             <SignUp open={signUp} setOpen={setSignUp} otp={otp} setOTP={setOTP}/>
             <OTP open={otp} setOpen={setOTP} setLoggedIn={setLoggedIn}/>
             <Logout open={logout} setOpen={setLogout} setLoggedIn={setLoggedIn}/>
+            <UserProfile open={openProfile} handleClose = {handleProfileClose}/>
             <main
                 className={clsx(classes.content, {
                     [classes.contentShift]: open,
