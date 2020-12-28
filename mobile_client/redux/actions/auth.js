@@ -4,7 +4,7 @@ export const LOGOUT_USER = 'LOGOUT_USER';
 export const VERIFY_OTP_PASSED = 'VERIFY_OTP_PASSED';
 export const VERIFY_OTP_FAILED = 'VERIFY_OTP_FAILED'
 
-const baseUrl = "http://192.168.1.101:8000/";
+const baseUrl = "http://192.168.1.100:8000/";
 
 export const authenticate = (token) => {
   return dispatch => {

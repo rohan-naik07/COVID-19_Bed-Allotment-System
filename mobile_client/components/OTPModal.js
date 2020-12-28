@@ -1,5 +1,5 @@
 import Colors from '../constants/Colors';
-import React, { useCallback, useEffect, useState,useReducer} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
   StyleSheet,
@@ -57,14 +57,12 @@ const OTPModal=props => {
   }, [error]);
 
   const submitHandler = async () => {
-    console.log(otp)
     try{
       setLoading(true);
       await dispatch(productsActions.verifyOtp(parseInt(otp),token));
     } catch (e){
       setLoading(false);
       setError(e.message);
-      console.log(e.message)
       return;
     }
     setLoading(false);

@@ -165,7 +165,7 @@ export default function ClippedDrawer() {
                         </Tabs>
                     </Hidden>
                     <div className={classes.grow} />
-                    {!loggedIn ? 
+                    {loggedIn ? 
                     <div className={classes.sectionDesktop}>
                         <IconButton aria-label="show 4 new mails" color="inherit">
                             <Badge color="secondary">

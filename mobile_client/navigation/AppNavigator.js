@@ -9,6 +9,7 @@ import Colors from '../constants/Colors';
 import StartScreen from '../screens/StartScreen';
 import AuthScreen from '../screens/AuthScreen';
 import HomeScreen from '../screens/HomeScreen';
+import UserProfileScreen from '../screens/UserProfileScreen'
 import * as authActions from '../redux/actions/auth';
 
 const defaultNavStyles = {
@@ -29,7 +30,8 @@ const AuthNavigator = createStackNavigator(
 
 const HomeNavigator = createStackNavigator(
     {
-        Home: HomeScreen
+        Home: HomeScreen,
+        Profile : UserProfileScreen
     },{
         navigationOptions: {
           drawerIcon: drawerConfig => (
