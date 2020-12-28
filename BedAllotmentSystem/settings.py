@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_jwt',
-    'authentication'
+    'authentication',
+    'portal'
 ]
-#APPEND_SLASH = False
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 MIDDLEWARE = [
