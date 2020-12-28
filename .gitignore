@@ -5,3 +5,4 @@ BedAllotmentSystem\settings.py
 .expo
 .vscode
 node_modules
+db.sqlite3
