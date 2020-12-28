@@ -253,7 +253,6 @@ const AuthScreen = props => {
                   <Text style={{...styles.textContainer,...{
                     color : 'white'
                   }}}>{isSignup ? 'Sign Up' : 'Login'}</Text>
-               
               )}
             </View>
             </TouchableOpacity>
@@ -275,7 +274,7 @@ const AuthScreen = props => {
 };
 
 AuthScreen.navigationOptions = {
-  headerTitle: 'Covid Bed Allotment'
+  headerTitle: 'COBAS'
 };
 
 const styles = StyleSheet.create({

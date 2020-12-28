@@ -17,12 +17,18 @@ const HomeScreen = props =>{
   const drawerHandler = useCallback(()=>{
     props.navigation.toggleDrawer();
 },[]) 
+const profileHandler = useCallback(()=>{
+  props.navigation.navigate('Profile');
+},[]) 
 
 useEffect(()=>{
   props.navigation.setParams({
       drawerHandler : drawerHandler
   })
-},[drawerHandler])
+  props.navigation.setParams({
+    profileHandler : profileHandler
+  })
+},[drawerHandler,profileHandler])
 
 useEffect(()=>{
   if(!token)
@@ -39,10 +45,16 @@ useEffect(()=>{
 
 HomeScreen.navigationOptions = navData=>{
   const drawerHandler = navData.navigation.getParam('drawerHandler');
+  const profileHandler = navData.navigation.getParam('profileHandler');
   return {
       headerLeft : ()=> <HeaderButtons HeaderButtonComponent={HeaderButton}>
           <Item title='Menu' 
           iconName='ios-menu'
+          onPress={drawerHandler}/>
+          </HeaderButtons>,
+       headerRight : ()=> <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item title='Profile' 
+          iconName='ios-contact'
           onPress={drawerHandler}/>
           </HeaderButtons>
   };
