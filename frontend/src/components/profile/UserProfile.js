@@ -77,7 +77,7 @@ const DialogContent = withStyles((theme) => ({
 export default function UserProfile(props) {
   const {open,handleClose} = props;
   const styles = useStyles();
-  const [spinner, setSpinner] = useState(false);
+  const [spinner, setSpinner] = useState(true);
   const [selectedDate, handleDateChange] = useState(new Date());
   const [values, setValues] = useState({
       first_name: '',
@@ -85,7 +85,7 @@ export default function UserProfile(props) {
       contact: null,
       email: '',
       birthday: '',
-      weight : ''});
+      weight : 0});
   const [editable,setEditable] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [errors, setErrors] = useState({
@@ -95,7 +95,7 @@ export default function UserProfile(props) {
   const setProfileEdit = ()=> setEditable(editable=>!editable);
  
 
-  /*useEffect(() => {
+  useEffect(() => {
           axios({
               method: 'GET',
               headers: {
@@ -103,24 +103,26 @@ export default function UserProfile(props) {
                   "Content-Type" : "application/json",
                   "Authorization": `Token ${getToken()}`,
               },
-              url: '/auth/profile/'
+              url: '/portal/patient-details/'
           }).then(res => {
               setValues({
-                  first_name: res.data.user_data.first_name,
-                  last_name: res.data.user_data.last_name,
-                  contact: res.data.user_data.contact,
-                  email: res.data.user_data.email,
-                  graduation: res.data.user_data.graduation,
-                  birthday: res.data.user_data.birthday
+                  first_name: res.data.data.first_name,
+                  last_name: res.data.data.last_name,
+                  contact: res.data.data.contact,
+                  email: res.data.data.email,
+                  graduation: res.data.data.graduation,
+                  birthday: res.data.data.birthday,
+                  weight: res.data.data.weight,
               });
-              handleDateChange(new Date(res.data.user_data.birthday));
+              handleDateChange(new Date(res.data.birthday));
+              console.log(res.data)
               return true;
           }).then(val => {
               setSpinner(false);
           }).catch(error => {
               console.log(error);
           })
-      }, [open])*/
+      }, [open])
 
       const handleChange = (e) => {
         setValues({
@@ -145,41 +147,42 @@ export default function UserProfile(props) {
                       <Typography variant='h4'>Loading your info...</Typography>
                     </Grid>
                   ) : (
-                    <div><Fade in={true} timeout={1000}>
-                     <Grid item xs={6}>
-                       <Paper className={styles.bannerBackground} elevation={0}>  
-                           <Avatar className={styles.avatar}>H</Avatar>
-                       </Paper>
-                       <Paper className={styles.paper} elevation={2}>       
-                         <TextField
-                             id="email"
-                             variant="outlined"
-                             label={values.email}
-                             type="text"
-                             defaultValue="Email"
-                             name="Email"
-                             margin="normal"
-                             style={{ marginLeft: "20px" }}
-                             disabled={!editable}
-                             error={errors.nameError || errors.editError}
-                             helperText={errors.nameError?"Enter a valid name":errors.editError?"Invalid credentials":null}
-                             onChange={handleChange}/>
-                         <TextField
-                             id="contact"
-                             variant="outlined"
-                             label={values.contact}
-                             type="number"
-                             name="Contact"
-                             margin="normal"
-                             defaultValue="Contact Number"
-                             autoFocus
-                             style={{ marginLeft: "20px" }}
-                             disabled={!editable}
-                             error={errors.nameError || errors.editError}
-                             helperText={errors.nameError?"Enter a valid name":errors.editError?"Invalid credentials":null}
-                             onChange={handleChange}/>
-                       </Paper>
-                     </Grid>
+                    <React.Fragment>
+                    <Fade in={true} timeout={1000}>
+                         <Grid item xs={6}>
+                           <Paper className={styles.bannerBackground} elevation={0}>
+                               <Avatar className={styles.avatar}>H</Avatar>
+                           </Paper>
+                           <Paper className={styles.paper} elevation={2}>
+                             <TextField
+                                 id="email"
+                                 variant="outlined"
+                                 label='Email'
+                                 type="text"
+                                 defaultValue={values.email}
+                                 name="Email"
+                                 margin="normal"
+                                 style={{ marginLeft: "20px" }}
+                                 disabled={!editable}
+                                 error={errors.nameError || errors.editError}
+                                 helperText={errors.nameError?"Enter a valid name":errors.editError?"Invalid credentials":null}
+                                 onChange={handleChange}/>
+                             <TextField
+                                 id="contact"
+                                 variant="outlined"
+                                 label='Contact'
+                                 type="number"
+                                 name="Contact"
+                                 margin="normal"
+                                 defaultValue={values.contact}
+                                 autoFocus
+                                 style={{ marginLeft: "20px" }}
+                                 disabled={!editable}
+                                 error={errors.nameError || errors.editError}
+                                 helperText={errors.nameError?"Enter a valid name":errors.editError?"Invalid credentials":null}
+                                 onChange={handleChange}/>
+                           </Paper>
+                         </Grid>
                      </Fade>
                      <Fade in={true} timeout={1000}>
                      <Grid item xs={6}>
@@ -204,7 +207,7 @@ export default function UserProfile(props) {
                                  type="text"
                                  name="last_name"
                                  margin="normal"
-                                 defaultValue={values.first_name}
+                                 defaultValue={values.last_name}
                                  autoFocus
                                  style={{ marginLeft: "20px" }}
                                  disabled={!editable}
@@ -234,6 +237,7 @@ export default function UserProfile(props) {
                                      inputVariant={'outlined'}
                                      minDate={new Date(1950, 5, 1)}
                                      format="MM/dd/yyyy"
+                                     label='Birthday'
                                      margin="normal"
                                      style={{ marginLeft: "20px"}}
                                      disabled={!editable}
@@ -244,7 +248,7 @@ export default function UserProfile(props) {
                              </MuiPickersUtilsProvider>
                          </Paper>
                      </Grid>
-                     </Fade></div>
+                     </Fade></React.Fragment>
                   )}
                 </Grid>
             </DialogContent>

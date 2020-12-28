@@ -18,7 +18,10 @@ class PatientView(APIView):
 
     def get(self, request):
         data = UserSerializer(request.user).data
-        data += PatientSerializer(Patient.objects.get(user=request.user)).data
+        try:
+            data += PatientSerializer(Patient.objects.get(user=request.user)).data
+        except Patient.DoesNotExist:
+            pass
 
         context = {
             'success': True,

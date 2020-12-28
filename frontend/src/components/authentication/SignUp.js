@@ -265,7 +265,7 @@ export const SignUp = ({ open, setOpen, otp, setOTP }) => {
                                     autoOk
                                     variant="inline"
                                     inputVariant="outlined"
-                                    label="With keyboard"
+                                    label="Birthday"
                                     format="MM/dd/yyyy"
                                     margin="normal"
                                     fullWidth={true}
