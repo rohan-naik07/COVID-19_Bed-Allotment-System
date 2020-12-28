@@ -83,6 +83,7 @@ class VerifyView(APIView):
         otp.save()
 
         try:
+            print(request.user)
             send_mail(
                 'OTP for Verification of email',
                 f"Dear {request.user.first_name} {request.user.last_name},\nThe One Time Password required for "
@@ -99,6 +100,7 @@ class VerifyView(APIView):
             }
             return Response(context, status=status.HTTP_200_OK)
         except Exception as e:
+            print(e)
             context = {
                 'success': 'False',
                 'message': 'Could not send email. Please try again later',

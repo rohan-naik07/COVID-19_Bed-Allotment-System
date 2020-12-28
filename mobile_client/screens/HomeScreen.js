@@ -55,7 +55,7 @@ HomeScreen.navigationOptions = navData=>{
        headerRight : ()=> <HeaderButtons HeaderButtonComponent={HeaderButton}>
           <Item title='Profile' 
           iconName='ios-contact'
-          onPress={drawerHandler}/>
+          onPress={profileHandler}/>
           </HeaderButtons>
   };
 }

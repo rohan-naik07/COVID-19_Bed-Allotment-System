@@ -1,9 +1,10 @@
-import React, { useEffect,useCallback } from 'react';
+import React, { useState, useEffect, useReducer, useCallback  } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Button,
+  ScrollView,
   Image,
   Dimensions
 } from 'react-native';
@@ -89,7 +90,7 @@ const HomeScreen = props =>{
     props.navigation.setParams({
         editHandler : setProfileEdit
     })
-    },[drawerHandler,setProfileEdit])
+    },[drawerHandler])
 
 
     return (
@@ -98,6 +99,7 @@ const HomeScreen = props =>{
                 <Image source={require('../assets/profile.png')} style = {styles.image} resizeMode='cover'/>
             </View>
             <Card style={styles.card}>
+            <ScrollView style={{flex : 1,width : '100%'}}>
             <Input
               id="email"
               label="E-Mail"
@@ -130,8 +132,6 @@ const HomeScreen = props =>{
               onInputChange={inputChangeHandler}
               initialValue={formState.inputValues.lastName}
             /> 
-           
-            
             <Input
               id="contact"
               label="Contact Number"
@@ -182,6 +182,7 @@ const HomeScreen = props =>{
                 });
               }}
             />
+            </ScrollView>
             </Card>
         </View>
     )   
@@ -213,18 +214,19 @@ const styles = StyleSheet.create({
     },
     card : {
         flex: 1,
-        width : '80%',
-        justifyContent : 'center',
+        width : '90%',
+        padding : 5,
+        marginBottom : 10,
         alignItems : 'center'
     },
     imageContainer : {
-        width : Dimensions.get('window').width * 0.6,
-        height : Dimensions.get('window').width * 0.6,
+        width : Dimensions.get('window').width * 0.5,
+        height : Dimensions.get('window').width * 0.5,
         borderRadius : (Dimensions.get('window').width * 0.6) / 2,
         borderWidth : 1,
         borderColor : 'black',
         overflow : "hidden",
-        marginVertical : Dimensions.get('window').height / 30
+        marginVertical : Dimensions.get('window').height / 40
     },
     image : {
         width : '100%',

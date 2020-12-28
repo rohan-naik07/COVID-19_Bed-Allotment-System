@@ -4,6 +4,7 @@ import {
   Button,
   StyleSheet,
   View,
+  Alert,
   Modal,
   Text,
   ActivityIndicator,
@@ -20,7 +21,14 @@ const OTPModal=props => {
   const [loading,setLoading] = useState(false);
   const token = useSelector(state=>state.auth.token)
 
-  const { open,toggleModal,isSignUp } = props
+  const { open,closeModal,isSignUp } = props
+
+  useEffect(() => {
+    console.log(token)
+    if(token==null){
+      closeModal()
+    }
+  },[token])
 
   useEffect(()=>{
     const sendOtp = async ()=>{
@@ -46,9 +54,9 @@ const OTPModal=props => {
     if(token ){
       dispatch(productsActions.logoutUser())
     }
-    toggleModal();
+    closeModal();
     //snackbar
-  },[dispatch,token,toggleModal,isSignUp])
+  },[dispatch,token,closeModal,isSignUp])
 
   useEffect(() => {
     if (error) {

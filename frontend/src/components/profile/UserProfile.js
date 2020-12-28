@@ -115,7 +115,6 @@ export default function UserProfile(props) {
                   weight: res.data.data.weight,
               });
               handleDateChange(new Date(res.data.birthday));
-              console.log(res.data)
               return true;
           }).then(val => {
               setSpinner(false);
@@ -130,6 +129,51 @@ export default function UserProfile(props) {
             [e.currentTarget.name]: e.currentTarget.value
         });
     }
+
+    const handleSubmit = () => {
+      if (values.first_name === null || values.first_name === '' || values.last_name === null || values.last_name === '') {
+          setErrors({...errors, nameError: true})
+          return;
+      }
+      if (values.contact === null || values.contact === '') {
+          setErrors({...errors, contactError: true})
+          return;
+      }
+      if(!(errors.nameError || errors.contactError))
+      {
+          enqueueSnackbar('Sending data....', {variant: "info", key: 'try_edit'})
+          axios({
+              method: 'POST',
+              headers: {
+                  "Access-Control-Allow-Origin": "*",
+                  "Content-Type" : "application/json",
+                  "Authorization": `Token ${getToken()}`,
+              },
+              data: {
+                  'first_name': values.first_name,
+                  'last_name': values.last_name,
+                  'contact': values.contact,
+                  'email': values.email,
+                  'birthday': selectedDate.getUTCFullYear() + "-" + (selectedDate.getUTCMonth()+1) + "-" + selectedDate.getUTCDate(),
+                  'branch': branch,
+                  'graduation': grad.getUTCFullYear() + "-" + (grad.getUTCMonth()+1) + "-" + grad.getUTCDate(),
+              },
+              url:  '/portal/patient-details/'
+          }).then(response => {
+              closeSnackbar('try_edit')
+              setErrors({...errors, editError: false});
+              setOpen(false);
+              enqueueSnackbar('Profile edited successfully!', { variant: 'success', key: 'edit_success'})
+              setTimeout(() => closeSnackbar('edit_success'), 3000);
+          }).catch(error => {
+              closeSnackbar('try_edit')
+              setErrors({...errors, editError: true});
+              enqueueSnackbar('Failed to edit profile', { variant: 'error', key: 'edit_error'})
+              setTimeout(() => closeSnackbar('edit_error'), 3000)
+          })
+      }
+  }
+
 
   return (
     <div>

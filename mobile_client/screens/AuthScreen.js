@@ -79,9 +79,16 @@ const AuthScreen = props => {
   }, [error]);
 
   useEffect(()=>{
+    if(!isVerified || isSignup)
+        setModalVisible(true);
     if(isVerified){
       props.navigation.navigate('Home')
     }
+    setIsLoading(false);
+  },[isVerified,isSignup])
+
+  const otpHandler = useCallback(()=>{
+
   },[isVerified])
 
   const authHandler = async () => {
@@ -105,8 +112,6 @@ const AuthScreen = props => {
     setError(null);
     setIsLoading(true);
     try {
-      if(isSignup)
-        setModalVisible(true);
       await dispatch(action);
     } catch (err) {
       setModalVisible(false)
@@ -136,8 +141,11 @@ const AuthScreen = props => {
       open={modalVisible}
       navigation = {props.navigation}
       isSignup = {isSignup} 
-      toggleModal={()=>{
-          setModalVisible(!modalVisible);   
+      openModal={()=>{
+          setModalVisible(true);   
+      }}
+      closeModal={()=>{
+        setModalVisible(false);   
       }}/>
         <Card style={styles.authContainer}>
           <ScrollView >
