@@ -28,6 +28,7 @@ import {Logout} from "../authentication/Logout";
 import {Switch, Route, useHistory, useLocation} from "react-router";
 import Home from "../home/Home";
 import About from "../about/About";
+import Graphs from "../charts/Graphs";
 
 const drawerWidth = 240;
 
@@ -121,6 +122,9 @@ export default function ClippedDrawer() {
             case '/about':
                 setTab(1);
                 break;
+            case '/graphs':
+                setTab(2);
+                break;
             default:
                 setTab(null);
         }
@@ -134,6 +138,9 @@ export default function ClippedDrawer() {
                 break;
             case 1:
                 history.push('/about');
+                break;
+            case 2:
+                history.push('/graphs');
                 break;
             default:
                 history.push('/');
@@ -162,6 +169,7 @@ export default function ClippedDrawer() {
                         <Tabs value={tab} indicatorColor="primary" textColor="primary" onChange={handleTabChange}>
                             <Tab label="Home" />
                             <Tab label="About Us" />
+                            <Tab label="Graphs" />
                         </Tabs>
                     </Hidden>
                     <div className={classes.grow} />
@@ -232,6 +240,7 @@ export default function ClippedDrawer() {
                 <Switch>
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
+                    <Route exact path='/graphs' component={Graphs}/>
                 </Switch>
             </main>
         </div>

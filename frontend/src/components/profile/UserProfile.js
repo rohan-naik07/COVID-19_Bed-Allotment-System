@@ -99,41 +99,42 @@ export default function UserProfile(props) {
   const setProfileEdit = ()=> setEditable(editable=>!editable);
 
   useEffect(()=>{
-    if(errors.editError){
-      setErrors({
-        nameError: false,
-        contactError: false,
-        editError: false})
-    }
+
   },[])
  
 
   useEffect(() => {
-          axios({
-              method: 'GET',
-              headers: {
-                  "Access-Control-Allow-Origin": "*",
-                  "Content-Type" : "application/json",
-                  "Authorization": `Token ${getToken()}`,
-              },
-              url: '/portal/patient-details/'
-          }).then(res => {
-              setValues({
-                  first_name: res.data.data.first_name,
-                  last_name: res.data.data.last_name,
-                  contact: res.data.data.contact,
-                  email: res.data.data.email,
-                  birthday: res.data.data.birthday,
-                  weight: res.data.data.weight,
-              });
-              handleDateChange(new Date(res.data.birthday));
-              return true;
-          }).then(val => {
-              setSpinner(false);
-          }).catch(error => {
-              console.log(error);
-          })
-      }, [open])
+      if(errors.editError){
+          setErrors({
+              nameError: false,
+              contactError: false,
+              editError: false})
+      }
+      axios({
+          method: 'GET',
+          headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Content-Type" : "application/json",
+              "Authorization": `Token ${getToken()}`,
+          },
+          url: '/portal/patient-details/'
+      }).then(res => {
+          setValues({
+              first_name: res.data.data.first_name,
+              last_name: res.data.data.last_name,
+              contact: res.data.data.contact,
+              email: res.data.data.email,
+              birthday: res.data.data.birthday,
+              weight: res.data.data.weight,
+          });
+          handleDateChange(new Date(res.data.birthday));
+          return true;
+      }).then(val => {
+          setSpinner(false);
+      }).catch(error => {
+          console.log(error);
+      })
+      }, [open, errors.editError])
 
       const handleChange = (e) => {
         setValues({
