@@ -17,11 +17,10 @@ class PatientView(APIView):
     authentication_classes = [JSONWebTokenAuthentication, ]
 
     def get(self, request):
-        data = UserSerializer(request.user).data
         try:
-            data += PatientSerializer(Patient.objects.get(user=request.user)).data
+            data = PatientSerializer(Patient.objects.get(user=request.user)).data
         except Patient.DoesNotExist:
-            pass
+            data = {'user': UserSerializer(request.user).data}
 
         context = {
             'success': True,
@@ -31,10 +30,13 @@ class PatientView(APIView):
         return Response(context, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = PatientSerializer(request.data)
+        serializer = PatientSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            patient = serializer.save()
+            try:
+                patient = serializer.save(patient=Patient.objects.get(user=request.user))
+            except Patient.DoesNotExist:
+                patient = serializer.save()
             patient.user = request.user
             patient.save()
 

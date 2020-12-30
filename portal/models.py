@@ -15,3 +15,24 @@ class Patient(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Hospital(models.Model):
+    name = models.CharField(max_length=100)
+    total_beds = models.IntegerField(default=30)
+    available_beds = models.IntegerField(default=30)
+    latitude = models.FloatField(default=0.0)
+    longitude = models.FloatField(default=0.0)
+    applicants = models.ForeignKey(Patient, on_delete=models.SET_NULL, verbose_name='Applicants', null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Review(models.Model):
+    rating = models.FloatField(default=3.0)
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE, verbose_name='Patient')
+    hospital = models.OneToOneField(Hospital, on_delete=models.CASCADE, verbose_name='Hospital')
+
+    def __str__(self):
+        return self.patient.user.email + ' ' + self.rating.__str__()

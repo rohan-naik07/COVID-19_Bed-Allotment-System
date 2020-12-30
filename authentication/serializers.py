@@ -15,14 +15,27 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'email', 'password', 'contact', 'weight', 'birthday']
 
     def create(self, validated_data):
-        user = User.objects.create(first_name=validated_data['first_name'],
-                                   last_name=validated_data['last_name'],
-                                   email=validated_data['email'],
-                                   username=validated_data['email'],
-                                   contact=validated_data['contact'],
-                                   birthday=validated_data['birthday'],
-                                   weight=validated_data['weight'])
-        user.set_password(validated_data['password'])
+        try:
+            user = User.objects.get(email=validated_data['email'])
+        except User.DoesNotExist:
+            user = User.objects.create(first_name=validated_data['first_name'],
+                                       last_name=validated_data['last_name'],
+                                       email=validated_data['email'],
+                                       username=validated_data['email'],
+                                       contact=validated_data['contact'],
+                                       birthday=validated_data['birthday'],
+                                       weight=validated_data['weight'])
+            user.set_password(validated_data['password'])
+        user.save()
+
+        return user
+
+    def update(self, user, data):
+        user.first_name = data.get('first_name')
+        user.last_name = data.get('last_name')
+        user.contact = data.get('contact')
+        user.weight = data.get('weight')
+        user.birthday = data.get('birthday')
         user.save()
 
         return user

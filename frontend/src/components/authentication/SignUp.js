@@ -76,7 +76,6 @@ export const SignUp = ({ open, setOpen, otp, setOTP }) => {
         if(!(errors.passwordError || errors.emailError || errors.confirmPasswordError || errors.nameError || errors.emailError))
         {
             enqueueSnackbar('Sending data....', {variant: "info", key: 'try_signUp'})
-            console.log(values);
             axios({
                 method: 'POST',
                 headers: {
