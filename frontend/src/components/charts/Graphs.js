@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Typography, CircularProgress, Container, FormGroup, FormControlLabel, Switch, Card } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { Bar, Doughnut } from 'react-chartjs-2';
+import TextField from "@material-ui/core/TextField";
+import MenuItem from "@material-ui/core/MenuItem";
 
 const color = ['rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)',]
 
@@ -33,6 +35,7 @@ const Graphs = () => {
     const [deaths, setDeaths] = useState([]);
     const [discharged, setDischarged] = useState([]);
     const [time, setTime] = useState({});
+    const [type, setType] = useState('totalConfirmed');
 
     const fetchCases = () => {
         axios({
@@ -120,53 +123,35 @@ const Graphs = () => {
 
                             <Card className={classes.card}>
                                 <Typography variant="h3" align="center" style={{fontWeight:'lighter', paddingTop: '30px'}}>
-                                    Total Confirmed Cases
+                                    {type==='totalConfirmed'?'Total Confirmed Cases':
+                                    type==='totalDeaths'?'Total Deaths':'Total Recovered'}
+                                </Typography>
+                                <Typography variant="h3" align="center" style={{fontWeight:'lighter', paddingTop: '30px'}}>
+                                    <TextField
+                                        type='text'
+                                        select
+                                        value={type}
+                                        variant='standard'
+                                        color='primary'
+                                        margin='normal'
+                                        onChange={(event) => setType(event.target.value)}
+                                    >
+                                        <MenuItem value='totalConfirmed'>Total Confirmed Cases</MenuItem>
+                                        <MenuItem value='totalDeaths'>Total Deaths</MenuItem>
+                                        <MenuItem value='totalRecovered'>Total Recovered</MenuItem>
+                                    </TextField>
                                 </Typography>
                                 <div style = {{padding: "20px"}}>
                                     {
                                         toggle.switch1 ?
-                                            <Bar {...generateChart(location, totalConfirmed, "Confirmed Cases")}/> :
-                                            <Doughnut {...generateChart(location, totalConfirmed, "Confirmed Cases")}/>
+                                            <Bar {...generateChart(location, type==='totalConfirmed'?
+                                                totalConfirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/> :
+                                            <Doughnut {...generateChart(location, type==='totalConfirmed'?
+                                                totalConfirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/>
                                     }
                                     <FormGroup row>
                                         <FormControlLabel
                                             control={<Switch onChange={handleSwitch} id="switch1" />}
-                                            label="Switch Graph Type"
-                                        />
-                                    </FormGroup>
-                                </div>
-                            </Card>
-                            <Card className={classes.card}>
-                                <Typography variant="h3" align="center" style={{fontWeight:'lighter', paddingTop: '30px'}}>
-                                    Total Deaths
-                                </Typography>
-                                <div style = {{padding: "20px"}}>
-                                    {
-                                        toggle.switch2 ?
-                                            <Bar {...generateChart(location, deaths, "Deaths")} /> :
-                                            <Doughnut {...generateChart(location, deaths, "Deaths")}/>
-                                    }
-                                    <FormGroup row >
-                                        <FormControlLabel
-                                            control={<Switch onChange={handleSwitch} id="switch2"/>}
-                                            label="Switch Graph Type"
-                                        />
-                                    </FormGroup>
-                                </div>
-                            </Card>
-                            <Card className={classes.card}>
-                                <Typography variant="h3" align="center" style={{fontWeight:'lighter', paddingTop: '30px'}}>
-                                    Total Discharged
-                                </Typography>
-                                <div style = {{padding: "20px"}}>
-                                    {
-                                        toggle.switch3 ?
-                                            <Bar {...generateChart(location, discharged, "Discharged")} /> :
-                                            <Doughnut {...generateChart(location, discharged, "Discharged")}/>
-                                    }
-                                    <FormGroup row >
-                                        <FormControlLabel
-                                            control={<Switch onChange={handleSwitch} id="switch3"/>}
                                             label="Switch Graph Type"
                                         />
                                     </FormGroup>

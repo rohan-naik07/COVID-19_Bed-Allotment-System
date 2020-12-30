@@ -96,7 +96,7 @@ export default function UserProfile(props) {
           nameError: false,
           contactError: false,
           editError: false});
-  const setProfileEdit = ()=> setEditable(editable=>!editable);
+  const setProfileEdit = () => setEditable(editable=>!editable);
 
   useEffect(()=>{
 
