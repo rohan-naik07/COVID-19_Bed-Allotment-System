@@ -6,7 +6,6 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import Colors from '../constants/Colors';
 import * as authActions from '../redux/actions/auth';
 
@@ -35,11 +34,11 @@ const StartScreen = props =>{
               const expirationTime = expirationDate.getTime() - new Date().getTime(); // update the expiraation date*/
 
               console.log('id present')
-              props.navigation.navigate('Home');
               dispatch(authActions.authenticate(token)); // store updated values to store
+              props.navigation.navigate('Home');
         }
         tryLogin();
-    },[dispatch])
+    },[])
 
     return (
         <View style={styles.screen}>

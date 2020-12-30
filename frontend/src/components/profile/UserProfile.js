@@ -1,4 +1,4 @@
-import React, {useEffect, useState,useCallback} from 'react';
+import React, {useEffect,useState} from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Fade from "@material-ui/core/Fade";
 import Paper from '@material-ui/core/Paper';
@@ -14,22 +14,26 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import {getToken} from "../authentication/cookies";
 import DateFnsUtils from "@date-io/date-fns";
-import DialogTitle from '@material-ui/core/DialogTitle';
-import CircularProgress from "@material-ui/core/CircularProgress";
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
-import {DatePicker, KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
+import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
+import SaveIcon from '@material-ui/icons/Save';
 
 const useStyles = makeStyles((theme) => ({
       root: {
         padding: '20px',
         width: '100%'
       },
-      closeButton: {
+      saveButton: {
         position: 'absolute',
         right: theme.spacing(1),
+        top: theme.spacing(1),
+        color: theme.palette.grey[500],
+      },
+      editButton: {
+        position: 'absolute',
+        right: theme.spacing(6),
         top: theme.spacing(1),
         color: theme.palette.grey[500],
       },
@@ -93,6 +97,15 @@ export default function UserProfile(props) {
           contactError: false,
           editError: false});
   const setProfileEdit = ()=> setEditable(editable=>!editable);
+
+  useEffect(()=>{
+    if(errors.editError){
+      setErrors({
+        nameError: false,
+        contactError: false,
+        editError: false})
+    }
+  },[])
  
 
   useEffect(() => {
@@ -110,7 +123,6 @@ export default function UserProfile(props) {
                   last_name: res.data.data.last_name,
                   contact: res.data.data.contact,
                   email: res.data.data.email,
-                  graduation: res.data.data.graduation,
                   birthday: res.data.data.birthday,
                   weight: res.data.data.weight,
               });
@@ -155,14 +167,13 @@ export default function UserProfile(props) {
                   'contact': values.contact,
                   'email': values.email,
                   'birthday': selectedDate.getUTCFullYear() + "-" + (selectedDate.getUTCMonth()+1) + "-" + selectedDate.getUTCDate(),
-                  'branch': branch,
-                  'graduation': grad.getUTCFullYear() + "-" + (grad.getUTCMonth()+1) + "-" + grad.getUTCDate(),
+                  'weight' : values.weight
               },
               url:  '/portal/patient-details/'
           }).then(response => {
               closeSnackbar('try_edit')
               setErrors({...errors, editError: false});
-              setOpen(false);
+              handleClose();
               enqueueSnackbar('Profile edited successfully!', { variant: 'success', key: 'edit_success'})
               setTimeout(() => closeSnackbar('edit_success'), 3000);
           }).catch(error => {
@@ -180,9 +191,13 @@ export default function UserProfile(props) {
       <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open} fullWidth={true}>
         <MuiDialogTitle disableTypography className={styles.root}>
           <Typography variant="h6">User Profile</Typography>
-            <IconButton aria-label="edit" className={styles.closeButton} onClick={setProfileEdit}>
+          <IconButton aria-label="edit" className={styles.editButton} onClick={setProfileEdit}>
               <EditIcon />
             </IconButton>
+            {!editable ?  null : 
+            <IconButton aria-label="save" className={styles.saveButton} onClick={handleSubmit}>
+              <SaveIcon />
+            </IconButton>}
         </MuiDialogTitle>
                 <DialogContent dividers>
                 <Grid container className={styles.root} spacing={3}>

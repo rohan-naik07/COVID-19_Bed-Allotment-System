@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
+  ActivityIndicator,
   ScrollView,
   Image,
   Dimensions
@@ -14,7 +14,7 @@ import HeaderButton from '../components/HeaderButton';
 import Input from '../components/Input';
 import Card from '../components/Card';
 import Colors from '../constants/Colors';
-import * as authActions from '../redux/actions/auth';
+import * as userActions from '../redux/actions/user';
 import DatePicker from 'react-native-datepicker'
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
@@ -44,7 +44,9 @@ const formReducer = (state, action) => {
 
 const HomeScreen = props =>{
   const dispatch = useDispatch();
-  const token = useSelector(state =>state.auth.token);
+  const profileData = useSelector(state =>state.user.profileData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState();
   const [editable,setEditable] = useState(false);
   const setProfileEdit = ()=> setEditable(editable=>!editable);
   const drawerHandler = useCallback(()=>{
@@ -53,23 +55,51 @@ const HomeScreen = props =>{
 
    const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
-      email: '',
-      firstName : '',
-      lastName : '',
-      weight : 0,  // initialized input state values
-      contact : 0,
-      birthDate : "2016-05-15"
+      email: profileData ? profileData.email : "",
+      first_name : profileData ? profileData.first_name : "",
+      last_name : profileData ? profileData.last_name : "",
+      weight : profileData ? profileData.weight.toString() : 0,  // initialized input state values
+      contact : profileData ? profileData.contact.toString() : 0,
+      birthday : profileData ? profileData.birthday : ""
     },
     inputValidities: {
       email: false,
-      firstName : false,
-      lastName : false,// initialized input state validities
+      first_name : false,
+      last_name : false,// initialized input state validities
       weight : false,
       number : false,
-      birthDate : false
+      birthday : false
     },
     formIsValid: false
   });
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert('An Error Occurred!', error, [{ text: 'Okay' }]);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    const fetchProfileData = async ()=>{
+      await dispatch(userActions.fetchProfile());
+    }
+     fetchProfileData();
+     setProfiledata();
+     setIsLoading(false)
+  },[dispatch])
+
+  const setProfiledata = useCallback(() => {
+    if(profileData){
+      for(let key in profileData){
+        dispatchFormState({
+          type: FORM_INPUT_UPDATE,
+          value: profileData[key],
+          isValid: true,
+          input: key
+        });
+      }
+    }
+  },[profileData])
 
    const inputChangeHandler = useCallback(
     (inputIdentifier, inputValue, inputValidity) => {
@@ -83,7 +113,7 @@ const HomeScreen = props =>{
     [dispatchFormState]
   );
 
-    useEffect(()=>{
+  useEffect(()=>{
     props.navigation.setParams({
         drawerHandler : drawerHandler
     })
@@ -91,6 +121,15 @@ const HomeScreen = props =>{
         editHandler : setProfileEdit
     })
     },[drawerHandler])
+
+    if(isLoading){
+      return (
+        <View style={styles.screen}>
+        <ActivityIndicator size="large" color={Colors.accent} />
+      </View>
+    )
+    }
+
 
 
     return (
@@ -120,7 +159,7 @@ const HomeScreen = props =>{
               errorText="Please enter a valid name"
               editable={!editable}
               onInputChange={inputChangeHandler}
-              initialValue={formState.inputValues.firstName}
+              initialValue={formState.inputValues.first_name}
             /> 
             <Input
               id="lastName"
@@ -130,7 +169,7 @@ const HomeScreen = props =>{
               autoCapitalize="none"
               errorText="Please enter a valid name"
               onInputChange={inputChangeHandler}
-              initialValue={formState.inputValues.lastName}
+              initialValue={formState.inputValues.last_name}
             /> 
             <Input
               id="contact"
@@ -143,7 +182,7 @@ const HomeScreen = props =>{
               editable={!editable}
               errorText="Please enter a valid contact Number"
               onInputChange={inputChangeHandler}
-              initialValue={formState.inputValues.contact}
+              initialValue={formState.inputValues.contact.toString()}
             /> 
             
               <Input
@@ -155,11 +194,12 @@ const HomeScreen = props =>{
               autoCapitalize="none"
               errorText="Please enter a valid weight"
               onInputChange={inputChangeHandler}
-              initialValue={formState.inputValues.weight}
+              initialValue={formState.inputValues.weight.toString()}
             /> 
             <DatePicker
               style={{width: '100%',marginTop:10}}
               mode="date"
+              date={formState.inputValues.birthday}
               placeholder="Select your Birth Date"
               editable={!editable}
               format="YYYY-MM-DD"

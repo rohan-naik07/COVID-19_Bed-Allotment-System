@@ -23,13 +23,6 @@ const OTPModal=props => {
 
   const { open,closeModal,isSignUp } = props
 
-  useEffect(() => {
-    console.log(token)
-    if(token==null){
-      closeModal()
-    }
-  },[token])
-
   useEffect(()=>{
     const sendOtp = async ()=>{
       if(open && token){
@@ -48,7 +41,6 @@ const OTPModal=props => {
 
   const cancelHandler = useCallback(() => {
     if(isSignUp){
-      props.navigation.navigate("Home")
       return;
     }
     if(token ){

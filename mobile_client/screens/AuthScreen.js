@@ -48,6 +48,7 @@ const AuthScreen = props => {
   const [modalVisible, setModalVisible] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
   const isVerified = useSelector(state=>state.auth.otpVerified);
+  const token = useSelector(state=>state.auth.token)
   const dispatch = useDispatch();
 
   const [formState, dispatchFormState] = useReducer(formReducer, {
@@ -79,17 +80,14 @@ const AuthScreen = props => {
   }, [error]);
 
   useEffect(()=>{
-    if(!isVerified || isSignup)
+    setIsLoading(false);
+    if(!isVerified && token)
         setModalVisible(true);
     if(isVerified){
       props.navigation.navigate('Home')
     }
-    setIsLoading(false);
-  },[isVerified,isSignup])
+  },[isVerified,token])
 
-  const otpHandler = useCallback(()=>{
-
-  },[isVerified])
 
   const authHandler = async () => {
     let action;
