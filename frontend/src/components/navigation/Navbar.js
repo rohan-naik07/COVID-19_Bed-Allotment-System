@@ -29,6 +29,8 @@ import {Switch, Route, useHistory, useLocation} from "react-router";
 import Home from "../home/Home";
 import About from "../about/About";
 import Graphs from "../charts/Graphs";
+import {Brightness4, Brightness7} from "@material-ui/icons";
+import {ThemeContext} from "../../context/ThemeContext";
 
 const drawerWidth = 240;
 
@@ -82,6 +84,9 @@ const useStyles = makeStyles((theme) => ({
         }),
         marginLeft: 0,
     },
+    themer: {
+        color: theme.palette.text.primary
+    }
 }));
 
 export default function ClippedDrawer() {
@@ -93,6 +98,7 @@ export default function ClippedDrawer() {
     const [logout, setLogout] = React.useState(false);
     const [otp, setOTP] = React.useState(false);
     const [tab, setTab] = React.useState(0);
+    const {dark, toggleTheme} = React.useContext(ThemeContext);
     const [openProfile, setOpenProfile] = React.useState(false);
 
     const handleProfileClickOpen = () => {
@@ -169,9 +175,12 @@ export default function ClippedDrawer() {
                         <Tabs value={tab} indicatorColor="primary" textColor="primary" onChange={handleTabChange}>
                             <Tab label="Home" />
                             <Tab label="About Us" />
-                            <Tab label="Graphs" />
+                            <Tab label="Data" />
                         </Tabs>
                     </Hidden>
+                    <IconButton edge='end' className={classes.themer} onClick={toggleTheme}>
+                        {dark ? <Brightness7/>: <Brightness4/>}
+                    </IconButton>
                     <div className={classes.grow} />
                     {loggedIn ? 
                     <div className={classes.sectionDesktop}>
