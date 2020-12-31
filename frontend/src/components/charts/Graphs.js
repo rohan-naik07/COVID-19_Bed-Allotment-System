@@ -22,7 +22,8 @@ const color = ['rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 20
 const useStyles = makeStyles({
     card: {
         overflowX: "auto",
-        marginBottom: "20px"   
+        marginBottom: "20px",  
+        marginBottom: "20px"
     },
     loading : {
         margin: 'auto',
@@ -54,7 +55,7 @@ const Graphs = () => {
 
     const fetchCases = () => {
         axios({
-            method:'get',
+            method: 'GET',
             headers: {
                 'Content-type':'application/json'
             },

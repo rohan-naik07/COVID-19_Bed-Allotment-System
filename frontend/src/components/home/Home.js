@@ -1,21 +1,42 @@
 import React from "react";
 import {Typography} from "@material-ui/core";
+import {Map, GoogleApiWrapper, Marker} from 'google-maps-react';
 
-const Home = () => {
+const Home = (props) => {
+    const mapStyles = {
+        width: '100%',
+        height: '100%',
+    };
+    const [stores, setStores] = React.useState([
+        {latitude: 47.359423, longitude: -122.021071},
+        {latitude: 47.2052192687988, longitude: -121.988426208496},
+        {latitude: 47.6307081, longitude: -122.1434325},
+        {latitude: 47.3084488, longitude: -122.2140121},
+        {latitude: 47.5524695, longitude: -122.0425407}]);
+
+    const displayMarkers = () => {
+        return stores.map((store, index) => {
+            return <Marker key={index} id={index} position={{
+                lat: store.latitude,
+                lng: store.longitude
+            }}
+           onClick={() => console.log("You clicked me!")} />
+        })
+    }
+
+
     return (
-        <Typography paragraph>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-            ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-            facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-            gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-            donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-            adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-            Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-            imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-            arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-            donec massa sapien faucibus et molestie ac.
-        </Typography>
+        <Map
+            google={props.google}
+            zoom={8}
+            style={mapStyles}
+            initialCenter={{ lat: 47.444, lng: -122.176}}
+        >
+            {displayMarkers()}
+        </Map>
     )
 }
 
-export default Home;
+export default GoogleApiWrapper({
+    apiKey: 'AIzaSyDpKyIYlTBUlZ_g41ql57cabAGpVp_mJQI'
+})(Home);
