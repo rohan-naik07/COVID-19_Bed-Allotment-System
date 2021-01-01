@@ -24,7 +24,6 @@ const Home = (props) => {
         })
     }
 
-
     return (
         <Map
             google={props.google}

@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from authentication.serializers import UserSerializer
 from .models import *
 
