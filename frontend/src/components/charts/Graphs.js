@@ -2,14 +2,27 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Typography, CircularProgress, Container, FormGroup, FormControlLabel, Switch, Card } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
+import Grid from '@material-ui/core/Grid';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
+import News from "../home/News";
 
-const color = ['rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)',]
+const color = ['rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)',
+'rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)',
+'rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)',
+'rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)',
+'rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)',
+'rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)',
+'rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)',
+'rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)',
+'rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)',
+'rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)',]
 
 const useStyles = makeStyles({
     card: {
+        overflowX: "auto",
+        marginBottom: "20px",  
         marginBottom: "20px"
     },
     loading : {
@@ -18,6 +31,10 @@ const useStyles = makeStyles({
         textAlign:'center',
         paddingTop: '15%'
     },
+    root: {
+        width: '100%',
+        height: '40%',
+    }  
 })
 
 const Graphs = () => {
@@ -91,13 +108,19 @@ const Graphs = () => {
             },
             width: 1152,
             height: 648,
+            tooltips: {
+                enabled: false,
+              },
             options: {
                 legend:{
                     display:true,
                     position:'right'
                 },
-                maintainAspectRatio: false,
-                responsive: false
+                scales: {
+                    xAxes: [{display: false}]
+                  },
+                maintainAspectRatio: true,
+                responsive: true
             }
         });
     }
@@ -113,19 +136,14 @@ const Graphs = () => {
                         </div>
                     ):(
                         <Container>
-                            <Typography variant='h2' style={{paddingBottom:'10px'}}>
-                                Graphical Representation of Data
-                            </Typography>
-                            <Typography style={{paddingBottom:'30px'}}>
-                                Data last updated on {time.slice(0,10)} at {time.slice(11,19)} IST
-                            </Typography>
-
+                             <Grid container className={classes.root} spacing={3}>
+                             <Grid item xs={8}>
                             <Card className={classes.card}>
-                                <Typography variant="h3" align="center" style={{fontWeight:'lighter', paddingTop: '30px'}}>
+                                <Typography variant="h4" align="center" style={{fontWeight:'lighter', paddingTop: '20px'}}>
                                     {type==='totalConfirmed'?'Total Confirmed Cases':
                                     type==='totalDeaths'?'Total Deaths':'Total Recovered'}
                                 </Typography>
-                                <Typography variant="h3" align="center" style={{fontWeight:'lighter', paddingTop: '30px'}}>
+                                <Typography variant="h4" align="center" style={{fontWeight:'lighter', paddingTop: '20px'}}>
                                     <TextField
                                         type='text'
                                         select
@@ -140,7 +158,7 @@ const Graphs = () => {
                                         <MenuItem value='totalRecovered'>Total Recovered</MenuItem>
                                     </TextField>
                                 </Typography>
-                                <div style = {{padding: "20px"}}>
+                                <div style = {{padding: "10px"}}>
                                     {
                                         toggle.switch1 ?
                                             <Bar {...generateChart(location, type==='totalConfirmed'?
@@ -156,6 +174,10 @@ const Graphs = () => {
                                     </FormGroup>
                                 </div>
                             </Card>
+                             </Grid>
+                             <Grid item xs={4}><News/></Grid>
+                             </Grid>
+                            
                         </Container>
                     )
             }

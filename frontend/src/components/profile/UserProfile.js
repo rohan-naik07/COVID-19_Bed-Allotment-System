@@ -98,11 +98,6 @@ export default function UserProfile(props) {
           editError: false});
   const setProfileEdit = () => setEditable(editable=>!editable);
 
-  useEffect(()=>{
-
-  },[])
- 
-
   useEffect(() => {
       if(errors.editError){
           setErrors({
