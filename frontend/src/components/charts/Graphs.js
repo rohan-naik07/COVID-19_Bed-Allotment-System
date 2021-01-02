@@ -52,6 +52,7 @@ const Graphs = () => {
     const [discharged, setDischarged] = useState([]);
     const [time, setTime] = useState({});
     const [type, setType] = useState('totalConfirmed');
+    const [news,setNews] = useState([]);
 
     const fetchCases = () => {
         axios({
@@ -73,8 +74,26 @@ const Graphs = () => {
             .catch(() => window.alert("Please Check you internet connection!"))
     }
 
+    const fetchNews = () => {
+        axios({
+            method:'get',
+            headers: {
+                'Content-type':'application/json'
+            },
+            url: 'https://newsapi.org/v2/everything?q=covid AND india&apiKey=13cb9c6ff1be40f8bb5ee37eef23c446'
+            })
+            .then(data => {
+                console.log('state')
+                console.log(data)
+                setTimeout(() => setSpinner(false), 1000);
+                setNews(data.data.articles);
+            })
+            .catch((e) => window.alert(e.message))
+    }
+
     useEffect(() => {
         fetchCases()
+        fetchNews()
     },[dummy]);
 
     const handleSwitch = (event) => {
@@ -175,7 +194,7 @@ const Graphs = () => {
                                 </div>
                             </Card>
                              </Grid>
-                             <Grid item xs={4}><News/></Grid>
+                             <Grid item xs={4}><News news = {news}/></Grid>
                              </Grid>
                             
                         </Container>

@@ -4,8 +4,8 @@ import {Map, GoogleApiWrapper, Marker} from 'google-maps-react';
 
 const Home = (props) => {
     const mapStyles = {
-        width: '100%',
-        height: '100%',
+        width: '50%',
+        height: '50%',
     };
     const [stores, setStores] = React.useState([
         {latitude: 47.359423, longitude: -122.021071},
