@@ -115,14 +115,14 @@ export default function UserProfile(props) {
           url: '/portal/patient-details/'
       }).then(res => {
           setValues({
-              first_name: res.data.data.first_name,
-              last_name: res.data.data.last_name,
-              contact: res.data.data.contact,
-              email: res.data.data.email,
-              birthday: res.data.data.birthday,
-              weight: res.data.data.weight,
+              first_name: res.data.data.user.first_name,
+              last_name: res.data.data.user.last_name,
+              contact: res.data.data.user.contact,
+              email: res.data.data.user.email,
+              birthday: res.data.data.user.birthday,
+              weight: res.data.data.user.weight,
           });
-          handleDateChange(new Date(res.data.birthday));
+          handleDateChange(new Date(res.data.data.user.birthday));
           return true;
       }).then(val => {
           setSpinner(false);
@@ -288,17 +288,18 @@ export default function UserProfile(props) {
                                  <KeyboardDatePicker
                                      clearable
                                      placeholder="Enter your birth date"
-                                     defaultValue={values.birthday}
+                                     defaultValue={selectedDate}
                                      inputVariant={'outlined'}
-                                     minDate={new Date(1950, 5, 1)}
+                                     minDate={new Date(1930, 5, 1)}
                                      format="MM/dd/yyyy"
                                      label='Birthday'
                                      margin="normal"
+                                     name='birthday'
                                      style={{ marginLeft: "20px"}}
                                      disabled={!editable}
                                      error={errors.nameError || errors.editError}
                                      helperText={errors.nameError?"Enter a valid name":errors.editError?"Invalid credentials":null}
-                                     onChange={handleChange}
+                                     onChange={handleDateChange}
                                  />
                              </MuiPickersUtilsProvider>
                          </Paper>
