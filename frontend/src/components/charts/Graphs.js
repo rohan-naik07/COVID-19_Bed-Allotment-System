@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Typography, CircularProgress, Container, FormGroup, FormControlLabel, Switch, Card } from '@material-ui/core';
+import { Typography, CircularProgress, Container, FormGroup, FormControlLabel, Switch, Card,CardContent } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Grid from '@material-ui/core/Grid';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
 import News from "../home/News";
+import Divider from "@material-ui/core/Divider";
 
 const color = ['rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)',
 'rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)','rgba(255, 99, 132, 0.8)',
@@ -19,7 +20,7 @@ const color = ['rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 20
 'rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)',
 'rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)',]
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme=>({
     card: {
         overflowX: "auto",
         marginBottom: "20px"
@@ -33,8 +34,11 @@ const useStyles = makeStyles({
     root: {
         width: '100%',
         height: '40%',
-    }  
-})
+    },
+    divider: {
+        margin: `${theme.spacing.unit * 3}px 0`
+    }
+}))
 
 const Graphs = () => {
     const dummy = null;
@@ -79,11 +83,9 @@ const Graphs = () => {
             headers: {
                 'Content-type':'application/json'
             },
-            url: 'https://newsapi.org/v2/everything?q=covid AND india&apiKey=13cb9c6ff1be40f8bb5ee37eef23c446'
+            url: 'https://newsapi.org/v2/everything?q=covid&apiKey=13cb9c6ff1be40f8bb5ee37eef23c446'
             })
             .then(data => {
-                console.log('state')
-                console.log(data)
                 setTimeout(() => setSpinner(false), 1000);
                 setNews(data.data.articles);
             })
@@ -155,7 +157,7 @@ const Graphs = () => {
                     ):(
                         <Container>
                              <Grid container className={classes.root} spacing={3}>
-                             <Grid item xs={8}>
+                             <Grid item xs={8} className={classes.root}>
                             <Card className={classes.card}>
                                 <Typography variant="h4" align="center" style={{fontWeight:'lighter', paddingTop: '20px'}}>
                                     {type==='totalConfirmed'?'Total Confirmed Cases':
@@ -178,11 +180,11 @@ const Graphs = () => {
                                 </Typography>
                                 <div style = {{padding: "10px"}}>
                                     {
-                                        toggle.switch1 ?
-                                            <Bar {...generateChart(location, type==='totalConfirmed'?
-                                                totalConfirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/> :
-                                            <Doughnut {...generateChart(location, type==='totalConfirmed'?
-                                                totalConfirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/>
+                                    toggle.switch1 ?
+                                        <Bar {...generateChart(location, type==='totalConfirmed'?
+                                            totalConfirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/> :
+                                        <Doughnut {...generateChart(location, type==='totalConfirmed'?
+                                            totalConfirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/>
                                     }
                                     <FormGroup row>
                                         <FormControlLabel
@@ -193,9 +195,30 @@ const Graphs = () => {
                                 </div>
                             </Card>
                              </Grid>
-                             <Grid item xs={4}><News news = {news}/></Grid>
+                             <Grid item xs={4}>
+                                 <Card>
+                                 <CardContent>
+                                    <Typography
+                                        className={"MuiTypography--heading"}
+                                        variant={"h4"}
+                                        gutterBottom>Total
+                                    </Typography>
+                                    <Divider className={classes.divider} light />
+                                    <Typography
+                                        className={"MuiTypography--subheading"}
+                                        variant={"h4"}>Discharged
+                                    </Typography>
+                                    <Divider className={classes.divider} light />
+                                    <Typography
+                                        className={"MuiTypography--subheading"}
+                                        variant={"h4"}>Deaths
+                                    </Typography>
+                                    <Divider className={classes.divider} light />
+                                 </CardContent>
+                                 </Card>
                              </Grid>
-                            
+                            <Grid item xs={12}><News news = {news}/></Grid>
+                             </Grid> 
                         </Container>
                     )
             }
