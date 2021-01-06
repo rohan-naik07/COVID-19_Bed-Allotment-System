@@ -5,7 +5,9 @@ import Paper from '@material-ui/core/Paper';
 import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import Divider from "@material-ui/core/Divider";
-import {Link} from 'react-router-dom'
+import {Link as RouterLink} from 'react-router-dom'
+import Link from '@material-ui/core/Link'
+
 
 const useStyles = makeStyles(theme=>({
     card: {
@@ -44,6 +46,7 @@ const NewsItem = props=>{
     const classes = useStyles();
     const urltoImage = props.urltoImage;
     return (
+        <Link target="_blank" to={`http:\\${props.url}`}>
         <Card className={classes.card}>
             <CardMedia className={classes.media} image={urltoImage}/>
             <CardContent className={classes.content}>
@@ -62,10 +65,10 @@ const NewsItem = props=>{
                 <Typography
                     className={"MuiTypography--subheading"}
                     variant={"h6"}>
-                    {props.publishedAt}
+                    {new Date(props.publishedAt).toDateString()}
                 </Typography>
             </CardContent>
-        </Card>
+        </Card></Link>
     )
 }
 
@@ -78,10 +81,9 @@ const News = (props) =>{
                     Latest News
                 </Typography>
             </Grid>
-            {props.news.slice(0,10).map((news,i)=>{
+            {props.news.slice(0,12).map((news,i)=>{
                     return (
                     <Grid item xs={12} md={4} lg={4} key={i}>
-                        <Paper className={classes.paper} elevation={2}>
                         <NewsItem author={news.author}
                             title ={news.title}
                             description ={news.description}
@@ -89,7 +91,6 @@ const News = (props) =>{
                             urltoImage = {news.urlToImage}
                             publishedAt = {news.publishedAt}
                             content = {news.content}/>
-                        </Paper> 
                     </Grid>   
                    );
                 })}
