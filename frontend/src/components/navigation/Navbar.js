@@ -29,6 +29,8 @@ import {Switch, Route, useHistory, useLocation} from "react-router";
 import Home from "../home/Home";
 import About from "../about/About";
 import Graphs from "../charts/Graphs";
+import Hospitals from '../hospital/Hospitals'
+import Sentiment from '../sentiments/Sentiment'
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
 
@@ -131,6 +133,12 @@ export default function ClippedDrawer() {
             case '/graphs':
                 setTab(2);
                 break;
+            case '/hospitals':
+                setTab(3);
+                break;
+            case '/sentiments':
+                setTab(4);
+                break;
             default:
                 setTab(null);
         }
@@ -147,6 +155,12 @@ export default function ClippedDrawer() {
                 break;
             case 2:
                 history.push('/graphs');
+                break;
+            case 3:
+                history.push('/hospitals');
+                break;
+            case 4:
+                history.push('/sentiments');
                 break;
             default:
                 history.push('/');
@@ -176,6 +190,8 @@ export default function ClippedDrawer() {
                             <Tab label="Home" />
                             <Tab label="About Us" />
                             <Tab label="Data" />
+                            {loggedIn ?  <Tab label="Hospitals"/> : null}
+                            {loggedIn ? <Tab label="Sentiments"/>:null}
                         </Tabs>
                     </Hidden>
                     <IconButton edge='end' className={classes.themer} onClick={toggleTheme}>
@@ -250,6 +266,8 @@ export default function ClippedDrawer() {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
+                    <Route exact path='/hospitals' component={Hospitals}/>
+                    <Route exact path='/sentiments' component={Sentiment}/>
                 </Switch>
             </main>
         </div>

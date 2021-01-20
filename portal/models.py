@@ -19,10 +19,12 @@ class Patient(models.Model):
 
 class Hospital(models.Model):
     name = models.CharField(max_length=100)
+    imageUrl = models.CharField(max_length=100)
     total_beds = models.IntegerField(default=30)
     available_beds = models.IntegerField(default=30)
     latitude = models.FloatField(default=0.0)
     longitude = models.FloatField(default=0.0)
+    contact = models.CharField(max_length=120)
     applicants = models.ForeignKey(Patient, on_delete=models.SET_NULL, verbose_name='Applicants', null=True)
 
     def __str__(self):

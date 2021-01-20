@@ -1,11 +1,9 @@
 import React from 'react';
 import { Typography,Card,Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import Paper from '@material-ui/core/Paper';
 import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import Divider from "@material-ui/core/Divider";
-import {Link as RouterLink} from 'react-router-dom'
 import Link from '@material-ui/core/Link'
 
 
@@ -23,18 +21,18 @@ const useStyles = makeStyles(theme=>({
         height : '50%'
     },
     content: {
-    textAlign: "left",
-    padding: theme.spacing.unit * 3
+        textAlign: "left",
+        padding: theme.spacing.unit * 3
     },
     divider: {
-    margin: `${theme.spacing.unit * 3}px 0`
+        margin: `${theme.spacing.unit * 3}px 0`
     },
     paper: {
         padding : 10,
         display : 'inline-block'
     },
     media: {
-    paddingTop: "56.25%"
+        paddingTop: "56.25%"
     },
     loading : {
         margin: 'auto',

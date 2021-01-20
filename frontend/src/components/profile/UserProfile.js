@@ -208,7 +208,7 @@ export default function UserProfile(props) {
                            <Paper className={styles.bannerBackground} elevation={0}>
                                <Avatar className={styles.avatar}>H</Avatar>
                            </Paper>
-                           <Paper className={styles.paper} elevation={2}>
+                           <Paper className={styles.paper} elevation={1}>
                              <TextField
                                  id="email"
                                  variant="outlined"
@@ -241,7 +241,7 @@ export default function UserProfile(props) {
                      </Fade>
                      <Fade in={true} timeout={1000}>
                      <Grid item xs={6}>
-                         <Paper className={styles.paper} elevation={2}>
+                         <Paper className={styles.paper} elevation={1}>
                              <TextField
                                  id="first_name"
                                  variant="outlined"
