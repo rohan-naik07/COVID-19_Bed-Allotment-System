@@ -61,7 +61,7 @@ const Hospitals = (props) => {
                 img: 'https://image.shutterstock.com/image-photo/modern-hospital-style-building-260nw-212251981.jpg',
                 title: 'Image',
                 author: 'author',
-              }];
+            }];
    
     const displayMarkers = () => {
         return stores.map((store, index) => {
