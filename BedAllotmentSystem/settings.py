@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_jwt',
     'authentication',
-    'portal'
+    'portal',
+    'chat',
+    'channels'
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -76,6 +78,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'BedAllotmentSystem.wsgi.application'
+ASGI_APPLICATION = "BedAllotmentSystem.asgi.application"
+# Database
+# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases

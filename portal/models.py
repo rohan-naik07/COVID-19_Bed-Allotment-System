@@ -18,13 +18,15 @@ class Patient(models.Model):
 
 
 class Hospital(models.Model):
-    name = models.CharField(max_length=100)
-    imageUrl = models.CharField(max_length=100)
-    total_beds = models.IntegerField(default=30)
-    available_beds = models.IntegerField(default=30)
-    latitude = models.FloatField(default=0.0)
-    longitude = models.FloatField(default=0.0)
-    contact = models.CharField(max_length=120)
+    name = models.CharField(max_length=100, null=True)
+    imageUrl = models.CharField(max_length=100, null=True)
+    total_beds = models.IntegerField(default=30, null=True)
+    available_beds = models.IntegerField(default=30, null=True)
+    latitude = models.FloatField(default=0.0, null=True)
+    longitude = models.FloatField(default=0.0, null=True)
+    contact = models.CharField(max_length=120, null=True)
+    staff = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, related_name='hospital_staff',
+                                 null=True)
     applicants = models.ForeignKey(Patient, on_delete=models.SET_NULL, verbose_name='Applicants', null=True)
 
     def __str__(self):
