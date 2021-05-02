@@ -23,11 +23,11 @@ const App = () => {
   })
 
   React.useEffect(()=>{
-    WebSocketInstance.connect(1);
     WebSocketInstance.addCallbacks(
       (msgs)=>setMessages(msgs),
       (msgs)=>setMessages(msgs)
     )
+    // eslint-disable-next-line
   },[])
 
   return (

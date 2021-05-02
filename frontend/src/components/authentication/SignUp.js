@@ -106,7 +106,6 @@ export const SignUp = ({ open, setOpen, otp, setOTP }) => {
                 axios({
                     method: 'GET',
                     headers: {
-                        "Access-Control-Allow-Origin": "*",
                         "Content-Type" : "application/json",
                         "Authorization": `Token ${getToken()}`,
                     },
