@@ -17,6 +17,7 @@
     "chart.js": "^2.9.4",
     "clsx": "^1.1.1",
     "date-fns": "^2.16.1",
+    "dotenv": "^8.2.0",
     "google-maps-react": "^2.0.6",
     "material-auto-rotating-carousel": "^3.0.2",
     "notistack": "^1.0.3",

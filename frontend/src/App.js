@@ -3,9 +3,12 @@ import {ThemeProvider, createMuiTheme, colors, CssBaseline} from "@material-ui/c
 import Navbar from "./components/navigation/Navbar";
 import {blue, red} from "@material-ui/core/colors";
 import {ThemeContext} from "./context/ThemeContext";
+import WebSocketInstance from "./WebSocket";
+import {MessageContext} from "./context/Message"
 
 const App = () => {
   const {dark} = React.useContext(ThemeContext);
+  const {messages,setMessages} = React.useContext(MessageContext);
 
   const theme = createMuiTheme({
     palette: {
@@ -18,6 +21,14 @@ const App = () => {
       },
     },
   })
+
+  React.useEffect(()=>{
+    WebSocketInstance.connect(1);
+    WebSocketInstance.addCallbacks(
+      (msgs)=>setMessages(msgs),
+      (msgs)=>setMessages(msgs)
+    )
+  },[])
 
   return (
      <>
