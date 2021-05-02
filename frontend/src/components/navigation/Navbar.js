@@ -242,6 +242,10 @@ export default function ClippedDrawer() {
                         </List>
                     ):(
                         <List>
+                            <ListItem button key={'Chat'}>
+                                <ListItemIcon><LockOpen /></ListItemIcon>
+                                <ListItemText primary={'Chat'}/>
+                            </ListItem>
                             <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
                                 <ListItemIcon><LockOpen /></ListItemIcon>
                                 <ListItemText primary={'Logout'} />
