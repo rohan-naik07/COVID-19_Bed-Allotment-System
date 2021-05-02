@@ -112,7 +112,7 @@ export default function UserProfile(props) {
               "Content-Type" : "application/json",
               "Authorization": `Token ${getToken()}`,
           },
-          url: '/portal/patient-details/'
+          url: `${process.env.REACT_APP_API_URL}/portal/patient-details/`
       }).then(res => {
           setValues({
               first_name: res.data.data.user.first_name,
@@ -165,7 +165,7 @@ export default function UserProfile(props) {
                   'birthday': selectedDate.getUTCFullYear() + "-" + (selectedDate.getUTCMonth()+1) + "-" + selectedDate.getUTCDate(),
                   'weight' : values.weight
               },
-              url:  '/portal/patient-details/'
+              url:  `${process.env.REACT_APP_API_URL}/portal/patient-details/`
           }).then(response => {
               closeSnackbar('try_edit')
               setErrors({...errors, editError: false});

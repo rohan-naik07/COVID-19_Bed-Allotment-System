@@ -91,7 +91,7 @@ export const SignUp = ({ open, setOpen, otp, setOTP }) => {
                     weight: values.weight,
                     birthday: selectedDate.getUTCFullYear() + "-" + (selectedDate.getUTCMonth()+1) + "-" + selectedDate.getUTCDate(),
                 },
-                url: '/auth/register/'
+                url: `${process.env.REACT_APP_API_URL}/auth/register/`
             }).then(response => {
                 closeSnackbar('try_signUp')
                 setCookie(response.data.token, 'token');
@@ -110,7 +110,7 @@ export const SignUp = ({ open, setOpen, otp, setOTP }) => {
                         "Content-Type" : "application/json",
                         "Authorization": `Token ${getToken()}`,
                     },
-                    url: '/auth/verify/'
+                    url: `${process.env.REACT_APP_API_URL}/auth/verify/`
                 }).then(response => {
                     closeSnackbar('send-otp')
                     enqueueSnackbar('OTP sent to your email Successfully!', {variant: 'success', key: 'success-send'})

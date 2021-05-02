@@ -52,4 +52,3 @@ class CreateChatView(generics.ListCreateAPIView):
         except Exception as e:
             print(traceback.print_exc(e))
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
