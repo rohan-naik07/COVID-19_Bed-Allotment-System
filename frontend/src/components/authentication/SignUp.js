@@ -79,7 +79,6 @@ export const SignUp = ({ open, setOpen, otp, setOTP }) => {
             axios({
                 method: 'POST',
                 headers: {
-                    "Access-Control-Allow-Origin": "*",
                     "Content-Type" : "application/json"
                 },
                 data: {
