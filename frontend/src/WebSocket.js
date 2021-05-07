@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 class WebSocketService {
     static instance = null;
     callbacks = {};
@@ -16,7 +14,7 @@ class WebSocketService {
     }
 
     connect(chatUrl) {
-        const path = `${process.env.REACT_APP_SOCKET_URL}/ws/chat/${chatUrl}/`;
+        const path = `${process.env.REACT_APP_SOCKET_URL}/ws/chat/${1234}/`;
         this.socketRef = new WebSocket(path);
         this.socketRef.onopen = () => {
             console.log("WebSocket open");
@@ -29,7 +27,6 @@ class WebSocketService {
         };
         this.socketRef.onclose = () => {
             console.log("WebSocket closed let's reopen");
-            this.connect();
         };
     }
 
@@ -88,4 +85,4 @@ class WebSocketService {
 
 const WebSocketInstance = WebSocketService.getInstance();
 
-export default WebSocketInstance;
+export {WebSocketInstance};

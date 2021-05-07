@@ -3,7 +3,7 @@ import {ThemeProvider, createMuiTheme, colors, CssBaseline} from "@material-ui/c
 import Navbar from "./components/navigation/Navbar";
 import {blue, red} from "@material-ui/core/colors";
 import {ThemeContext} from "./context/ThemeContext";
-import WebSocketInstance from "./WebSocket";
+import {WebSocketInstance, socket} from "./WebSocket";
 import {MessageContext} from "./context/Message"
 
 const App = () => {
@@ -23,6 +23,7 @@ const App = () => {
   })
 
   React.useEffect(()=>{
+    WebSocketInstance.connect(1);
     WebSocketInstance.addCallbacks(
       (msgs)=>setMessages(msgs),
       (msgs)=>setMessages(msgs)
