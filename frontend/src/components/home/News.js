@@ -44,7 +44,9 @@ const NewsItem = props=>{
     const classes = useStyles();
     const urltoImage = props.urltoImage;
     return (
-        <Link target="_blank" to={`http:\\${props.url}`}>
+        <Link target="_blank" to={`http:\\${props.url}`} style={{
+            textDecoration : 'none'
+        }}>
         <Card className={classes.card}>
             <CardMedia className={classes.media} image={urltoImage}/>
             <CardContent className={classes.content}>
