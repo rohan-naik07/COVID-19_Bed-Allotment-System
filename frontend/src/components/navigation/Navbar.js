@@ -31,6 +31,7 @@ import About from "../about/About";
 import Graphs from "../charts/Graphs";
 import Hospitals from '../hospital/Hospitals'
 import Sentiment from '../sentiments/Sentiment'
+import Chat from '../chat/Chat'
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
 
@@ -96,7 +97,7 @@ export default function ClippedDrawer() {
     const [open, setOpen] = React.useState(false);
     const [login, setLogin] = React.useState(false);
     const [signUp, setSignUp] = React.useState(false);
-    const [loggedIn, setLoggedIn] = React.useState(false);
+    const [loggedIn, setLoggedIn] = React.useState(true);
     const [logout, setLogout] = React.useState(false);
     const [otp, setOTP] = React.useState(false);
     const [tab, setTab] = React.useState(0);
@@ -242,10 +243,6 @@ export default function ClippedDrawer() {
                         </List>
                     ):(
                         <List>
-                            <ListItem button key={'Chat'}>
-                                <ListItemIcon><LockOpen /></ListItemIcon>
-                                <ListItemText primary={'Chat'}/>
-                            </ListItem>
                             <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
                                 <ListItemIcon><LockOpen /></ListItemIcon>
                                 <ListItemText primary={'Logout'} />
@@ -270,6 +267,7 @@ export default function ClippedDrawer() {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
+                    <Route path='/hospital/:name' component={Chat}/>
                     <Route exact path='/hospitals' component={Hospitals}/>
                     <Route exact path='/sentiments' component={Sentiment}/>
                 </Switch>
