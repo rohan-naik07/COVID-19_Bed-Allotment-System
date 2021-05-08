@@ -14,7 +14,6 @@ class Message(models.Model):
 class Chat(models.Model):
     participants = models.ForeignKey('authentication.User', blank=True, null=True, on_delete=models.CASCADE)
     hospital = models.ForeignKey('portal.Hospital', null=False, related_name='Hospital', on_delete=models.CASCADE)
-    p2p = models.BooleanField(default=True)
     messages = models.ManyToManyField(Message, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 

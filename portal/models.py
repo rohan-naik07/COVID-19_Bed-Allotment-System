@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 
 # Create your models here.
@@ -28,6 +29,11 @@ class Hospital(models.Model):
     staff = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, related_name='hospital_staff',
                                  null=True)
     applicants = models.ForeignKey(Patient, on_delete=models.SET_NULL, verbose_name='Applicants', null=True)
+    slug = models.SlugField(max_length=8, unique=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify()
 
     def __str__(self):
         return self.name
