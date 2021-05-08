@@ -7,7 +7,7 @@ from rest_framework import status
 from authentication.models import User
 from .models import *
 from rest_framework import generics
-import traceback
+from .serializers import ChatSerializer
 
 
 # Create your views here.
@@ -26,29 +26,7 @@ def get_current_chat(chatId):
     return get_object_or_404(Chat, id=chatId)
 
 
-class CreateChatView(generics.ListCreateAPIView):
+class ChatView(generics.ListCreateAPIView):
     authentication_classes = [JSONWebTokenAuthentication, ]
     permission_classes = [IsAuthenticated, ]
-
-    def list(self, request, *args, **kwargs):
-        chats = Chat.objects.filter(participants__email=request.user)
-        context = []
-        for chat in chats:
-            context.append({
-                'id': chat.id,
-                'hospital_name': chat.hospital.name
-            })
-        return Response(data=context, status=status.HTTP_204_NO_CONTENT)
-
-    def create(self, request, *args, **kwargs):
-        try:
-            chat = Chat.objects.create()
-            for participant in request.data.get('participants'):
-                chat.participants.add(User.objects.get(email=participant))
-            chat.p2p = request.data.get('p2p')
-            chat.save()
-
-            return Response(status=status.HTTP_201_CREATED)
-        except Exception as e:
-            print(traceback.print_exc(e))
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+    serializer_class = ChatSerializer
