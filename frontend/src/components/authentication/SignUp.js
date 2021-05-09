@@ -13,7 +13,7 @@ import {getToken, setCookie} from "./cookies";
 import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 
-export const SignUp = ({ open, setOpen,ssetOTP }) => {
+export const SignUp = ({ open, setOpen,setOTP }) => {
     const [selectedDate, handleDateChange] = useState(new Date());
     const [values, setValues] = useState({
         first_name: null,
