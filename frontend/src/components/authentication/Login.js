@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useState} from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -72,7 +73,7 @@ export const Login = ({ open, setOpen, setOTP }) => {
                 setOpen(false);
                 enqueueSnackbar('Logged In Successfully!', { variant: 'success', key: 'login_success'})
                 setTimeout(() => closeSnackbar('login_success'), 5000)
-                if(!response.data.is_verified)
+                if(response.data.is_verified===false)
                 {
                     setOTP(true);
                     setCookie(response.data.is_verified, 'verification')

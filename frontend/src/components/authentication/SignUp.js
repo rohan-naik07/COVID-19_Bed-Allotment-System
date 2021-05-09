@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -13,7 +14,7 @@ import {getToken, setCookie} from "./cookies";
 import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 
-export const SignUp = ({ open, setOpen, otp, setOTP }) => {
+export const SignUp = ({ open, setOpen,setOTP }) => {
     const [selectedDate, handleDateChange] = useState(new Date());
     const [values, setValues] = useState({
         first_name: null,
@@ -50,6 +51,7 @@ export const SignUp = ({ open, setOpen, otp, setOTP }) => {
 
     useEffect(() => {
         setStage(0);
+        // eslint-disable-line react-hooks/exhaustive-deps
     }, [open])
 
     const handleSubmit = () => {

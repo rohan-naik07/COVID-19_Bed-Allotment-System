@@ -63,7 +63,6 @@ const Graphs = () => {
     const [totalConfirmed, settotalConfirmed] = useState([]);
     const [totaldeaths, settotalDeaths] = useState([]);
     const [totaldischarged, settotalDischarged] = useState([]);
-    const [time, setTime] = useState({});
     const [type, setType] = useState('totalConfirmed');
     const [news,setNews] = useState([]);
 
@@ -85,7 +84,7 @@ const Graphs = () => {
                 settotalConfirmed(response.data.data.summary.total);
                 settotalDeaths(response.data.data.summary.deaths)
                 settotalDischarged(response.data.data.summary.discharged)
-                setTime(response.data.lastRefreshed);
+                //setTime(response.data.lastRefreshed);
             })
             .catch(() => window.alert("Please Check you internet connection!"))
     }

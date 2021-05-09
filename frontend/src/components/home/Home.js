@@ -1,7 +1,7 @@
 import React from "react";
 import {Typography} from "@material-ui/core";
 
-const Home = (props) => {
+const Home = () => {
     return (
         <Typography paragraph>
         Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla

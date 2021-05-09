@@ -31,6 +31,7 @@ import About from "../about/About";
 import Graphs from "../charts/Graphs";
 import Hospitals from '../hospital/Hospitals'
 import Sentiment from '../sentiments/Sentiment'
+import Chat from '../chat/Chat'
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
 
@@ -117,7 +118,7 @@ export default function ClippedDrawer() {
         let token = getToken();
         if(token !== '') {
             setLoggedIn(true);
-            if(getCookie('verification'))
+            if(getCookie('verification')==='false')
             {
                 setOTP(true);
             }
@@ -242,10 +243,6 @@ export default function ClippedDrawer() {
                         </List>
                     ):(
                         <List>
-                            <ListItem button key={'Chat'}>
-                                <ListItemIcon><LockOpen /></ListItemIcon>
-                                <ListItemText primary={'Chat'}/>
-                            </ListItem>
                             <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
                                 <ListItemIcon><LockOpen /></ListItemIcon>
                                 <ListItemText primary={'Logout'} />
@@ -270,6 +267,7 @@ export default function ClippedDrawer() {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
+                    <Route path='/hospital/:name' component={Chat}/>
                     <Route exact path='/hospitals' component={Hospitals}/>
                     <Route exact path='/sentiments' component={Sentiment}/>
                 </Switch>
