@@ -1,12 +1,11 @@
+/* eslint-disable */
 import React from "react";
-import {Button, Divider, Grid, IconButton, Paper, TextField, Typography} from "@material-ui/core";
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import {Button, Divider,IconButton, Paper, TextField, Typography} from "@material-ui/core";
 import SendIcon from '@material-ui/icons/Send';
 
 const ChatScreen = (props) => {
 
-    const renderTimestamp = timestamp => {
+    /*const renderTimestamp = timestamp => {
         let prefix = "";
         const timeDiff = Math.round(
             (new Date().getTime() - new Date(timestamp).getTime()) / 60000
@@ -45,7 +44,7 @@ const ChatScreen = (props) => {
                 </Grid>
             </ListItem>
         ));
-    };
+    };*/
 
     return (
        <Paper elevation={3}>

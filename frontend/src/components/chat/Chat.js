@@ -2,11 +2,8 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import Divider from '@material-ui/core/Divider';
-import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import List from '@material-ui/core/List';
 import Rating from '@material-ui/lab/Rating';
 import Button from '@material-ui/core/Button';
 import {reviews} from './reviews';
@@ -64,8 +61,6 @@ const useStyles = makeStyles((theme)=>({
   }));
 
 const Chat = (props) => {
-    const [state, setState] = React.useState({message: ""});
-    const [messages,setMessages] = React.useState([]);
     const classes = useStyles();
     const hospital = props.location.state.hospital;
 

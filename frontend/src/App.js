@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from "react";
 import {ThemeProvider, createMuiTheme, colors, CssBaseline} from "@material-ui/core";
 import Navbar from "./components/navigation/Navbar";
