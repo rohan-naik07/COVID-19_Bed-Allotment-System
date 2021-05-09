@@ -7,5 +7,5 @@ router.register('hospitals', HospitalViewSet)
 
 urlpatterns = [
     path('patient-details/', PatientView.as_view(), name='details'),
-    path('', include(router.urls))
+    path('', include(router.urls, 'portal'))
 ]
