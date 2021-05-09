@@ -14,6 +14,7 @@ class Patient(models.Model):
     is_heart_patient = models.BooleanField(default=False)
     has_applied = models.BooleanField(default=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Patient Profile')
+    application = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.user.username
@@ -29,7 +30,6 @@ class Hospital(models.Model):
     contact = models.CharField(max_length=120, null=True)
     staff = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, related_name='hospital_staff',
                                  null=True)
-    applicants = models.ForeignKey(Patient, on_delete=models.SET_NULL, verbose_name='Applicants', null=True)
     slug = models.SlugField(max_length=8, unique=True, null=True)
 
     def save(self, *args, **kwargs):

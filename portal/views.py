@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from authentication.serializers import UserSerializer
 from .serializers import *
@@ -43,3 +44,16 @@ class PatientView(APIView):
             return Response({'success': True}, status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class HospitalViewSet(ModelViewSet):
+    serializer_class = HospitalSerializer
+    authentication_classes = [JSONWebTokenAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+    lookup_field = 'slug'
+
+    def get_serializer_context(self):
+        context = super(HospitalViewSet, self).get_serializer_context()
+        context['request'] = self.request
+
+        return context

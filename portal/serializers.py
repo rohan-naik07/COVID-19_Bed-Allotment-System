@@ -8,24 +8,26 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ['is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'has_applied', 'user']
+        fields = ['is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'has_applied',
+                  'user_email']
 
-    def create(self, validated_data):
-        return Patient(is_corona_positive=validated_data['is_corona_positive'],
-                       is_diabetic=validated_data['is_diabetic'],
-                       is_heart_patient=validated_data['is_heart_patient'],
-                       on_medications=validated_data['on_medications'],
-                       has_applied=validated_data['has_applied'])
 
-    def update(self, patient, validated_data):
-        user = UserSerializer.create(UserSerializer(), validated_data=validated_data.pop('user'))
-        user = UserSerializer.update(UserSerializer(), user, data=validated_data.pop['user'])
-        patient.is_corona_positive = validated_data['is_corona_positive']
-        patient.is_diabetic = validated_data['is_diabetic']
-        patient.is_heart_patient = validated_data['is_heart_patient']
-        patient.on_medications = validated_data['on_medications']
-        patient.has_applied = validated_data['has_applied']
-        patient.user = user
-        patient.save()
+class HospitalSerializer(serializers.ModelSerializer):
+    staff = UserSerializer(required=False)
+    current_user = serializers.SerializerMethodField('_user')
 
-        return patient
+    class Meta:
+        model = Hospital
+        fields = ['name', 'total_beds', 'available_beds', 'latitude', 'longitude', 'contact', 'staff_id', 'current_user']
+        lookup_fields = ['slug', 'id']
+
+    def _user(self):
+        request = self.context.get('request', None)
+        if request:
+            return request.user
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['slug'] = instance.slug
+
+        return response
