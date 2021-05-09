@@ -2,51 +2,49 @@
 import React from "react";
 import {Button, Divider,IconButton, Paper, TextField, Typography} from "@material-ui/core";
 import SendIcon from '@material-ui/icons/Send';
+require('dotenv').config()
 
 const ChatScreen = (props) => {
+    const [messages,setMessages] = React.useState([]);
+    const [render,setRender] = React.useState(false);
+    let socket;
 
-    /*const renderTimestamp = timestamp => {
-        let prefix = "";
-        const timeDiff = Math.round(
-            (new Date().getTime() - new Date(timestamp).getTime()) / 60000
-        );
-        if (timeDiff < 1) {
-            // less than one minute ago
-            prefix = "just now...";
-        } else if (timeDiff < 60 && timeDiff > 1) {
-            // less than sixty minutes ago
-            prefix = `${timeDiff} minutes ago`;
-        } else if (timeDiff < 24 * 60 && timeDiff > 60) {
-            // less than 24 hours ago
-            prefix = `${Math.round(timeDiff / 60)} hours ago`;
-        } else if (timeDiff < 31 * 24 * 60 && timeDiff > 24 * 60) {
-            // less than 7 days ago
-            prefix = `${Math.round(timeDiff / (60 * 24))} days ago`;
-        } else {
-            prefix = `${new Date(timestamp)}`;
+    
+    React.useEffect(()=>{
+        socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat`);
+        socket.onopen = function(e) {
+            alert("[open] Connection established");
+
+        };
+
+        socket.onmessage = (e)=>{
+            setMessages(JSON.parse(e.data).messages)
         }
-        return prefix;
-    };
 
-    const RenderMessages = messages => {
-        const currentUser = props.username;
-        return messages.map((message, i, arr) => (
-            <ListItem key={message.id} style={{ marginBottom: arr.length - 1 === i ? "300px" : "15px" }}>
-                <Grid container>
-                    <Grid item xs={12}>
-                        <ListItemText align={message.author === currentUser ? "left" : "right"}
-                            primary={message.content}></ListItemText>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <ListItemText align={message.author === currentUser ? "left" : "right"}
-                            secondary={renderTimestamp(message.timestamp)}></ListItemText>
-                    </Grid>
-                </Grid>
-            </ListItem>
-        ));
-    };*/
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+              alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+            } else {
+              // e.g. server process killed or network down
+              // event.code is usually 1006 in this case
+              alert('[close] Connection died');
+            }
+          };
+      
+          socket.onerror = function(error) {
+            alert(`[error] ${error.message}`);
+          };
+          // Destroys the socket reference
+            // when the connection is close
+            setRender(true);
+            return () => {
+                socket.close();
+            };
+    },[])
 
-    return (
+    
+
+    return render && (
        <Paper elevation={3}>
            <div style={{display:'flex',justifyContent:'space-between',padding:10}}>
             <Typography variant='h4'>Chat</Typography>
