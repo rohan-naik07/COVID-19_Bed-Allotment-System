@@ -131,7 +131,7 @@ const Chat = (props) => {
                 </Paper>
             </Grid>
             <Grid item xs={6}>
-                  <ChatScreen id={hospital._id}/>  
+                  <ChatScreen id={hospital._id} />  
             </Grid>
         </Grid>
     )

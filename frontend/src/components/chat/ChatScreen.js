@@ -2,13 +2,37 @@
 import React from "react";
 import {Button, Divider,IconButton, Paper, TextField, Typography} from "@material-ui/core";
 import SendIcon from '@material-ui/icons/Send';
+import axios from 'axios';
+import { useSnackbar } from "notistack";
 require('dotenv').config()
 
 const ChatScreen = (props) => {
     const [messages,setMessages] = React.useState([]);
     const [render,setRender] = React.useState(false);
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     let socket;
 
+    const recieveData = ()=>{
+        enqueueSnackbar('Connecting...', {variant: 'info', key: 'try_connect'})
+            axios({
+                method: 'POST',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                data: {
+                   id : props.id
+                },
+                url: `${process.env.REACT_APP_API_URL}/auth/login/`
+            }).then(response => {
+               
+                
+            }).catch(error => {
+                closeSnackbar('try_login')
+                setErrors({...errors, loginError: true});
+                enqueueSnackbar('Failed to log in', { variant: 'error', key: 'login_error'})
+                setTimeout(() => closeSnackbar('login_error'), 5000)
+            })
+    }
     
     React.useEffect(()=>{
         socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat`);
