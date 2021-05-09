@@ -150,8 +150,10 @@ const Hospitals = (props) => {
 
       setGraphData(data);
       setHospital(probs[0])
+      
         
-    },[])
+    },[] )// eslint-disable-line react-hooks/exhaustive-deps
+    
 
     return (
         <div>
@@ -159,6 +161,7 @@ const Hospitals = (props) => {
          <Grid item xs={6} style={{position: 'relative', height: '50vh',marginBottom:30}}>
                 <iframe
                 width="100%"
+                title="map"
                 height="400"
                 style={{border : 0}}
                 loading="lazy"

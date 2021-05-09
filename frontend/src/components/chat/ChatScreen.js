@@ -1,10 +1,7 @@
 import React from "react";
 import {Button, Divider, Grid, IconButton, Paper, TextField, Typography} from "@material-ui/core";
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import Avatar from '@material-ui/core/Avatar';
-import Fab from '@material-ui/core/Fab';
 import SendIcon from '@material-ui/icons/Send';
 
 const ChatScreen = (props) => {

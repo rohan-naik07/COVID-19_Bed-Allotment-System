@@ -97,7 +97,7 @@ export default function ClippedDrawer() {
     const [open, setOpen] = React.useState(false);
     const [login, setLogin] = React.useState(false);
     const [signUp, setSignUp] = React.useState(false);
-    const [loggedIn, setLoggedIn] = React.useState(true);
+    const [loggedIn, setLoggedIn] = React.useState(false);
     const [logout, setLogout] = React.useState(false);
     const [otp, setOTP] = React.useState(false);
     const [tab, setTab] = React.useState(0);
@@ -118,7 +118,7 @@ export default function ClippedDrawer() {
         let token = getToken();
         if(token !== '') {
             setLoggedIn(true);
-            if(getCookie('verification'))
+            if(getCookie('verification')==='false')
             {
                 setOTP(true);
             }
