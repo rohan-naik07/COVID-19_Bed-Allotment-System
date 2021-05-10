@@ -12,7 +12,7 @@ User = User
 class ChatConsumer(WebsocketConsumer):
 
     def fetch_messages(self, data):
-        messages = get_messages(data['chatId'])
+        messages = get_messages(data['chatSlug'])
         content = {
             'command': 'messages',
             'messages': self.messages_to_json(messages)
@@ -24,7 +24,7 @@ class ChatConsumer(WebsocketConsumer):
         message = Message.objects.create(
             user=user,
             text=data['message'])
-        current_chat = get_current_chat(data['chatId'])
+        current_chat = get_current_chat(data['chatSlug'])
         current_chat.messages.add(message)
         current_chat.save()
         content = {

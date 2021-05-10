@@ -16,6 +16,7 @@ const ChatScreen = (props) => {
     
     React.useEffect(()=>{
         if(props.slug) {
+            console.log(true)
             socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${props.slug}/`);
             socket.onopen = function(e) {
                 console.log("Connection established");
@@ -44,14 +45,15 @@ const ChatScreen = (props) => {
                 socket.close();
             };
         }
+        else {
+        }
         setRender(true);
     },[])
 
     const handleCreateChat = () => {
         axios.post(`${process.env.REACT_APP_API_URL}/chat/`,
             {
-                user_email: (jwt_decode(getToken())).email,
-                hospital_slug: props.hospital_slug
+                hospital: props.hospital_slug
             },
             {
                 headers: {

@@ -27,7 +27,7 @@ class HospitalSerializer(serializers.ModelSerializer):
         try:
             request = self.context.get('request', None)
             if request:
-                response['chat_slug'] = Chat.objects.get(user=request.user, hospital=instance)
+                response['chat_slug'] = Chat.objects.get(user=request.user, hospital=instance).slug
             else:
                 response['chat_slug'] = None
         except Exception as e:

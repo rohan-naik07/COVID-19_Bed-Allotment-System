@@ -127,8 +127,8 @@ const Chat = (props) => {
                             </Grid>
                         </Grid>
                     </Paper>
-                    <div style={{display:'flex',justifyContent:'space-between'}}>
-                        <a href={hospital.website}>
+                    <div style={{display:'flex',justifyContent:'space-between',paddingTop:10}}>
+                        <a href={hospital.website} style={{width:"50%"}}>
                             <Button variant='outlined' color='primary'>Visit Us</Button>
                         </a>
                         <Typography variant='h5'>{hospital.contact}</Typography>
