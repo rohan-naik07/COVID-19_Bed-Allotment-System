@@ -10,7 +10,6 @@ import IconButton from '@material-ui/core/IconButton';
 import {useHistory} from "react-router";
 import MenuBookSharpIcon from '@material-ui/icons/MenuBookSharp';
 import {Map, GoogleApiWrapper, Marker} from 'google-maps-react';
-import googleMapStyles from "./mapStyle";
 import { Paper,Typography } from "@material-ui/core";
 import Geocode from "react-geocode";
 import {
@@ -198,9 +197,6 @@ const Hospitals = (props) => {
          </div>
     )
 }
-
-Hospitals.defaultProps = googleMapStyles;
-
 
 export default GoogleApiWrapper({
   apiKey: `${process.env.REACT_APP_API_KEY}`

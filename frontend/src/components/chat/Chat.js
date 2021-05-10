@@ -65,6 +65,7 @@ const useStyles = makeStyles((theme)=>({
 const Chat = (props) => {
     const classes = useStyles();
     const [hospital, setHospital] = React.useState({});
+    const [render, setRender] = React.useState(false);
 
     React.useEffect(() => {
         axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${props.match.params.slug}/`,
@@ -75,6 +76,7 @@ const Chat = (props) => {
                 }
             }).then(res => {
                 setHospital(res.data);
+                setRender(true);
         })
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -103,7 +105,7 @@ const Chat = (props) => {
     }
 
 
-    return hospital && (
+    return render && (
         <Grid container spacing={2} style={{ overflow:'hidden',}}>
             <Grid item xs={6}>
                 <Paper elevation={3} style={{padding:10}}>
@@ -119,8 +121,8 @@ const Chat = (props) => {
                                     </Typography>
                                     <br/>
                                     <div style={{display:'flex',justifyContent:'space-around'}}>
-                                        <Chip size='large' label={`${hospital.total_beds} beds `} color='primary'/>
-                                        <Chip size='large' label={`${hospital.available_beds} beds availiable`} color='secondary'/>
+                                        <Chip size='medium' label={`${hospital.total_beds} beds `} color='primary'/>
+                                        <Chip size='medium' label={`${hospital.available_beds} beds availiable`} color='secondary'/>
                                         <Button variant='contained' color='primary'>Book a bed</Button>
                                     </div>
                                 </div>

@@ -9,14 +9,19 @@ import {getToken} from "../authentication/cookies";
 require('dotenv').config()
 
 const ChatScreen = (props) => {
-    const [messages,setMessages] = React.useState([]);
-    const [render,setRender] = React.useState(false);
+    const [messages, setMessages] = React.useState([]);
+    const [render, setRender] = React.useState(false);
+    const [slug, setSlug] = React.useState(null);
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     let socket;
+
+    React.useEffect(() => {
+        setSlug(props.slug);
+    }, [])
     
     React.useEffect(()=>{
-        if(props.slug) {
-            console.log(true)
+        if(slug) {
+            console.log(true);
             socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${props.slug}/`);
             socket.onopen = function(e) {
                 console.log("Connection established");
@@ -45,9 +50,6 @@ const ChatScreen = (props) => {
                 socket.close();
             };
         }
-        else {
-        }
-        setRender(true);
     },[])
 
     const handleCreateChat = () => {
@@ -61,14 +63,14 @@ const ChatScreen = (props) => {
                     Authorization: `Token ${getToken()}`,
                 }
             }
-        ).then(res => console.log(res))
+        ).then(res => setSlug(res.data.slug))
     }
 
-    return render && (
+    return (
        <Paper elevation={3}>
            <div style={{display:'flex',justifyContent:'space-between',padding:10}}>
             <Typography variant='h4'>Chat</Typography>
-               {!props.slug &&
+               {!slug &&
                    <Button
                        variant='contained'
                        onClick={handleCreateChat}
@@ -87,13 +89,18 @@ const ChatScreen = (props) => {
                display:'flex',
                justifyContent:'space-between'
            }}>
+               {props.slug && (
+                   <Paper elevation={10}>
+
+                   </Paper>
+               )}
                <TextField
                     placeholder="Type a message"
                     variant='outlined'
                     fullWidth
-                    disabled={!props.slug}
+                    disabled={!slug}
                />
-                <IconButton disabled={!props.slug}>
+                <IconButton disabled={!slug}>
                     <SendIcon fontSize='large'/>
                 </IconButton>
            </div>

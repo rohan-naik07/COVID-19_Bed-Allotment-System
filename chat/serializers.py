@@ -12,4 +12,4 @@ class ChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chat
         fields = ['user', 'hospital', 'created', 'slug']
-        lookup_fields = ['id', 'slug']
+        lookup_fields = ['id', 'slug', 'hospital__slug']
