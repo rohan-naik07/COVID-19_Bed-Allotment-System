@@ -7,7 +7,6 @@ import { Bar, Doughnut } from 'react-chartjs-2';
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
 import Fade from "@material-ui/core/Fade";
-import News from "../home/News";
 import Divider from "@material-ui/core/Divider";
 
 
@@ -64,7 +63,6 @@ const Graphs = () => {
     const [totaldeaths, settotalDeaths] = useState([]);
     const [totaldischarged, settotalDischarged] = useState([]);
     const [type, setType] = useState('totalConfirmed');
-    const [news,setNews] = useState([]);
 
     const fetchCases = () => {
         axios({
@@ -89,24 +87,10 @@ const Graphs = () => {
             .catch(() => window.alert("Please Check you internet connection!"))
     }
 
-    const fetchNews = () => {
-        axios({
-            method:'get',
-            headers: {
-                'Content-type':'application/json'
-            },
-            url: 'https://newsapi.org/v2/everything?q=covid&apiKey=13cb9c6ff1be40f8bb5ee37eef23c446'
-            })
-            .then(data => {
-                setTimeout(() => setSpinner(false), 1000);
-                setNews(data.data.articles);
-            })
-            .catch((e) => window.alert(e.message))
-    }
+
 
     useEffect(() => {
         fetchCases()
-        fetchNews()
     },[dummy]);
 
     const handleSwitch = (event) => {
@@ -245,9 +229,6 @@ const Graphs = () => {
                                     </CardContent>
                                     </Card>
                                 </Grid>
-                             </Fade>
-                             <Fade in={true} timeout={1000}>
-                                <Grid item xs={12}><News news = {news}/></Grid>
                              </Fade>
                              </Grid> 
                         </Container>

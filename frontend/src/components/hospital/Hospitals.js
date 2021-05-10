@@ -9,6 +9,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import {useHistory} from "react-router";
 import MenuBookSharpIcon from '@material-ui/icons/MenuBookSharp';
+import {Map, GoogleApiWrapper, Marker} from 'google-maps-react';
+import googleMapStyles from "./mapStyle";
 import { Paper,Typography } from "@material-ui/core";
 import Geocode from "react-geocode";
 import {
@@ -48,56 +50,23 @@ const Hospitals = (props) => {
      const [address, setAddress] = React.useState("");
      const [maxBedHospital,setHospital] = React.useState("");
      const [graphData,setGraphData] = React.useState([]);
+     const [stores,setStores] = React.useState([])
      const [tileData, setTileData] = React.useState([]);
      const history = useHistory();
 
+     const displayMarkers = () => {
+      return stores.map((store, index) => {
+          return <Marker key={index} id={index} position={{
+              lat: store.latitude,
+              lng: store.longitude
+          }}
+         onClick={() => console.log("You clicked me!")} />
+      })
+    }
+
     React.useEffect(()=>{
         // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
-         axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/`,
-              {
-                   headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Token ${getToken()}`,
-                   }
-              }
-         ).then(res => {
-                setTileData(res.data);
-                let data = [];
-                let probs = [];
-
-                res.data.forEach((obj)=>{
-                    data.push({
-                        "name" : obj.name.split(' ')[0],
-                        "beds" : obj.beds_availiable
-                    })
-                    probs.push({
-                        name : obj.name,
-                        prob : (obj.beds_availiable/obj.total_beds)*100
-                    });
-                });
-                probs.sort(( a, b)=> {
-                if ( a.prob < b.prob){
-                    return 1;
-                }
-                if ( a.prob > b.prob){
-                    return -1;
-                }
-                    return 0; // sort according to decreasing frequencies
-                });
-                setGraphData(data);
-                setHospital(probs[0])
-         })
         Geocode.setApiKey(process.env.REACT_APP_API_KEY);
-
-        // set response language. Defaults to english.
-        Geocode.setLanguage("en");
-        // set response region. Its optional.
-        // A Geocoding request with region=es (Spain) will return the Spanish city.
-        Geocode.setRegion("es");
-        Geocode.setLocationType("ROOFTOP");
-        // Enable or disable logs. Its optional.
-        Geocode.enableDebug();
-
         navigator.geolocation.getCurrentPosition(
             function( position ){ // success cb
                 //console.log( position );
@@ -116,20 +85,57 @@ const Hospitals = (props) => {
             function(){ // fail cb
             }
         );
+
+         axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/`,
+              {
+                   headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Token ${getToken()}`,
+                   }
+              }
+         ).then(res => {
+                let data = [];
+                let probs = [];
+                let markers = [];
+
+                res.data.forEach((obj)=>{
+                    data.push({
+                        "name" : obj.name.split(' ')[0],
+                        "beds" : obj.beds_availiable
+                    })
+                    probs.push({
+                        name : obj.name,
+                        prob : (obj.beds_availiable/obj.total_beds)*100
+                    });
+                    markers.push({
+                      latitude : tile.latitude,
+                      longitude : tile.longitude
+                  })
+                });
+
+                probs.sort(( a, b)=> {
+                    if ( a.prob < b.prob){
+                        return 1;
+                    }
+                    if ( a.prob > b.prob){
+                        return -1;
+                    }
+                    return 0; // sort according to decreasing frequencies
+                });
+
+                setGraphData(data);
+                setHospital(probs[0])
+                setStores(markers);
+                setTileData(res.data);
+         })
+        
     },[] )// eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <div>
          <Grid container >
          <Grid item xs={6} style={{position: 'relative', height: '50vh',marginBottom:30}}>
-                <iframe
-                width="100%"
-                title="map"
-                height="400"
-                style={{border : 0}}
-                loading="lazy"
-                src={`https://www.google.com/maps/embed/v1/place?key=${process.env.REACT_APP_API_KEY}&q=Space+Needle,Pune+MH`}>
-                </iframe>
+              
              </Grid>
              <Grid item xs={6}>
                  <Paper elevation={3} style={{marginLeft:10,padding:10}}>
@@ -184,5 +190,9 @@ const Hospitals = (props) => {
     )
 }
 
+Hospitals.defaultProps = googleMapStyles;
 
-export default Hospitals;
+
+export default GoogleApiWrapper({
+  apiKey: `${process.env.REACT_APP_API_KEY}`
+})(Hospitals);
