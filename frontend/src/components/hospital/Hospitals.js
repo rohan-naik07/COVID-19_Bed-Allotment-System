@@ -67,6 +67,7 @@ const Hospitals = (props) => {
     React.useEffect(()=>{
         // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
         Geocode.setApiKey(process.env.REACT_APP_API_KEY);
+
         navigator.geolocation.getCurrentPosition(
             function( position ){ // success cb
                 //console.log( position );
@@ -90,7 +91,7 @@ const Hospitals = (props) => {
               {
                    headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Token ${getToken()}`,
+                        Authorization: `Token ${getToken()}`,
                    }
               }
          ).then(res => {
@@ -135,7 +136,13 @@ const Hospitals = (props) => {
         <div>
          <Grid container >
          <Grid item xs={6} style={{position: 'relative', height: '50vh',marginBottom:30}}>
-              
+               <Map
+                google={props.google}
+                zoom={8}
+                style={props.mapStyle}
+                resetBoundsOnResize={true}>
+                {displayMarkers()}
+                </Map>
              </Grid>
              <Grid item xs={6}>
                  <Paper elevation={3} style={{marginLeft:10,padding:10}}>
