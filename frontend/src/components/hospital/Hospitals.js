@@ -55,6 +55,7 @@ const Hospitals = (props) => {
      const history = useHistory();
 
      const displayMarkers = () => {
+		 console.log(stores);
       return stores.map((store, index) => {
           return <Marker key={index} id={index} position={{
               lat: store.latitude,
@@ -102,15 +103,15 @@ const Hospitals = (props) => {
                 res.data.forEach((obj)=>{
                     data.push({
                         "name" : obj.name.split(' ')[0],
-                        "beds" : obj.beds_availiable
+                        "beds" : obj.available_beds
                     })
                     probs.push({
                         name : obj.name,
-                        prob : (obj.beds_availiable/obj.total_beds)*100
+                        prob : (obj.available_beds/obj.total_beds)*100
                     });
                     markers.push({
-                      latitude : tile.latitude,
-                      longitude : tile.longitude
+                      latitude : obj.latitude,
+                      longitude : obj.longitude
                   })
                 });
 
@@ -139,7 +140,8 @@ const Hospitals = (props) => {
                <Map
                 google={props.google}
                 zoom={8}
-                style={props.mapStyle}
+				center={stores[0]}
+				centerAroundCurrentLocation={true}
                 resetBoundsOnResize={true}>
                 {displayMarkers()}
                 </Map>
