@@ -13,7 +13,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from '@material-ui/icons/Menu';
 import clsx from "clsx";
-import {AccountCircle, LockOpen} from "@material-ui/icons";
+import {AccountCircle, ChatBubble, ListAlt, LocalHospital, LockOpen} from "@material-ui/icons";
 import {getCookie, getToken} from "../authentication/cookies";
 import {Login} from "../authentication/Login";
 import {SignUp} from "../authentication/SignUp";
@@ -30,7 +30,6 @@ import Home from "../home/Home";
 import About from "../about/About";
 import Graphs from "../charts/Graphs";
 import Hospitals from '../hospital/Hospitals'
-import Sentiment from '../sentiments/Sentiment'
 import Chat from '../chat/Chat'
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
@@ -157,12 +156,6 @@ export default function ClippedDrawer() {
             case 2:
                 history.push('/graphs');
                 break;
-            case 3:
-                history.push('/hospitals');
-                break;
-            case 4:
-                history.push('/sentiments');
-                break;
             default:
                 history.push('/');
         }
@@ -186,15 +179,14 @@ export default function ClippedDrawer() {
                         COBAS
                     </Typography>
                     <div className={classes.space}/>
-                    <Hidden smDown>
-                        <Tabs value={tab} indicatorColor="primary" textColor="primary" onChange={handleTabChange}>
-                            <Tab label="Home" />
-                            <Tab label="About Us" />
-                            <Tab label="Data" />
-                            {loggedIn ?  <Tab label="Hospitals"/> : null}
-                            {loggedIn ? <Tab label="Sentiments"/>:null}
-                        </Tabs>
-                    </Hidden>
+                    {!loggedIn ? 
+                        <Hidden smDown>
+                            <Tabs value={tab} indicatorColor="primary" textColor="primary" onChange={handleTabChange}>
+                                <Tab label="Home" />
+                                <Tab label="About Us" />
+                                <Tab label="Stats" />
+                            </Tabs>
+                        </Hidden> : null}
                     <IconButton edge='end' className={classes.themer} onClick={toggleTheme}>
                         {dark ? <Brightness7/>: <Brightness4/>}
                     </IconButton>
@@ -243,6 +235,18 @@ export default function ClippedDrawer() {
                         </List>
                     ):(
                         <List>
+                             <ListItem button key={'Your Applications'}>
+                                <ListItemIcon><ListAlt /></ListItemIcon>
+                                <ListItemText primary={'Your Applications'} />
+                            </ListItem>
+                             <ListItem button key={'Your Chats'} >
+                                <ListItemIcon><ChatBubble/></ListItemIcon>
+                                <ListItemText primary={'Your Chats'} />
+                            </ListItem>
+                             <ListItem button key={'Search Hospitals'}>
+                                <ListItemIcon><LocalHospital /></ListItemIcon>
+                                <ListItemText primary={'Search Hospitals'} />
+                            </ListItem>
                             <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
                                 <ListItemIcon><LockOpen /></ListItemIcon>
                                 <ListItemText primary={'Logout'} />
@@ -269,7 +273,6 @@ export default function ClippedDrawer() {
                     <Route exact path='/graphs' component={Graphs}/>
                     <Route path='/hospital/:slug' component={Chat}/>
                     <Route exact path='/hospitals' component={Hospitals}/>
-                    <Route exact path='/sentiments' component={Sentiment}/>
                 </Switch>
             </main>
         </div>

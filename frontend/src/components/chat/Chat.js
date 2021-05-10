@@ -103,11 +103,11 @@ const Chat = (props) => {
     }
 
 
-    return (
+    return hospital && (
         <Grid container spacing={2} style={{ overflow:'hidden',}}>
             <Grid item xs={6}>
                 <Paper elevation={3} style={{padding:10}}>
-                    <Paper className={classes.container} style={{ backgroundImage: `url(${hospital.img})` }}>
+                    <Paper className={classes.container} style={{ backgroundImage: `url(${hospital.imageUrl})` }}>
                         {/* Increase the priority of the hero background image */}
                         {<img style={{ display: 'none',marginTop:"10Px" }} src={`url(${hospital.imageUrl})`} alt='bg'/>}
                         <div className={classes.overlay} />
@@ -117,22 +117,22 @@ const Chat = (props) => {
                                     <Typography component="h1" variant="h3" color="inherit">
                                         {hospital.name}
                                     </Typography>
+                                    <br/>
+                                    <div style={{display:'flex',justifyContent:'space-around'}}>
+                                        <Chip size='large' label={`${hospital.total_beds} beds `} color='primary'/>
+                                        <Chip size='large' label={`${hospital.available_beds} beds availiable`} color='secondary'/>
+                                        <Button variant='contained' color='primary'>Book a bed</Button>
+                                    </div>
                                 </div>
                             </Grid>
                         </Grid>
                     </Paper>
-                    <div style={{display:'flex',justifyContent:'space-around'}}>
-                        <Chip size='medium' label={`${hospital.total_beds} beds `} color='primary'/>
-                        <Chip size='medium' label={`${hospital.beds_availiable} beds availiable`} color='secondary'/>
-                        <Button variant='contained' color='primary'>Book a bed</Button>
-                    </div>
                     <div style={{display:'flex',justifyContent:'space-between',paddingTop:10}}>
                         <a href={hospital.website} style={{width:"50%"}}>
                             <Button variant='outlined' color='primary'>Visit Us</Button>
                         </a>
-                        <Paper elevation={1} style={{width:"50%",textAlign:'center'}}>
-                            <Typography variant='h4'>{hospital.contact}</Typography>
-                        </Paper>
+                        <Typography variant='h5'>{hospital.contact}</Typography>
+                        <Button variant='outlined' color='primary'>Review Us</Button>
                     </div>
                 </Paper>
                 <Paper  elevation={3} style={{
