@@ -5,6 +5,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework import status
 
 from authentication.models import User
+from portal.models import Hospital
 from .models import *
 from rest_framework import generics
 from .serializers import ChatSerializer
@@ -12,8 +13,8 @@ from .serializers import ChatSerializer
 
 # Create your views here.
 
-def get_messages(chatId):
-    chat = get_object_or_404(Chat, id=chatId)
+def get_messages(chatSlug):
+    chat = get_object_or_404(Chat, slug=chatSlug)
     return chat.messages.order_by('-sent').all()[:10]
 
 
@@ -22,8 +23,8 @@ def get_user(email):
     return user
 
 
-def get_current_chat(chatId):
-    return get_object_or_404(Chat, id=chatId)
+def get_current_chat(chatSlug):
+    return get_object_or_404(Chat, slug=chatSlug)
 
 
 class ChatView(generics.ListCreateAPIView):
@@ -37,3 +38,13 @@ class ChatView(generics.ListCreateAPIView):
         context['request'] = self.request
 
         return context
+
+    def create(self, request, *args, **kwargs):
+        try:
+            chat = Chat.objects.get(user=request.user, hospital__slug=request.data['hospital'])
+        except Chat.DoesNotExist:
+            chat = Chat.objects.create(user=request.user,
+                                       hospital=Hospital.objects.get(slug=request.data.get('hospital')))
+            chat.save()
+
+        return Response(data=ChatSerializer(chat).data, status=status.HTTP_201_CREATED)

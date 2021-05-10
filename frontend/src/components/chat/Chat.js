@@ -122,8 +122,8 @@ const Chat = (props) => {
                         </Grid>
                     </Paper>
                     <div style={{display:'flex',justifyContent:'space-around'}}>
-                        <Chip size='large' label={`${hospital.total_beds} beds `} color='primary'/>
-                        <Chip size='large' label={`${hospital.beds_availiable} beds availiable`} color='secondary'/>
+                        <Chip size='medium' label={`${hospital.total_beds} beds `} color='primary'/>
+                        <Chip size='medium' label={`${hospital.beds_availiable} beds availiable`} color='secondary'/>
                         <Button variant='contained' color='primary'>Book a bed</Button>
                     </div>
                     <div style={{display:'flex',justifyContent:'space-between',paddingTop:10}}>
