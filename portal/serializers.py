@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from authentication.serializers import UserSerializer
+from chat.models import Chat
 from .models import *
 
 
@@ -14,20 +15,22 @@ class PatientSerializer(serializers.ModelSerializer):
 
 class HospitalSerializer(serializers.ModelSerializer):
     staff = UserSerializer(required=False)
-    current_user = serializers.SerializerMethodField('_user')
 
     class Meta:
         model = Hospital
-        fields = ['name', 'total_beds', 'available_beds', 'latitude', 'longitude', 'contact', 'staff_id', 'current_user']
+        fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff']
         lookup_fields = ['slug', 'id']
-
-    def _user(self):
-        request = self.context.get('request', None)
-        if request:
-            return request.user
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['slug'] = instance.slug
+        try:
+            request = self.context.get('request', None)
+            if request:
+                response['chat_slug'] = Chat.objects.get(user=request.user, hospital=instance)
+            else:
+                response['chat_slug'] = None
+        except Exception as e:
+            response['chat_slug'] = None
 
         return response

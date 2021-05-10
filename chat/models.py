@@ -28,4 +28,4 @@ class Chat(models.Model):
         super(Chat, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.id
+        return self.id.__str__()

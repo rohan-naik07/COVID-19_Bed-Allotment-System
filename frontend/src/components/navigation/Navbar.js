@@ -267,7 +267,7 @@ export default function ClippedDrawer() {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
-                    <Route path='/hospital/:name' component={Chat}/>
+                    <Route path='/hospital/:slug' component={Chat}/>
                     <Route exact path='/hospitals' component={Hospitals}/>
                     <Route exact path='/sentiments' component={Sentiment}/>
                 </Switch>

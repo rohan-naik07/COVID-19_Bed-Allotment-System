@@ -48,6 +48,7 @@ class PatientView(APIView):
 
 class HospitalViewSet(ModelViewSet):
     serializer_class = HospitalSerializer
+    queryset = Hospital.objects.all()
     authentication_classes = [JSONWebTokenAuthentication, ]
     permission_classes = [IsAuthenticated, ]
     lookup_field = 'slug'

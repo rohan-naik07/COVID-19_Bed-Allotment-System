@@ -9,6 +9,8 @@ import Button from '@material-ui/core/Button';
 import {reviews} from './reviews';
 import ChatScreen from './ChatScreen';
 import Chip from '@material-ui/core/Chip';
+import {getToken} from "../authentication/cookies";
+import axios from "axios";
 
 const useStyles = makeStyles((theme)=>({
     table: {
@@ -62,7 +64,19 @@ const useStyles = makeStyles((theme)=>({
 
 const Chat = (props) => {
     const classes = useStyles();
-    const hospital = props.location.state.hospital;
+    const [hospital, setHospital] = React.useState({});
+
+    React.useEffect(() => {
+        axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${props.match.params.slug}/`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Token ${getToken()}`,
+                }
+            }).then(res => {
+                setHospital(res.data);
+        })
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const renderReviews = ()=>{
         return (
@@ -76,9 +90,9 @@ const Chat = (props) => {
                             <Typography variant="h6">
                                 {review.feedback}
                             </Typography>
-                            <Rating name="read-only" value={review.overallRating} readOnly />
+                            <Rating name="read-only" value={parseInt(review.overallRating)} readOnly />
                         </div>
-                        <Divider fullWidth/>
+                        <Divider/>
                         <Typography variant="h6" color='textSecondary'>
                             {review.reviewDate}
                         </Typography>
@@ -95,7 +109,7 @@ const Chat = (props) => {
                 <Paper elevation={3} style={{padding:10}}>
                     <Paper className={classes.container} style={{ backgroundImage: `url(${hospital.img})` }}>
                         {/* Increase the priority of the hero background image */}
-                        {<img style={{ display: 'none',marginTop:"10Px" }} src={`url(${hospital.img})`} alt='bg'/>}
+                        {<img style={{ display: 'none',marginTop:"10Px" }} src={`url(${hospital.imageUrl})`} alt='bg'/>}
                         <div className={classes.overlay} />
                         <Grid container>
                             <Grid item md={12}>
@@ -131,7 +145,7 @@ const Chat = (props) => {
                 </Paper>
             </Grid>
             <Grid item xs={6}>
-                  <ChatScreen id={hospital._id} />  
+                  <ChatScreen slug={hospital.chat_slug} hospital_slug={hospital.slug}/>
             </Grid>
         </Grid>
     )

@@ -30,3 +30,10 @@ class ChatView(generics.ListCreateAPIView):
     authentication_classes = [JSONWebTokenAuthentication, ]
     permission_classes = [IsAuthenticated, ]
     serializer_class = ChatSerializer
+    queryset = Chat.objects.all()
+
+    def get_serializer_context(self):
+        context = super(ChatView, self).get_serializer_context()
+        context['request'] = self.request
+
+        return context
