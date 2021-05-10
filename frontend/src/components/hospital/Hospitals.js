@@ -107,7 +107,7 @@ const Hospitals = (props) => {
 
         navigator.geolocation.getCurrentPosition(
             function( position ){ // success cb
-                console.log( position );
+                //console.log( position );
                 var lat = position.coords.latitude;
                 var lng = position.coords.longitude;
                 Geocode.fromLatLng(lat,lng).then(
