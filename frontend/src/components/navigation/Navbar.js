@@ -34,6 +34,7 @@ import StaffPanel from '../staff/StaffPanel'
 import Chat from '../chat/Chat'
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
+import HospitalDetail from "../hospital/HospitalDetail";
 
 const drawerWidth = 240;
 
@@ -278,7 +279,7 @@ export default function ClippedDrawer() {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
-                    <Route path='/hospital/:slug' component={Chat}/>
+                    <Route path='/hospital/:slug' component={HospitalDetail}/>
                     <Route exact path='/staff' component={StaffPanel}/>
                     <Route exact path='/hospitals' component={Hospitals}/>
                 </Switch>

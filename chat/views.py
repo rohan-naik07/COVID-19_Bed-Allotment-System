@@ -15,7 +15,7 @@ from .serializers import ChatSerializer
 
 def get_messages(chat_slug):
     chat = get_object_or_404(Chat, slug=chat_slug)
-    return chat.messages.order_by('-sent').all()[:10]
+    return chat.messages.order_by('sent').all()
 
 
 def get_user(email):

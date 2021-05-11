@@ -15,7 +15,7 @@ class ChatConsumer(WebsocketConsumer):
         messages = get_messages(data['chatSlug'])
         content = {
             'command': 'messages',
-            'messages': self.messages_to_json(messages)
+            'messages': self.messages_to_json(get_messages(get_current_chat(data['chatSlug']).slug))
         }
         self.send_message(content)
 
@@ -27,9 +27,12 @@ class ChatConsumer(WebsocketConsumer):
         current_chat = get_current_chat(data['chatSlug'])
         current_chat.messages.add(message)
         current_chat.save()
+        message = Message.objects.create(user=current_chat.hospital.staff, text=data['message'])
+        current_chat.messages.add(message)
+        current_chat.save()
         content = {
             'command': 'new_message',
-            'messages': self.messages_to_json(get_messages(current_chat.slug))
+            'messages': self.messages_to_json(get_messages(get_current_chat(data['chatSlug']).slug))
         }
         return self.send_chat_message(content)
 
@@ -44,7 +47,7 @@ class ChatConsumer(WebsocketConsumer):
             'id': message.id,
             'user': message.user.email,
             'message': message.text,
-            'timestamp': str(message.sent)
+            'timestamp': message.sent.__str__()
         }
 
     commands = {

@@ -21,6 +21,12 @@ class HospitalSerializer(serializers.ModelSerializer):
         fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff']
         lookup_fields = ['slug', 'id']
 
+    def create(self, validated_data):
+        instance = super(HospitalSerializer, self).create(validated_data)
+        instance.slug = slugify(str(uuid.uuid4())[:8])
+
+        return instance
+
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['slug'] = instance.slug
