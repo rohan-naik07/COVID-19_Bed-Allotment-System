@@ -29,7 +29,7 @@ class ChatConsumer(WebsocketConsumer):
         current_chat.save()
         content = {
             'command': 'new_message',
-            'messages': self.messages_to_json(current_chat.messages)
+            'messages': self.messages_to_json(get_messages(current_chat.slug))
         }
         return self.send_chat_message(content)
 
@@ -42,8 +42,8 @@ class ChatConsumer(WebsocketConsumer):
     def message_to_json(self, message):
         return {
             'id': message.id,
-            'author': message.user.email,
-            'content': message.text,
+            'user': message.user.email,
+            'message': message.text,
             'timestamp': str(message.sent)
         }
 

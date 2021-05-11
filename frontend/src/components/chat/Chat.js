@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -7,12 +8,13 @@ import Typography from '@material-ui/core/Typography';
 import Rating from '@material-ui/lab/Rating';
 import Button from '@material-ui/core/Button';
 import {reviews} from './reviews';
-import ChatScreen from './ChatScreen';
 import Chip from '@material-ui/core/Chip';
 import {getToken} from "../authentication/cookies";
 import axios from "axios";
-import { Dialog, IconButton } from '@material-ui/core';
+import {Dialog, IconButton, TextField} from '@material-ui/core';
 import { ChatBubble } from '@material-ui/icons';
+import SendIcon from "@material-ui/icons/Send";
+import jwtDecode from "jwt-decode";
 
 const useStyles = makeStyles((theme)=>({
     table: {
@@ -79,8 +81,11 @@ const useStyles = makeStyles((theme)=>({
 const Chat = (props) => {
     const classes = useStyles();
     const [hospital, setHospital] = React.useState({});
+    const [text, setText] = React.useState('');
     const [render, setRender] = React.useState(false);
+    const [messages, setMessages] = React.useState([]);
     const [open,setOpen] = React.useState(false);
+    const [socket, setSocket] = React.useState(null);
 
     const handleClose = () => {
         setOpen(false);
@@ -94,18 +99,73 @@ const Chat = (props) => {
                     Authorization: `Token ${getToken()}`,
                 }
             }).then(res => {
-                console.log(res.data)
                 setHospital(res.data);
-                setRender(true);
+                if(res.data.chat_slug) {
+                    let socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${res.data.chat_slug}/`);
+                    socket.onopen = function(e) {
+                        console.log("Connection established");
+                        socket.send(JSON.stringify({
+                            'command': 'fetch_messages',
+                            'email': (jwtDecode(getToken())).email,
+                            'chatSlug': res.data.chat_slug
+                        }))
+                        setMessages(JSON.parse(e.data).messages)
+                    };
+
+                    socket.onmessage = (e)=>{
+                        setMessages(JSON.parse(e.data).messages)
+                    }
+
+                    socket.onclose = function(event) {
+                        if (event.wasClean) {
+                            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                        } else {
+                            // e.g. server process killed or network down
+                            // event.code is usually 1006 in this case
+                            alert('[close] Connection died');
+                        }
+                    };
+
+                    socket.onerror = function(error) {
+                        console.log(error.message);
+                    };
+                    setSocket(socket);
+                    }
             })
+        setRender(true);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const renderChatModal = ()=>{
-        return (
-            <Dialog  open={open} onClose={handleClose} style={{height:'100%'}}>
-                <ChatScreen slug={hospital.chat_slug} hospital_slug={hospital.slug}/>
-            </Dialog>
-        )
+    // const renderChatModal = ()=>{
+    //     return (
+    //         <Dialog  open={open} onClose={handleClose} style={{height:'100%'}}>
+    //             <ChatScreen slug={hospital.chat_slug} hospital_slug={hospital.slug}/>
+    //         </Dialog>
+    //     )
+    // }
+
+    const handleCreateChat = () => {
+        axios.post(`${process.env.REACT_APP_API_URL}/chat/`,
+            {
+                hospital: hospital.slug
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Token ${getToken()}`,
+                }
+            }
+        ).then(res => setHospital({...res.data.hospital, slug: res.data.slug}))
+    }
+
+    const sendMessage = () => {
+        console.log(messages);
+        socket.send(JSON.stringify({
+            'message': text,
+            'from': (jwtDecode(getToken())).email,
+            'command': 'new_message',
+            'chatSlug': hospital.chat_slug
+        }));
+        setText('');
     }
 
     const renderReviews = ()=>{
@@ -179,10 +239,45 @@ const Chat = (props) => {
                     </Grid>
                 </Grid>
                 <Grid item md={6} className={classes.chat}>
-                    <ChatScreen slug={hospital.chat_slug} hospital_slug={hospital.slug}/>
+                    <Paper elevation={3} style={{height:'100%',padding:10}}>
+                        <div style={{display:'flex',justifyContent:'space-between',padding:10,height:'10%'}}>
+                            <Typography variant='h4' style={{width:'70%'}}>Chat</Typography>
+                            {!hospital.chat_slug &&
+                            <Button
+                                style={{width:'30%'}}
+                                variant='contained'
+                                onClick={handleCreateChat}
+                            >
+                                Connect with us!
+                            </Button>}
+                        </div>
+
+                        <div style={{height:'80%'}}>
+                            <Divider/>
+                        </div>
+                        <div style={{
+                            padding :10,
+                            alignItems:'center',
+                            overflow:'hidden',
+                            height : '10%',
+                            display:'flex',
+                            justifyContent:'space-between'
+                        }}>
+                            <TextField
+                                placeholder="Type a message"
+                                variant='outlined'
+                                onChange={(event => setText(event.target.value))}
+                                value={text}
+                                fullWidth
+                                disabled={!hospital.chat_slug}
+                            />
+                            <IconButton disabled={!hospital.chat_slug} onClick={sendMessage}>
+                                <SendIcon fontSize='large'/>
+                            </IconButton>
+                        </div>
+                    </Paper>
                 </Grid>  
             </Grid>
-            {renderChatModal()}   
         </React.Fragment>  
     )
 }
