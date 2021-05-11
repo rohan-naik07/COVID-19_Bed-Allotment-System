@@ -1,6 +1,5 @@
 /* eslint-disable */
 import React from "react";
-import "./hospital.css"
 import GridList from '@material-ui/core/GridList';
 import Grid from '@material-ui/core/Grid';
 import GridListTile from '@material-ui/core/GridListTile';
@@ -54,7 +53,6 @@ const Hospitals = (props) => {
      const history = useHistory();
 
      const displayMarkers = () => {
-		 console.log(stores);
       return stores.map((store, index) => {
           return <Marker key={index} id={index} position={{
               lat: store.latitude,
@@ -133,19 +131,20 @@ const Hospitals = (props) => {
     },[] )// eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <div>
          <Grid container >
-         <Grid item xs={6} style={{position: 'relative', height: '50vh',marginBottom:30}}>
-               <Map
-                google={props.google}
-                zoom={8}
-				center={stores[0]}
-				centerAroundCurrentLocation={true}
-                resetBoundsOnResize={true}>
-                {displayMarkers()}
-                </Map>
+            <Grid item md={6} xs={12} style={{position: 'relative'}}>
+               <Paper elevation={2} >
+                <Map
+                  google={props.google}
+                  zoom={15}
+                  center={stores[0]}
+                  centerAroundCurrentLocation={true}
+                  resetBoundsOnResize={true}>
+                  {displayMarkers()}
+                  </Map>
+               </Paper>
              </Grid>
-             <Grid item xs={6}>
+             <Grid item  md={6} xs={12}>
                  <Paper elevation={3} style={{marginLeft:10,padding:10}}>
                     <Typography variant='h5'>{address}</Typography>
                     <Divider/>
@@ -155,7 +154,7 @@ const Hospitals = (props) => {
                       </Typography>
                     </div>
                     <Divider/>
-                    <BarChart width={650} height={250} data={graphData} barSize={20} style={{marginTop:10}}>
+                    <BarChart width={650} height={250} data={graphData} barSize={20} style={{marginTop:10,overflow:'hidden'}}>
                         <XAxis dataKey="name" />
                         <YAxis />
                         <Tooltip />
@@ -163,38 +162,39 @@ const Hospitals = (props) => {
                     </BarChart>
                  </Paper>
              </Grid>
+             <Grid item  md={12} xs={12} style={{marginTop:20}}>
+                <Paper elevation={3} >
+                    <GridList xs = {12} className={classes.gridList} cols={4}>
+                        {tileData.map((tile, i) => (
+                        <GridListTile key={i} style={{margin:10}}>
+                            <img src={tile.imageUrl} alt={tile.name} />
+                            <GridListTileBar
+                                title={tile.name}  
+                                classes={{
+                                    root: classes.titleBar,
+                                    title: classes.title,
+                                }}
+                                actionIcon={
+                                    <IconButton aria-label={`star ${tile.name}`} 
+                                          color='primary' 
+                                          onClick={()=>{
+                                            history.push({
+                                              pathname : `/hospital/${tile.slug}`,
+                                              state : {
+                                                hospital : tile
+                                              }
+                                            })
+                                          }}>
+                                        <MenuBookSharpIcon className={classes.title} />
+                                    </IconButton>
+                                }
+                            />
+                        </GridListTile>
+                        ))}
+                    </GridList>
+                </Paper>
              </Grid>
-             <Paper elevation={3}>
-                <GridList xs = {12} className={classes.gridList} cols={4}>
-                    {tileData.map((tile, i) => (
-                    <GridListTile key={i} style={{margin:10}}>
-                        <img src={tile.imageUrl} alt={tile.name} />
-                        <GridListTileBar
-                            title={tile.name}  
-                            classes={{
-                                root: classes.titleBar,
-                                title: classes.title,
-                            }}
-                            actionIcon={
-                                <IconButton aria-label={`star ${tile.name}`} 
-                                      color='primary' 
-                                      onClick={()=>{
-                                        history.push({
-                                          pathname : `/hospital/${tile.slug}`,
-                                          state : {
-                                            hospital : tile
-                                          }
-                                        })
-                                      }}>
-                                    <MenuBookSharpIcon className={classes.title} />
-                                </IconButton>
-                            }
-                        />
-                    </GridListTile>
-                    ))}
-                </GridList>
-             </Paper>
-         </div>
+          </Grid>
     )
 }
 

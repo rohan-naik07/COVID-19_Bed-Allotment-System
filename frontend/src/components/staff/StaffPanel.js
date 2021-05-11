@@ -3,14 +3,15 @@ import {Typography} from "@material-ui/core";
 import { Redirect } from "react-router";
 import {getToken} from "../authentication/cookies";
 
-const Home = () => {
+const StaffPanel = () => {
     let token = getToken();
     let is_staff = localStorage.getItem('is_staff');
 
-    if(token !== '') {
-        if(is_staff==='true'){
-            return <Redirect to='/staff'/>
-        }
+    if(token === '') {
+        return <Redirect to='/'/>
+    }
+
+    if(is_staff==='false'){
         return <Redirect to='/hospitals'/>
     }
 
@@ -29,4 +30,4 @@ const Home = () => {
     )
 }
 
-export default Home;
+export default StaffPanel;

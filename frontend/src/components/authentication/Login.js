@@ -71,6 +71,7 @@ export const Login = ({ open, setOpen, setOTP }) => {
             }).then(response => {
                 closeSnackbar('try_login')
                 setCookie(response.data.token, 'token');
+                localStorage.setItem('is_staff',response.data.is_staff);
                 setErrors({...errors, loginError: false});
                 setOpen(false);
                 enqueueSnackbar('Logged In Successfully!', { variant: 'success', key: 'login_success'})
