@@ -103,7 +103,6 @@ const Chat = (props) => {
                 if(res.data.chat_slug) {
                     let socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${res.data.chat_slug}/`);
                     socket.onopen = function(e) {
-                        console.log("Connection established");
                         socket.send(JSON.stringify({
                             'command': 'fetch_messages',
                             'email': (jwtDecode(getToken())).email,
@@ -158,7 +157,6 @@ const Chat = (props) => {
     }
 
     const sendMessage = () => {
-        console.log(messages);
         socket.send(JSON.stringify({
             'message': text,
             'from': (jwtDecode(getToken())).email,
