@@ -67,33 +67,30 @@ const ChatScreen = (props) => {
     }
 
     return (
-       <Paper elevation={3}>
-           <div style={{display:'flex',justifyContent:'space-between',padding:10}}>
-            <Typography variant='h4'>Chat</Typography>
-               {!slug &&
-                   <Button
-                       variant='contained'
-                       onClick={handleCreateChat}
-                   >
-                       Connect with us!
-                   </Button>}
+       <Paper elevation={3} style={{height:'100%',padding:10}}>
+           <div style={{display:'flex',justifyContent:'space-between',padding:10,height:'10%'}}>
+                <Typography variant='h4' style={{width:'70%'}}>Chat</Typography>
+                {!slug &&
+                    <Button
+                        style={{width:'30%'}}
+                        variant='contained'
+                        onClick={handleCreateChat}
+                    >
+                        Connect with us!
+                    </Button>}
            </div>
-           <Divider/>
+
+           <div style={{height:'80%'}}>
+                <Divider/>
+           </div>
            <div style={{
-               width : '48%',
-               position:'absolute',
-               overflow:'hidden',
-               margin : 10,
                padding :10,
-               bottom:0,
+               alignItems:'center',
+               overflow:'hidden',
+               height : '10%',
                display:'flex',
                justifyContent:'space-between'
            }}>
-               {props.slug && (
-                   <Paper elevation={10}>
-
-                   </Paper>
-               )}
                <TextField
                     placeholder="Type a message"
                     variant='outlined'
