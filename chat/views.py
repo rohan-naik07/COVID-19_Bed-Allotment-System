@@ -13,8 +13,8 @@ from .serializers import ChatSerializer
 
 # Create your views here.
 
-def get_messages(chatSlug):
-    chat = get_object_or_404(Chat, slug=chatSlug)
+def get_messages(chat_slug):
+    chat = get_object_or_404(Chat, slug=chat_slug)
     return chat.messages.order_by('-sent').all()[:10]
 
 
@@ -23,8 +23,8 @@ def get_user(email):
     return user
 
 
-def get_current_chat(chatSlug):
-    return get_object_or_404(Chat, slug=chatSlug)
+def get_current_chat(chat_slug):
+    return get_object_or_404(Chat, slug=chat_slug)
 
 
 class ChatView(generics.ListCreateAPIView):
