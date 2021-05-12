@@ -2,7 +2,7 @@
 import React from "react";
 import {Grid, Paper, CardHeader, Avatar, Typography, TextField, IconButton, makeStyles} from "@material-ui/core";
 import {Send} from "@material-ui/icons";
-import {Widget, addResponseMessage, addUserMessage} from "react-chat-widget";
+import {Widget, addResponseMessage, addUserMessage, dropMessages} from "react-chat-widget";
 import axios from "axios";
 import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
@@ -44,6 +44,7 @@ const HospitalDetail = (props) => {
                             'email': (jwtDecode(getToken())).email,
                             'chatSlug': res.data.chat_slug
                         }))
+                        dropMessages();
                         setMessages(JSON.parse(e.data).messages)
                         JSON.parse(e.data).messages.map((message, i) => {
                             if(message.user===jwtDecode(getToken()).email)
@@ -55,6 +56,7 @@ const HospitalDetail = (props) => {
 
                     socket.onmessage = (e)=>{
                         setMessages(JSON.parse(e.data).messages)
+                        dropMessages();
                         JSON.parse(e.data).messages.map((message, i) => {
                             if(message.user===jwtDecode(getToken()).email)
                                 addUserMessage(message.message);
@@ -131,8 +133,9 @@ const HospitalDetail = (props) => {
                 <Grid item xs={12}>
                     <Widget
                         handleSubmit={sendMessage}
-                        title='Chat with the staff!'
+                        title='Chat with the Staff'
                         subtitle={hospital.name}
+                        showTimeStamp={false}
                     />
                 </Grid>
             )}
