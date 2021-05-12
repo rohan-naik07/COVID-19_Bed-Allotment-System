@@ -11,7 +11,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from '@material-ui/icons/Menu';
 import clsx from "clsx";
 import {AccountCircle, ChatBubble, ListAlt, LocalHospital, LockOpen} from "@material-ui/icons";
 import {getCookie, getToken} from "../authentication/cookies";
@@ -31,12 +30,12 @@ import About from "../about/About";
 import Graphs from "../charts/Graphs";
 import Hospitals from '../hospital/Hospitals'
 import StaffPanel from '../staff/StaffPanel'
-import Chat from '../chat/Chat'
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
 import HospitalDetail from "../hospital/HospitalDetail";
+import { Container, Tooltip } from '@material-ui/core';
 
-const drawerWidth = 240;
+const drawerWidth = 80;
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -74,12 +73,11 @@ const useStyles = makeStyles((theme) => ({
     },
     content: {
         flexGrow: 1,
-        padding: theme.spacing(3),
+        paddingTop: theme.spacing(3),
         transition: theme.transitions.create('margin', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
         }),
-        marginLeft: -drawerWidth,
     },
     contentShift: {
         transition: theme.transitions.create('margin', {
@@ -93,9 +91,10 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+
+
 export default function ClippedDrawer() {
     const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
     const [login, setLogin] = React.useState(false);
     const [signUp, setSignUp] = React.useState(false);
     const [loggedIn, setLoggedIn] = React.useState(false);
@@ -163,16 +162,7 @@ export default function ClippedDrawer() {
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar variant='dense'> 
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={() => setOpen(!open)}
-                        edge="start"
-                        className={classes.menuButton}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap>
+                    <Typography variant="h5" noWrap>
                         COBAS
                     </Typography>
                     <div className={classes.space}/>
@@ -210,11 +200,11 @@ export default function ClippedDrawer() {
             </AppBar>
             <Drawer
                 className={classes.drawer}
-                variant="persistent"
+                variant="permanent"
                 anchor="left"
-                open={open}
+                open={true}
                 classes={{
-                    paper: classes.drawerPaper,
+                    paper: classes.drawerPaper
                 }}
             >
                 <Toolbar variant='dense' />
@@ -233,31 +223,37 @@ export default function ClippedDrawer() {
                     ): is_staff==='false' ? (
                         <List>
                          <ListItem button key={'Your Applications'}>
-                            <ListItemIcon><ListAlt /></ListItemIcon>
-                            <ListItemText primary={'Your Applications'} />
+                             <Tooltip title='Your Applications'>
+                                <IconButton fontSize='large'><ListAlt /></IconButton>
+                             </Tooltip>
                         </ListItem>
                          <ListItem button key={'Your Chats'} >
-                            <ListItemIcon><ChatBubble/></ListItemIcon>
-                            <ListItemText primary={'Your Chats'} />
+                            <Tooltip title='Your Chats'>
+                                <IconButton fontSize='large'><ChatBubble/></IconButton>  
+                            </Tooltip>
                         </ListItem>
                          <ListItem button key={'Search Hospitals'}>
-                            <ListItemIcon><LocalHospital /></ListItemIcon>
-                            <ListItemText primary={'Search Hospitals'} />
+                            <Tooltip title='Search Hospitals'>
+                                <IconButton fontSize='large'><LocalHospital /></IconButton>
+                            </Tooltip> 
                         </ListItem>
                         <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
-                            <ListItemIcon><LockOpen /></ListItemIcon>
-                            <ListItemText primary={'Logout'} />
+                            <Tooltip title='Logout'>
+                                <IconButton fontSize='large'><LockOpen /></IconButton>
+                            </Tooltip>
                         </ListItem>
                     </List>
                     ) : (
-                        <List>
-                         <ListItem button key={'Chats'} >
-                            <ListItemIcon><ChatBubble/></ListItemIcon>
-                            <ListItemText primary={'Your Chats'} />
+                    <List>
+                        <ListItem button key={'Chats'} >
+                            <Tooltip title='Chats'>
+                                <IconButton fontSize='large'><ChatBubble/></IconButton>  
+                            </Tooltip>
                         </ListItem>
                         <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
-                            <ListItemIcon><LockOpen /></ListItemIcon>
-                            <ListItemText primary={'Logout'} />
+                            <Tooltip title='Logout'>
+                                <IconButton fontSize='large'><LockOpen /></IconButton>
+                            </Tooltip>
                         </ListItem>
                     </List>
                     )}
@@ -269,21 +265,23 @@ export default function ClippedDrawer() {
             <OTP open={otp} setOpen={setOTP} setLoggedIn={setLoggedIn}/>
             <Logout open={logout} setOpen={setLogout} setLoggedIn={setLoggedIn}/>
             <UserProfile open={openProfile} handleClose = {handleProfileClose}/>
-            <main
-                className={clsx(classes.content, {
-                    [classes.contentShift]: open,
-                })}
-            >
-                <Toolbar variant='dense'/>
-                <Switch>
-                    <Route exact path='/' component={Home}/>
-                    <Route exact path='/about' component={About}/>
-                    <Route exact path='/graphs' component={Graphs}/>
-                    <Route path='/hospital/:slug' component={HospitalDetail}/>
-                    <Route exact path='/staff' component={StaffPanel}/>
-                    <Route exact path='/hospitals' component={Hospitals}/>
-                </Switch>
-            </main>
+            <Container>
+                <main
+                    className={clsx(classes.content, {
+                        [classes.contentShift]: true,
+                    })}
+                >
+                    <Toolbar variant='dense'/>
+                    <Switch>
+                        <Route exact path='/' component={Home}/>
+                        <Route exact path='/about' component={About}/>
+                        <Route exact path='/graphs' component={Graphs}/>
+                        <Route path='/hospital/:slug' component={HospitalDetail}/>
+                        <Route exact path='/staff' component={StaffPanel}/>
+                        <Route exact path='/hospitals' component={Hospitals}/>
+                    </Switch>
+                </main>
+            </Container>
         </div>
     );
 }
