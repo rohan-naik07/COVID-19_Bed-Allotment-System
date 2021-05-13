@@ -100,7 +100,6 @@ class VerifyView(APIView):
             }
             return Response(context, status=status.HTTP_200_OK)
         except Exception as e:
-            print(traceback.pr(e))
             context = {
                 'success': 'False',
                 'message': 'Could not send email. Please try again later',
