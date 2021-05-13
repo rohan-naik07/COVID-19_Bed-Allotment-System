@@ -17,7 +17,6 @@ def get_messages(chat_slug):
     chat = get_object_or_404(Chat, slug=chat_slug)
     return chat.messages.order_by('sent').all()
 
-
 def get_user(email):
     user = get_object_or_404(User, email=email)
     return user
@@ -36,7 +35,6 @@ class ChatView(generics.ListCreateAPIView):
     def get_serializer_context(self):
         context = super(ChatView, self).get_serializer_context()
         context['request'] = self.request
-
         return context
 
     def create(self, request, *args, **kwargs):

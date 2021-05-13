@@ -33,8 +33,7 @@ const HospitalDetail = (props) => {
                     "Content-Type": "application/json",
                     Authorization: `Token ${getToken()}`,
                 }
-            })
-            .then(res => {
+            }).then(res => {
                 setHospital(res.data);
                 if(res.data.chat_slug) {
                     let socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${res.data.chat_slug}/`);

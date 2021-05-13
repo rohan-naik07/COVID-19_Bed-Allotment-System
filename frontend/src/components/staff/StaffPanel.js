@@ -1,11 +1,12 @@
 import React from "react";
 import {Typography} from "@material-ui/core";
 import { Redirect } from "react-router";
+import jwtDecode from 'jwt-decode'
 import {getToken} from "../authentication/cookies";
 
 const StaffPanel = () => {
     let token = getToken();
-    let is_staff = localStorage.getItem('is_staff');
+    let is_staff = jwtDecode(token).is_staff;
 
     if(token === '') {
         return <Redirect to='/'/>

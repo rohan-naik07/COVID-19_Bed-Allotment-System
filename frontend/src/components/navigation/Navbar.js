@@ -34,6 +34,8 @@ import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
 import HospitalDetail from "../hospital/HospitalDetail";
 import { Container, Tooltip } from '@material-ui/core';
+import StaffChat from '../staff/StaffChat';
+import jwtDecode from 'jwt-decode';
 
 const drawerWidth = 80;
 
@@ -103,7 +105,8 @@ export default function ClippedDrawer() {
     const [tab, setTab] = React.useState(0);
     const {dark, toggleTheme} = React.useContext(ThemeContext);
     const [openProfile, setOpenProfile] = React.useState(false);
-    const is_staff = localStorage.getItem('is_staff');
+
+    const is_staff = getToken() ==='' ? 'true' : 'false';
 
     const handleProfileClickOpen = () => {
       setOpenProfile(true);
@@ -212,12 +215,14 @@ export default function ClippedDrawer() {
                     {!loggedIn?(
                         <List>
                             <ListItem button key={'Login'} onClick={() => setLogin(true)}>
-                                <ListItemIcon><LockOpen /></ListItemIcon>
-                                <ListItemText primary={'Login'} />
+                                <Tooltip title='Login'>
+                                    <IconButton fontSize='large'><LockOpen /></IconButton>
+                                </Tooltip>
                             </ListItem>
                             <ListItem button key={'SignUp'} onClick={() => setSignUp(true)}>
-                                <ListItemIcon><AccountCircle /></ListItemIcon>
-                                <ListItemText primary={'Sign Up'} />
+                                <Tooltip title='Sign Up'>
+                                    <IconButton fontSize='large'><AccountCircle /></IconButton>
+                                </Tooltip>
                             </ListItem>
                         </List>
                     ): is_staff==='false' ? (
@@ -278,6 +283,7 @@ export default function ClippedDrawer() {
                         <Route exact path='/graphs' component={Graphs}/>
                         <Route path='/hospital/:slug' component={HospitalDetail}/>
                         <Route exact path='/staff' component={StaffPanel}/>
+                        <Route exact path='/staffchat' component={StaffChat}/>
                         <Route exact path='/hospitals' component={Hospitals}/>
                     </Switch>
                 </main>
