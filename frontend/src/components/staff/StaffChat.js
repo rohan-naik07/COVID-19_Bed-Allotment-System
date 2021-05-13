@@ -137,13 +137,14 @@ const StaffChat = () => {
                 }
             }).then(res=>{
                 setChat(res.data);
-
                 setcurrentChatUser({
                     ...currentChatUser,
                     email : res.data[0].email,
                     name : res.data[0].user
                 })
                 connecttoSocket(res.data[0].email);
+                var element = document.getElementById("chat");
+    	        element.scrollTop = element.scrollHeight;
             })
     }, []);
 
@@ -152,14 +153,17 @@ const StaffChat = () => {
             {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Token ${getToken()}`, // fetch chat slug of specific user and hospital
+                    Authorization: `Token ${token}`, // fetch chat slug of specific user and hospital
                 },
                 data : {
-                    hospital_slug : jwtDecode(getToken()).hospital_slug,
-                    user: currentChatUser.email
+                    hospital_slug : jwtDecode(token).hospital_slug,
+                    user_email : email
                 }
             })
             .then(res => {
+                if(socket){
+                    socket.close();
+                }
                 if(res.data.chat_slug) {
                     socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${res.data.chat_slug}/`);
                     socket.onopen = function(e) {
