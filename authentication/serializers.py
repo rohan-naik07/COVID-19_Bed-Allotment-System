@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from rest_framework import serializers
+
+from portal.models import Hospital
 from .models import *
 from rest_framework_jwt.settings import api_settings
 
@@ -59,6 +61,11 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Invalid login Credentials')
 
         payload = jwt_payload_handler(user)
+        payload['is_staff'] = user.is_staff
+        if user.is_staff and user.is_verified:
+            payload['hospital_slug'] = Hospital.objects.get(staff=user)
+        else:
+            payload['hospital_slug'] = None
         token = jwt_encode_handler(payload)
         update_last_login(None, user)
 

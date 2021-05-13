@@ -1,8 +1,8 @@
 /* eslint-disable */
 import React from "react";
-import {Grid, Paper, CardHeader, Avatar, Typography, TextField, IconButton, makeStyles} from "@material-ui/core";
-import {Send} from "@material-ui/icons";
+import {Grid, Paper, CardContent, Avatar, Typography, TextField, IconButton, makeStyles, Card, CardMedia} from "@material-ui/core";
 import {Widget, addResponseMessage, addUserMessage, dropMessages} from "react-chat-widget";
+import Geocode from "react-geocode";
 import axios from "axios";
 import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
@@ -14,8 +14,23 @@ const useStyles = makeStyles((theme) => ({
         padding: '2%'
     },
     paper: {
-        padding: '2%',
-    }
+    },
+    title: {
+        margin: '2%',
+        lineHeight: '1.15',
+        [theme.breakpoints.down('md')]: {
+            fontSize: '2.5rem',
+        },
+        [theme.breakpoints.up('md')]: {
+            fontSize: '4.5rem'
+        },
+    },
+    media: {
+        height: 350,
+        display: 'flex',
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+    },
 }));
 
 const HospitalDetail = (props) => {
@@ -23,10 +38,12 @@ const HospitalDetail = (props) => {
     const [socket, setSocket] = React.useState(null);
     const [render, setRender] = React.useState(false);
     const [text, setText] = React.useState('');
+    const [address, setAddress] = React.useState('');
     const [messages, setMessages] = React.useState([]);
     const classes = useStyles();
 
     React.useEffect(() => {
+        Geocode.setApiKey(process.env.REACT_APP_API_KEY);
         axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${props.match.params.slug}/`,
             {
                 headers: {
@@ -80,8 +97,19 @@ const HospitalDetail = (props) => {
                     setSocket(socket);
                 }
         })
-        setRender(true);
     }, []);
+
+    React.useEffect(() => {
+        Geocode.fromLatLng(hospital.latitude, hospital.longitude).then(
+            (response) => {
+                let address = response.results[0].formatted_address;
+                setAddress(address);
+            },
+            (error) => {
+            }
+        );
+        setRender(true);
+    }, [hospital])
 
     const handleCreateChat = () => {
         axios.post(`${process.env.REACT_APP_API_URL}/chat/`,
@@ -108,15 +136,26 @@ const HospitalDetail = (props) => {
     }
 
     return render && (
-        <Grid item container direction="row" justify="center" alignItems="center" className={classes.container} spacing={2}>
-            <Grid item container direction="column" spacing={2} alignItems="center">
-                <Grid item xs={12}>
-                    <Paper elevation={10} style={{ backgroundImage: `url(${hospital.imageUrl})` }}>
-                        <Typography variant='h3'>
-                            {hospital.name}
+        <Grid item container direction="row" justify="center" alignItems="flex-start" className={classes.container} spacing={2}>
+            <Grid item xs={12} sm={6}>
+                <h1 className={classes.title}>
+                    {hospital.name}
+                </h1>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <Card component={Paper} className={classes.paper} elevation={10}>
+                    <CardContent>
+                        <CardMedia
+                            component='img'
+                            title={hospital.name}
+                            image={hospital.imageUrl}
+                            className={classes.media}
+                        />
+                        <Typography variant='h6'>
+                            {address}
                         </Typography>
-                    </Paper>
-                </Grid>
+                    </CardContent>
+                </Card>
             </Grid>
             {!hospital.chat_slug?(
                 <Grid item xs={12}>
@@ -142,4 +181,4 @@ const HospitalDetail = (props) => {
     )
 }
 
-export default HospitalDetail
+export default HospitalDetail;
