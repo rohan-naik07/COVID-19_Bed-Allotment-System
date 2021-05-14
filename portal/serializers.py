@@ -46,7 +46,7 @@ class HospitalSerializer(serializers.ModelSerializer):
                 print('no request')
                 response['chat_slug'] = None
         except Exception as e:
-            traceback.print_stack(e)
+            print(e.__str__())
             response['chat_slug'] = None
 
         return response
