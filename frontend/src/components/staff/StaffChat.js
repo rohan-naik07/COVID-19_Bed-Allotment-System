@@ -6,6 +6,7 @@ import axios from "axios";
 import {getToken} from "../authentication/cookies";
 import Button from "@material-ui/core/Button";
 import { SendRounded } from "@material-ui/icons";
+import { useSnackbar } from "notistack";
 import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,18 +36,19 @@ const StaffChat = () => {
     const [socket,setSocket] = React.useState(null);
     const classes = useStyles();
     const [currentChatUser,setcurrentChatUser] = React.useState({email : '',name : '',slug : ''});
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
+    const closeAlert = (key,time)=>setTimeout(() => closeSnackbar(key),time);
 
     React.useEffect(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${jwtDecode(token).hospital_slug}/`,
-            {
+        showAlert('chats','Getting your chats...','info');
+        axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${jwtDecode(token).hospital_slug}/`,{
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Token ${token}`, // fetch all chats of hospital
-                },
-                data : {
-                    hospital_slug : jwtDecode(token).hospital_slug,
+                    Authorization: `Token ${token}` // fetch all chats of hospital
                 }
             }).then(res=>{
+                closeAlert('chats',2000);
                 setChats(res.data.chats);
                 setcurrentChatUser({
                     ...currentChatUser,
@@ -55,21 +57,25 @@ const StaffChat = () => {
                     slug : res.data.chats[0].chat_slug
                 })
                 connecttoSocket(res.data.chats[0].chat_slug);
-                var element = document.getElementById("chat");
-    	        element.scrollTop = element.scrollHeight;
+            }).catch((error)=>{
+                showAlert('chats_error',error.message,'error');
+                closeAlert('chats_error',2000);
             })
+
+            return ()=>{
+                if(socket){
+                    socket.close();
+                }
+            }
     }, []);
 
     
-    if(token === '') {
+    if(token === '' || is_staff===false) {
         return <Redirect to='/'/>
     }
 
-    if(is_staff==='false'){
-        return <Redirect to='/hospitals'/>
-    }
-
     const connecttoSocket = (slug)=>{
+        var element = document.getElementById("chat");
         let socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${slug}/`);
         socket.onopen = function(e) {
             socket.send(JSON.stringify({
@@ -77,26 +83,27 @@ const StaffChat = () => {
                 'email': jwtDecode(token).email,
                 'chatSlug': slug
             }))
-            
             setMessages(JSON.parse(e.data).messages)
+            element.scrollTop = element.scrollHeight;
         };
 
         socket.onmessage = (e)=>{
             setMessages(JSON.parse(e.data).messages)
+            element.scrollTop = element.scrollHeight;
         }
 
         socket.onclose = function(event) {
             if (event.wasClean) {
-                alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                showAlert('socket_close',`Connection closed cleanly, code=${event.code} reason=${event.reason}`,'error');
             } else {
-                // e.g. server process killed or network down
-                // event.code is usually 1006 in this case
-                alert('[close] Connection died');
+                showAlert('socket_close','Connection died','error');
             }
+            closeAlert('socket_close',2000);
         };
 
         socket.onerror = function(error) {
-            console.log(error.message);
+            showAlert('socket_error',error,'error');
+            closeAlert('socket_error',2000);
         }; 
         setSocket(socket);
     }
