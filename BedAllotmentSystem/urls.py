@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('authentication.urls')),
     path('portal/', include('portal.urls')),
+    path('chat/', include('chat.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

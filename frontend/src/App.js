@@ -1,14 +1,12 @@
+/* eslint-disable */
 import React from "react";
 import {ThemeProvider, createMuiTheme, colors, CssBaseline} from "@material-ui/core";
 import Navbar from "./components/navigation/Navbar";
 import {blue, red} from "@material-ui/core/colors";
 import {ThemeContext} from "./context/ThemeContext";
-import WebSocketInstance from "./WebSocket";
-import {MessageContext} from "./context/Message"
 
 const App = () => {
   const {dark} = React.useContext(ThemeContext);
-  const {messages,setMessages} = React.useContext(MessageContext);
 
   const theme = createMuiTheme({
     palette: {
@@ -21,14 +19,6 @@ const App = () => {
       },
     },
   })
-
-  React.useEffect(()=>{
-    WebSocketInstance.addCallbacks(
-      (msgs)=>setMessages(msgs),
-      (msgs)=>setMessages(msgs)
-    )
-    // eslint-disable-next-line
-  },[])
 
   return (
      <>

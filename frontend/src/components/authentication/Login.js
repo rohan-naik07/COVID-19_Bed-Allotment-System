@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useState} from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -12,9 +13,12 @@ import useTheme from "@material-ui/core/styles/useTheme";
 import axios from 'axios';
 import { useSnackbar } from "notistack";
 import {getToken, setCookie} from "./cookies";
+import { useHistory } from 'react-router';
+import jwtDecode from "jwt-decode";
 
 export const Login = ({ open, setOpen, setOTP }) => {
     const theme = useTheme();
+    const history = useHistory();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const [values, setValues] = useState({
         email: null,
@@ -37,7 +41,7 @@ export const Login = ({ open, setOpen, setOTP }) => {
             [e.currentTarget.id]: e.currentTarget.value
         })
         if(e.currentTarget.id === 'email')
-            setErrors({...errors, emailError: (values.email === null || values.email === '')});
+            setErrors({...errors, emailError: (values.email === '')});
         if(e.currentTarget.id === 'password')
             setErrors({...errors, passwordError: (values.password === null || values.password === '')});
     }
@@ -72,7 +76,8 @@ export const Login = ({ open, setOpen, setOTP }) => {
                 setOpen(false);
                 enqueueSnackbar('Logged In Successfully!', { variant: 'success', key: 'login_success'})
                 setTimeout(() => closeSnackbar('login_success'), 5000)
-                if(!response.data.is_verified)
+                history.push('/hospitals')
+                if(response.data.is_verified===false)
                 {
                     setOTP(true);
                     setCookie(response.data.is_verified, 'verification')

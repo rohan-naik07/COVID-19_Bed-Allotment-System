@@ -5,16 +5,17 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework import status
 
 from authentication.models import User
+from portal.models import Hospital
 from .models import *
 from rest_framework import generics
-import traceback
+from .serializers import ChatSerializer
 
 
 # Create your views here.
 
-def get_messages(chatId):
-    chat = get_object_or_404(Chat, id=chatId)
-    return chat.messages.order_by('-sent').all()[:10]
+def get_messages(chat_slug):
+    chat = get_object_or_404(Chat, slug=chat_slug)
+    return chat.messages.order_by('sent').all()
 
 
 def get_user(email):
@@ -22,33 +23,28 @@ def get_user(email):
     return user
 
 
-def get_current_chat(chatId):
-    return get_object_or_404(Chat, id=chatId)
+def get_current_chat(chat_slug):
+    return get_object_or_404(Chat, slug=chat_slug)
 
 
-class CreateChatView(generics.ListCreateAPIView):
+class ChatView(generics.ListCreateAPIView):
     authentication_classes = [JSONWebTokenAuthentication, ]
     permission_classes = [IsAuthenticated, ]
+    serializer_class = ChatSerializer
+    queryset = Chat.objects.all()
 
-    def list(self, request, *args, **kwargs):
-        chats = Chat.objects.filter(participants__email=request.user)
-        context = []
-        for chat in chats:
-            context.append({
-                'id': chat.id,
-                'hospital_name': chat.hospital.name
-            })
-        return Response(data=context, status=status.HTTP_204_NO_CONTENT)
+    def get_serializer_context(self):
+        context = super(ChatView, self).get_serializer_context()
+        context['request'] = self.request
+
+        return context
 
     def create(self, request, *args, **kwargs):
         try:
-            chat = Chat.objects.create()
-            for participant in request.data.get('participants'):
-                chat.participants.add(User.objects.get(email=participant))
-            chat.p2p = request.data.get('p2p')
+            chat = Chat.objects.get(user=request.user, hospital__slug=request.data['hospital'])
+        except Chat.DoesNotExist:
+            chat = Chat.objects.create(user=request.user,
+                                       hospital=Hospital.objects.get(slug=request.data.get('hospital')))
             chat.save()
 
-            return Response(status=status.HTTP_201_CREATED)
-        except Exception as e:
-            print(traceback.print_exc(e))
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=ChatSerializer(chat).data, status=status.HTTP_201_CREATED)

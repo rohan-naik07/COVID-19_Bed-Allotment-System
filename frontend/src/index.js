@@ -6,18 +6,15 @@ import reportWebVitals from './reportWebVitals';
 import {SnackbarProvider} from 'notistack';
 import {BrowserRouter} from "react-router-dom";
 import {ThemeContextProvider} from "./context/ThemeContext";
-import {MessageContextProvider} from './context/Message'
 
 ReactDOM.render(
-   <MessageContextProvider>
      <ThemeContextProvider>
       <SnackbarProvider maxSnack={1}>
           <BrowserRouter>
               <App/>
           </BrowserRouter>
       </SnackbarProvider>
-    </ThemeContextProvider>
-   </MessageContextProvider>,
+    </ThemeContextProvider>,
   document.getElementById('root')
 );
 

@@ -12,10 +12,10 @@ User = User
 class ChatConsumer(WebsocketConsumer):
 
     def fetch_messages(self, data):
-        messages = get_messages(data['chatId'])
+        messages = get_messages(data['chatSlug'])
         content = {
             'command': 'messages',
-            'messages': self.messages_to_json(messages)
+            'messages': self.messages_to_json(get_messages(get_current_chat(data['chatSlug']).slug))
         }
         self.send_message(content)
 
@@ -24,12 +24,15 @@ class ChatConsumer(WebsocketConsumer):
         message = Message.objects.create(
             user=user,
             text=data['message'])
-        current_chat = get_current_chat(data['chatId'])
+        current_chat = get_current_chat(data['chatSlug'])
+        current_chat.messages.add(message)
+        current_chat.save()
+        message = Message.objects.create(user=current_chat.hospital.staff, text=data['message'])
         current_chat.messages.add(message)
         current_chat.save()
         content = {
             'command': 'new_message',
-            'messages': self.messages_to_json(current_chat.messages)
+            'messages': self.messages_to_json(get_messages(get_current_chat(data['chatSlug']).slug))
         }
         return self.send_chat_message(content)
 
@@ -42,9 +45,9 @@ class ChatConsumer(WebsocketConsumer):
     def message_to_json(self, message):
         return {
             'id': message.id,
-            'author': message.user.email,
-            'content': message.text,
-            'timestamp': str(message.sent)
+            'user': message.user.email,
+            'message': message.text,
+            'timestamp': message.sent.__str__()
         }
 
     commands = {

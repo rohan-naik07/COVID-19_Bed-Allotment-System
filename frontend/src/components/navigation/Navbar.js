@@ -13,7 +13,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from '@material-ui/icons/Menu';
 import clsx from "clsx";
-import {AccountCircle, LockOpen} from "@material-ui/icons";
+import {AccountCircle, ChatBubble, ListAlt, LocalHospital, LockOpen} from "@material-ui/icons";
 import {getCookie, getToken} from "../authentication/cookies";
 import {Login} from "../authentication/Login";
 import {SignUp} from "../authentication/SignUp";
@@ -30,9 +30,11 @@ import Home from "../home/Home";
 import About from "../about/About";
 import Graphs from "../charts/Graphs";
 import Hospitals from '../hospital/Hospitals'
-import Sentiment from '../sentiments/Sentiment'
+import StaffPanel from '../staff/StaffPanel'
+import Chat from '../chat/Chat'
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
+import HospitalDetail from "../hospital/HospitalDetail";
 
 const drawerWidth = 240;
 
@@ -102,6 +104,7 @@ export default function ClippedDrawer() {
     const [tab, setTab] = React.useState(0);
     const {dark, toggleTheme} = React.useContext(ThemeContext);
     const [openProfile, setOpenProfile] = React.useState(false);
+    const is_staff = localStorage.getItem('is_staff');
 
     const handleProfileClickOpen = () => {
       setOpenProfile(true);
@@ -117,7 +120,7 @@ export default function ClippedDrawer() {
         let token = getToken();
         if(token !== '') {
             setLoggedIn(true);
-            if(getCookie('verification'))
+            if(getCookie('verification')==='false')
             {
                 setOTP(true);
             }
@@ -132,12 +135,6 @@ export default function ClippedDrawer() {
                 break;
             case '/graphs':
                 setTab(2);
-                break;
-            case '/hospitals':
-                setTab(3);
-                break;
-            case '/sentiments':
-                setTab(4);
                 break;
             default:
                 setTab(null);
@@ -155,12 +152,6 @@ export default function ClippedDrawer() {
                 break;
             case 2:
                 history.push('/graphs');
-                break;
-            case 3:
-                history.push('/hospitals');
-                break;
-            case 4:
-                history.push('/sentiments');
                 break;
             default:
                 history.push('/');
@@ -185,18 +176,17 @@ export default function ClippedDrawer() {
                         COBAS
                     </Typography>
                     <div className={classes.space}/>
-                    <Hidden smDown>
-                        <Tabs value={tab} indicatorColor="primary" textColor="primary" onChange={handleTabChange}>
-                            <Tab label="Home" />
-                            <Tab label="About Us" />
-                            <Tab label="Data" />
-                            {loggedIn ?  <Tab label="Hospitals"/> : null}
-                            {loggedIn ? <Tab label="Sentiments"/>:null}
-                        </Tabs>
-                    </Hidden>
-                    <IconButton edge='end' className={classes.themer} onClick={toggleTheme}>
-                        {dark ? <Brightness7/>: <Brightness4/>}
-                    </IconButton>
+                    {!loggedIn ? 
+                        <Hidden smDown>
+                            <Tabs value={tab} indicatorColor="primary" textColor="primary" onChange={handleTabChange}>
+                                <Tab label="Home" />
+                                <Tab label="About Us" />
+                                <Tab label="Stats" />
+                            </Tabs>
+                        </Hidden> : null}
+                        <IconButton edge='end' className={classes.themer} onClick={toggleTheme}>
+                            {dark ? <Brightness7/>: <Brightness4/>}
+                        </IconButton>
                     <div className={classes.grow} />
                     {loggedIn ? 
                     <div className={classes.sectionDesktop}>
@@ -240,17 +230,36 @@ export default function ClippedDrawer() {
                                 <ListItemText primary={'Sign Up'} />
                             </ListItem>
                         </List>
-                    ):(
+                    ): is_staff==='false' ? (
                         <List>
-                            <ListItem button key={'Chat'}>
-                                <ListItemIcon><LockOpen /></ListItemIcon>
-                                <ListItemText primary={'Chat'}/>
-                            </ListItem>
-                            <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
-                                <ListItemIcon><LockOpen /></ListItemIcon>
-                                <ListItemText primary={'Logout'} />
-                            </ListItem>
-                        </List>
+                         <ListItem button key={'Your Applications'}>
+                            <ListItemIcon><ListAlt /></ListItemIcon>
+                            <ListItemText primary={'Your Applications'} />
+                        </ListItem>
+                         <ListItem button key={'Your Chats'} >
+                            <ListItemIcon><ChatBubble/></ListItemIcon>
+                            <ListItemText primary={'Your Chats'} />
+                        </ListItem>
+                         <ListItem button key={'Search Hospitals'}>
+                            <ListItemIcon><LocalHospital /></ListItemIcon>
+                            <ListItemText primary={'Search Hospitals'} />
+                        </ListItem>
+                        <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
+                            <ListItemIcon><LockOpen /></ListItemIcon>
+                            <ListItemText primary={'Logout'} />
+                        </ListItem>
+                    </List>
+                    ) : (
+                        <List>
+                         <ListItem button key={'Chats'} >
+                            <ListItemIcon><ChatBubble/></ListItemIcon>
+                            <ListItemText primary={'Your Chats'} />
+                        </ListItem>
+                        <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
+                            <ListItemIcon><LockOpen /></ListItemIcon>
+                            <ListItemText primary={'Logout'} />
+                        </ListItem>
+                    </List>
                     )}
                     <Divider />
                 </div>
@@ -270,8 +279,9 @@ export default function ClippedDrawer() {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
+                    <Route path='/hospital/:slug' component={HospitalDetail}/>
+                    <Route exact path='/staff' component={StaffPanel}/>
                     <Route exact path='/hospitals' component={Hospitals}/>
-                    <Route exact path='/sentiments' component={Sentiment}/>
                 </Switch>
             </main>
         </div>
