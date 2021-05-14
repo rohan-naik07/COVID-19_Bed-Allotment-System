@@ -3,16 +3,17 @@ import {Typography} from "@material-ui/core";
 import { Redirect } from "react-router";
 import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
+import Hospitals from "../hospital/Hospitals";
 
 const Home = () => {
     let token = getToken();
-    const is_staff = getToken() ==='' ? 'true' : jwtDecode(getToken()).is_staff;
+    const is_staff = getToken() ==='' ? false : jwtDecode(token).is_staff;
 
     if(token !== '') {
-        if(is_staff==='true'){
+        if(is_staff===true){
             return <Redirect to='/staff'/>
         }
-        return <Redirect to='/hospitals'/>
+        return <Hospitals/>
     }
 
     return (

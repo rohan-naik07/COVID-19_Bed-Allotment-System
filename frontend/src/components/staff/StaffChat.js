@@ -1,14 +1,12 @@
 import React from "react";
-import { Box, Chip, Divider,Grid, IconButton, Paper, TextField, Typography,makeStyles} from "@material-ui/core";
+import { Box, Chip,Grid, IconButton, Paper, TextField, Typography,makeStyles} from "@material-ui/core";
 import { Redirect } from "react-router";
 import jwtDecode from 'jwt-decode'
 import axios from "axios";
 import {getToken} from "../authentication/cookies";
 import Button from "@material-ui/core/Button";
 import { SendRounded } from "@material-ui/icons";
-import { mergeClasses } from "@material-ui/styles";
 import clsx from "clsx";
-//import {getToken} from "../authentication/cookies";
 
 const useStyles = makeStyles((theme) => ({
     messageLeft : {
@@ -30,94 +28,40 @@ const useStyles = makeStyles((theme) => ({
 
 const StaffChat = () => {
     let token = getToken();
-    //const is_staff = token ==='' ? 'true' : jwtDecode(token).is_staff;
-    //let socket;
+    const is_staff = token ==='' ? 'true' : jwtDecode(token).is_staff;
     const [text, setText] = React.useState('');
-    //const [messages, setMessages] = React.useState([]);
-    //const [chats,setChats] = React.useState([]);
+    const [messages, setMessages] = React.useState([]);
+    const [chats,setChats] = React.useState([]);
+    const [socket,setSocket] = React.useState(null);
     const classes = useStyles();
-    const [currentChatUser,setcurrentChatUser] = React.useState({
-        email : '',
-        name : ''
-    });
+    const [currentChatUser,setcurrentChatUser] = React.useState({email : '',name : '',slug : ''});
 
-    const chats = [
-        {
-            _id : "121",
-            user : "Rohan Naik",
-            email : "ml km",
-            no_of_messages : 2,
-            latest_message : "Thala deto saglyana spanking"
-        },{
-            _id : "221",
-            user : "Piyush Thite",
-            email : "ml km",
-            no_of_messages : 1,
-            latest_message : "Thala la milala spanking"
-        },{
-            _id : "321",
-            user : "Pranjal Newalkar",
-            email : "ml km",
-            no_of_messages : 3,
-            latest_message : "Kaam wali bai majhi bae"
-        }
-    ]
+    React.useEffect(() => {
+        axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${jwtDecode(token).hospital_slug}/`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Token ${token}`, // fetch all chats of hospital
+                },
+                data : {
+                    hospital_slug : jwtDecode(token).hospital_slug,
+                }
+            }).then(res=>{
+                setChats(res.data.chats);
+                setcurrentChatUser({
+                    ...currentChatUser,
+                    email : res.data.chats[0].user_email,
+                    name : res.data.chats[0].name,
+                    slug : res.data.chats[0].chat_slug
+                })
+                connecttoSocket(res.data.chats[0].chat_slug);
+                var element = document.getElementById("chat");
+    	        element.scrollTop = element.scrollHeight;
+            })
+    }, []);
 
-    const messages = [
-        {
-            _id : "023",
-            message : "lswpo skwpdoe slwkp",
-            user : "noyou",
-            time:"2021-05-12 03:28:19"
-        },{
-            _id : "123",
-            message : "lswpo",
-            user : "you",
-            time:"2021-05-12 03:28:19"
-        },{
-            _id : "223",
-            message : "lswpo skwpdoe swpmdpewoop dewkok[ wdkk[pckp",
-            user : "noyou",
-            time:"2021-05-12 03:28:19"
-        },{
-            _id : "323",
-            message : "Hi",
-            user : "you",
-            time:"2021-05-12 03:28:19"
-        },{
-            _id : "423",
-            message : "spsw smwpdmp",
-            user : "you",
-            time:"2021-05-12 03:28:19"
-        }, {
-            _id : "523",
-            message : "lswpo skwpdoe slwkp",
-            user : "noyou",
-            time:"2021-05-12 03:28:19"
-        },{
-            _id : "623",
-            message : "lswpo",
-            user : "you",
-            time:"2021-05-12 03:28:19"
-        },{
-            _id : "723",
-            message : "lswpo skwpdoe swpmdpewoop dewkok[ wdkk[pckp",
-            user : "noyou",
-            time:"2021-05-12 03:28:19"
-        },{
-            _id : "823",
-            message : "Hi",
-            user : "you",
-            time:"2021-05-12 03:28:19"
-        },{
-            _id : "923",
-            message : "spsw smwpdmp",
-            user : "you",
-            time:"2021-05-12 03:28:19"
-        }
-    ]
-
-    /*if(token === '') {
+    
+    if(token === '') {
         return <Redirect to='/'/>
     }
 
@@ -125,129 +69,114 @@ const StaffChat = () => {
         return <Redirect to='/hospitals'/>
     }
 
-    React.useEffect(() => {
-        /* axios.get(`${process.env.REACT_APP_API_URL}/chat/`,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Token ${getToken()}`, // fetch all chats of hospital
-                },
-                data : {
-                    hospital_slug : jwtDecode(getToken()).hospital_slug,
-                }
-            }).then(res=>{
-                setChat(res.data);
-                setcurrentChatUser({
-                    ...currentChatUser,
-                    email : res.data[0].email,
-                    name : res.data[0].user
-                })
-                connecttoSocket(res.data[0].email);
-                var element = document.getElementById("chat");
-    	        element.scrollTop = element.scrollHeight;
-            })
-    }, []);
+    const connecttoSocket = (slug)=>{
+        let socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${slug}/`);
+        socket.onopen = function(e) {
+            socket.send(JSON.stringify({
+                'command': 'fetch_messages',
+                'email': jwtDecode(token).email,
+                'chatSlug': slug
+            }))
+            
+            setMessages(JSON.parse(e.data).messages)
+        };
 
-    const connecttoSocket = (email)=>{
-        axios.post(`${process.env.REACT_APP_API_URL}/chat/`,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Token ${token}`, // fetch chat slug of specific user and hospital
-                },
-                data : {
-                    hospital_slug : jwtDecode(token).hospital_slug,
-                    user_email : email
-                }
-            })
-            .then(res => {
-                if(socket){
-                    socket.close();
-                }
-                if(res.data.chat_slug) {
-                    socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${res.data.chat_slug}/`);
-                    socket.onopen = function(e) {
-                        socket.send(JSON.stringify({
-                            'command': 'fetch_messages',
-                            'email': (jwtDecode(getToken())).email,
-                            'chatSlug': res.data.chat_slug
-                        }))
-                        setMessages(JSON.parse(e.data).messages)
-                    };
+        socket.onmessage = (e)=>{
+            setMessages(JSON.parse(e.data).messages)
+        }
 
-                    socket.onmessage = (e)=>{
-                        setMessages(JSON.parse(e.data).messages)
-                    }
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+            } else {
+                // e.g. server process killed or network down
+                // event.code is usually 1006 in this case
+                alert('[close] Connection died');
+            }
+        };
 
-                    socket.onclose = function(event) {
-                        if (event.wasClean) {
-                            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-                        } else {
-                            // e.g. server process killed or network down
-                            // event.code is usually 1006 in this case
-                            alert('[close] Connection died');
-                        }
-                    };
-
-                    socket.onerror = function(error) {
-                        console.log(error.message);
-                    };
-                }
-        })
+        socket.onerror = function(error) {
+            console.log(error.message);
+        }; 
+        setSocket(socket);
     }
 
 
-    const sendMessage = (new_message) => {
+    const sendMessage = () => {
         socket.send(JSON.stringify({
-            'message': new_message,
+            'message': text,
             'from': (jwtDecode(getToken())).email,
             'command': 'new_message',
-            'chatSlug': hospital.chat_slug
+            'chatSlug': currentChatUser.slug
         }));
         setText('');
-    }*/
+    }
 
-    React.useEffect(()=>{
-        var element = document.getElementById("chat");
-    	element.scrollTop = element.scrollHeight;
-    },[])
-
-    const handleChange = (email,name)=>{
-        setcurrentChatUser({
-            ...currentChatUser,
-            email : email,
-            name : name
-        })
-        //connect to socket 
+    const handleChange = (email,name,slug)=>{
+        if(email!==currentChatUser.email){
+            setcurrentChatUser({
+                ...currentChatUser,
+                email : email,
+                name : name
+            })
+            //connect to socket
+            if(socket){
+                socket.close();
+            }    
+            connecttoSocket(slug); 
+        }
     }
 
     const renderMessages = ()=>(
         <React.Fragment>
             {messages.map(message=>(
                 <Box key={message._id} color="primary.main" className={clsx({
-                    [classes.messageLeft] : (message.user === 'you'), //always applies
-                    [classes.messageRight] : (message.user === 'you') //only when open === true
+                    [classes.messageLeft] : (message.user !== jwtDecode(token).email), //always applies
+                    [classes.messageRight] : (message.user === jwtDecode(token).email) //only when open === true
                 })}>
                     <Paper variant='outlined' className={classes.message}>
                         <Typography variant='h6'>{message.message}</Typography>
-                        <Typography variant='caption' color='textSecondary'>{message.time}</Typography>
+                        <Typography variant='caption' color='textSecondary'>{renderTimestamp(message.timestamp)}</Typography>
                     </Paper>
                 </Box>
             ))}
         </React.Fragment>
     )
+    const renderTimestamp = timestamp => {
+        let prefix = "";
+        const timeDiff = Math.round(
+            (new Date().getTime() - new Date(timestamp).getTime()) / 60000
+        );
+        if (timeDiff < 1) {
+            // less than one minute ago
+            prefix = "just now...";
+        } else if (timeDiff < 60 && timeDiff > 1) {
+            // less than sixty minutes ago
+            prefix = `${timeDiff} minutes ago`;
+        } else if (timeDiff < 24 * 60 && timeDiff > 60) {
+            // less than 24 hours ago
+            prefix = `${Math.round(timeDiff / 60)} hours ago`;
+        } else if (timeDiff < 31 * 24 * 60 && timeDiff > 24 * 60) {
+            // less than 7 days ago
+            prefix = `${Math.round(timeDiff / (60 * 24))} days ago`;
+        } else {
+            prefix = `${new Date(timestamp).toDateString()}`;
+        }
+        return prefix;
+    };
 
     const renderChats = ()=>(
         <React.Fragment>
             {chats.map(chat=>( 
-                <Paper elevation={2} key={chat._id} 
+                <Paper elevation={2} key={chat.chat_slug} 
                         style={{marginTop:10,padding:10,display:"flex",justifyContent:'space-between'}}
-                        onClick={handleChange.bind(this,chat.email,chat.user)}>
+                        onClick={handleChange.bind(this,chat.user_email,chat.name,chat.chat_slug)}
+                        >
                     <div>
-                        <Typography variant='h6'>{chat.user}</Typography>
-                        <Typography variant='caption' color="textSecondary">{chat.latest_message}</Typography>
+                        <Typography variant='h6'>{chat.name}</Typography>
+                        <Typography variant='caption' color="textSecondary">{chat.last_message}</Typography>
                     </div>
-                    <Chip size='small' label={chat.no_of_messages} color='primary'/>
+                    <Chip size='small' label={'Active'} color='primary'/>
                 </Paper>
                     )
                 )
@@ -266,8 +195,9 @@ const StaffChat = () => {
            </Grid>
            <Grid item xs={6}>
                 <Box>
-                    <Paper elevation={3} style={{display:'flex',justifyContent:'space-between',padding:10}}>
-                        <Typography variant='h5'>{'User Name'}</Typography>
+                    <Paper elevation={3} style={{padding:10}}>
+                        <Typography variant='h5'>{currentChatUser.name}</Typography>
+                        <Typography variant='h6' color="textSecondary" >{currentChatUser.email}</Typography>
                     </Paper>
                     <Paper elevation={3} id='chat' style={{
                         marginTop:10,
@@ -294,7 +224,7 @@ const StaffChat = () => {
                             fullWidth
                         />
                         <IconButton>
-                            <SendRounded fontSize='large'/>
+                            <SendRounded fontSize='large' onClick={sendMessage}/>
                         </IconButton>
                     </Paper>           
                 </Box>           

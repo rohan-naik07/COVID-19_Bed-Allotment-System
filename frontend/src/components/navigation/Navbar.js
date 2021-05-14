@@ -8,8 +8,6 @@ import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from "@material-ui/core/IconButton";
 import clsx from "clsx";
 import {AccountCircle, ChatBubble, ListAlt, LocalHospital, LockOpen} from "@material-ui/icons";
@@ -105,8 +103,9 @@ export default function ClippedDrawer() {
     const [tab, setTab] = React.useState(0);
     const {dark, toggleTheme} = React.useContext(ThemeContext);
     const [openProfile, setOpenProfile] = React.useState(false);
-
-    const is_staff = getToken() ==='' ? 'true' : 'false';
+    let token = getToken();
+    const is_staff = token===''  ? false : jwtDecode(token).is_staff;
+    console.log(is_staff)
 
     const handleProfileClickOpen = () => {
       setOpenProfile(true);
@@ -225,7 +224,7 @@ export default function ClippedDrawer() {
                                 </Tooltip>
                             </ListItem>
                         </List>
-                    ): is_staff==='false' ? (
+                    ): is_staff=== false ? (
                         <List>
                          <ListItem button key={'Your Applications'}>
                              <Tooltip title='Your Applications'>
@@ -250,7 +249,7 @@ export default function ClippedDrawer() {
                     </List>
                     ) : (
                     <List>
-                        <ListItem button key={'Chats'} >
+                        <ListItem button key={'Chats'} onClick={() => history.push('/staffchat')}>
                             <Tooltip title='Chats'>
                                 <IconButton fontSize='large'><ChatBubble/></IconButton>  
                             </Tooltip>
@@ -284,7 +283,6 @@ export default function ClippedDrawer() {
                         <Route path='/hospital/:slug' component={HospitalDetail}/>
                         <Route exact path='/staff' component={StaffPanel}/>
                         <Route exact path='/staffchat' component={StaffChat}/>
-                        <Route exact path='/hospitals' component={Hospitals}/>
                     </Switch>
                 </main>
             </Container>
