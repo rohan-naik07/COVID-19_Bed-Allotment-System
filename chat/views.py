@@ -36,7 +36,6 @@ class ChatView(generics.ListCreateAPIView):
     def get_serializer_context(self):
         context = super(ChatView, self).get_serializer_context()
         context['request'] = self.request
-
         return context
 
     def create(self, request, *args, **kwargs):

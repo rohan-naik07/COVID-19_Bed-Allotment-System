@@ -14,7 +14,6 @@ import Geocode from "react-geocode";
 import {
   Divider
 } from "@material-ui/core";
-import { BarChart,Bar, XAxis, YAxis,Tooltip} from 'recharts';
 import {getToken} from "../authentication/cookies";
 import axios from "axios";
 require('dotenv').config();
@@ -47,7 +46,6 @@ const Hospitals = (props) => {
      const classes = useStyles();
      const [address, setAddress] = React.useState("");
      const [maxBedHospital,setHospital] = React.useState("");
-     const [graphData,setGraphData] = React.useState([]);
      const [stores,setStores] = React.useState([])
      const [tileData, setTileData] = React.useState([]);
      const history = useHistory();
@@ -93,15 +91,10 @@ const Hospitals = (props) => {
                    }
               }
          ).then(res => {
-                let data = [];
                 let probs = [];
                 let markers = [];
 
                 res.data.forEach((obj)=>{
-                    data.push({
-                        "name" : obj.name.split(' ')[0],
-                        "beds" : obj.available_beds
-                    })
                     probs.push({
                         name : obj.name,
                         prob : (obj.available_beds/obj.total_beds)*100
@@ -122,7 +115,6 @@ const Hospitals = (props) => {
                     return 0; // sort according to decreasing frequencies
                 });
 
-                setGraphData(data);
                 setHospital(probs[0])
                 setStores(markers);
                 setTileData(res.data);
@@ -153,13 +145,6 @@ const Hospitals = (props) => {
                         {`Most chances are in ${maxBedHospital.name} (${maxBedHospital.prob}%)`}
                       </Typography>
                     </div>
-                    <Divider/>
-                    <BarChart width={650} height={250} data={graphData} barSize={20} style={{marginTop:10,overflow:'hidden'}}>
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="beds" fill="#ffc107" width={10} />
-                    </BarChart>
                  </Paper>
              </Grid>
              <Grid item  md={12} xs={12} style={{marginTop:20}}>

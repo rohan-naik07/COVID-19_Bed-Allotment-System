@@ -23,5 +23,10 @@ class Chat(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, max_length=8, null=True)
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(str(uuid.uuid4())[:8])
+        super(Chat, self).save(*args, **kwargs)
+
     def __str__(self):
         return self.id.__str__()

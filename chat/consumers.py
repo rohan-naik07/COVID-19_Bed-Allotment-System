@@ -23,11 +23,9 @@ class ChatConsumer(WebsocketConsumer):
         user = get_user(data['from'])
         message = Message.objects.create(
             user=user,
-            text=data['message'])
+            text=data['message']
+        )
         current_chat = get_current_chat(data['chatSlug'])
-        current_chat.messages.add(message)
-        current_chat.save()
-        message = Message.objects.create(user=current_chat.hospital.staff, text=data['message'])
         current_chat.messages.add(message)
         current_chat.save()
         content = {
