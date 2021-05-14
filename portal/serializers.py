@@ -40,6 +40,7 @@ class HospitalSerializer(serializers.ModelSerializer):
                                           'user_email': chat.user.email,
                                           'last_message': chat.messages.last().text}
                                          for chat in Chat.objects.filter(hospital=instance)]
+                else:
                     response['chat_slug'] = Chat.objects.get(user=request.user, hospital=instance).slug
             else:
                 print('no request')
