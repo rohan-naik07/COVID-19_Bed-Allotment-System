@@ -45,7 +45,7 @@ const StaffChat = () => {
         axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${jwtDecode(token).hospital_slug}/`,{
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Token ${token}`, // fetch all chats of hospital
+                    Authorization: `Token ${token}` // fetch all chats of hospital
                 }
             }).then(res=>{
                 closeAlert('chats',2000);

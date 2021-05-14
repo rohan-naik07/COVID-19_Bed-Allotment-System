@@ -28,9 +28,6 @@ class ChatConsumer(WebsocketConsumer):
         current_chat = get_current_chat(data['chatSlug'])
         current_chat.messages.add(message)
         current_chat.save()
-        message = Message.objects.create(user=current_chat.hospital.staff, text=data['message'])
-        current_chat.messages.add(message)
-        current_chat.save()
         content = {
             'command': 'new_message',
             'messages': self.messages_to_json(get_messages(get_current_chat(data['chatSlug']).slug))

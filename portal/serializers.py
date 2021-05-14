@@ -2,6 +2,7 @@ from rest_framework import serializers
 from authentication.serializers import UserSerializer
 from chat.models import Chat
 from .models import *
+import traceback
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -42,8 +43,10 @@ class HospitalSerializer(serializers.ModelSerializer):
                 else:
                     response['chat_slug'] = Chat.objects.get(user=request.user, hospital=instance).slug
             else:
+                print('no request')
                 response['chat_slug'] = None
         except Exception as e:
+            print(e.__str__())
             response['chat_slug'] = None
 
         return response
