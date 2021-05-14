@@ -14,7 +14,6 @@ import axios from 'axios';
 import { useSnackbar } from "notistack";
 import {getToken, setCookie} from "./cookies";
 import { useHistory } from 'react-router';
-import jwtDecode from "jwt-decode";
 
 export const Login = ({ open, setOpen, setOTP }) => {
     const theme = useTheme();
@@ -76,7 +75,7 @@ export const Login = ({ open, setOpen, setOTP }) => {
                 setOpen(false);
                 enqueueSnackbar('Logged In Successfully!', { variant: 'success', key: 'login_success'})
                 setTimeout(() => closeSnackbar('login_success'), 5000)
-                history.push('/hospitals')
+                history.push('/')
                 if(response.data.is_verified===false)
                 {
                     setOTP(true);
