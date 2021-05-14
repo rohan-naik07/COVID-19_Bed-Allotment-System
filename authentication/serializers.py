@@ -63,7 +63,7 @@ class LoginSerializer(serializers.Serializer):
         payload = jwt_payload_handler(user)
         payload['is_staff'] = user.is_staff
         if user.is_staff and user.is_verified:
-            payload['hospital_slug'] = Hospital.objects.get(staff=user)
+            payload['hospital_slug'] = Hospital.objects.get(staff=user).slug
         else:
             payload['hospital_slug'] = None
         token = jwt_encode_handler(payload)
