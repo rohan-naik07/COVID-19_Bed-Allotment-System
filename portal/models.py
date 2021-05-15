@@ -38,8 +38,10 @@ class Hospital(models.Model):
 
 class Review(models.Model):
     rating = models.FloatField(default=3.0)
-    patient = models.OneToOneField(Patient, on_delete=models.CASCADE, verbose_name='Patient')
-    hospital = models.OneToOneField(Hospital, on_delete=models.CASCADE, verbose_name='Hospital')
+    feedback = models.TextField(null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, verbose_name='Patient')
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, verbose_name='Hospital')
+    created = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.patient.user.email + ' ' + self.rating.__str__()

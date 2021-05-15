@@ -1,8 +1,21 @@
 /* eslint-disable */
 import React from "react";
-import {Grid, Paper, CardContent, Avatar, Typography, TextField, IconButton, makeStyles, Card, CardMedia} from "@material-ui/core";
+import {
+    Grid,
+    Paper,
+    CardContent,
+    Avatar,
+    Typography,
+    makeStyles,
+    Card,
+    CardMedia,
+    Chip,
+    colors,
+    useTheme
+} from "@material-ui/core";
 import {Widget, addResponseMessage, addUserMessage, dropMessages} from "react-chat-widget";
 import Geocode from "react-geocode";
+import {reviews} from "../chat/reviews";
 import axios from "axios";
 import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
@@ -14,22 +27,19 @@ const useStyles = makeStyles((theme) => ({
         padding: '2%'
     },
     paper: {
+        padding: 0,
     },
     title: {
         margin: '2%',
         lineHeight: '1.15',
         [theme.breakpoints.down('md')]: {
-            fontSize: '2.5rem',
+            fontSize: '3.5rem',
         },
         [theme.breakpoints.up('md')]: {
             fontSize: '4.5rem'
         },
     },
     media: {
-        height: 350,
-        display: 'flex',
-        backgroundSize: 'contain',
-        backgroundRepeat: 'no-repeat',
     },
 }));
 
@@ -38,6 +48,7 @@ const HospitalDetail = (props) => {
     const [socket, setSocket] = React.useState(null);
     const [render, setRender] = React.useState(false);
     const [text, setText] = React.useState('');
+    const theme = useTheme();
     const [address, setAddress] = React.useState('');
     const [messages, setMessages] = React.useState([]);
     const classes = useStyles();
@@ -71,23 +82,34 @@ const HospitalDetail = (props) => {
                     };
 
                     socket.onmessage = (e)=>{
-                        setMessages(JSON.parse(e.data).messages)
-                        dropMessages();
-                        JSON.parse(e.data).messages.map((message, i) => {
-                            if(message.user===jwtDecode(getToken()).email)
-                                addUserMessage(message.message);
+                        if(JSON.parse(e.data).command==='fetch_messages')
+                        {
+                            setMessages(JSON.parse(e.data).messages)
+                            dropMessages();
+                            JSON.parse(e.data).messages.map((message, i) => {
+                                if(message.user===jwtDecode(getToken()).email)
+                                    addUserMessage(message.message);
+                                else
+                                    addResponseMessage(message.message);
+                            })
+                        }
+                        else if(JSON.parse(e.data).command==='new_message')
+                        {
+                            setMessages([...messages, JSON.parse(e.data).message])
+                            if(JSON.parse(e.data).message.user===jwtDecode(getToken()).email)
+                                addUserMessage(JSON.parse(e.data).message.message);
                             else
-                                addResponseMessage(message.message);
-                        })
+                                addResponseMessage(JSON.parse(e.data).message.message);
+                        }
                     }
 
                     socket.onclose = function(event) {
                         if (event.wasClean) {
-                            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                            console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
                         } else {
                             // e.g. server process killed or network down
                             // event.code is usually 1006 in this case
-                            alert('[close] Connection died');
+                            console.log('[close] Connection died');
                         }
                     };
 
@@ -102,8 +124,7 @@ const HospitalDetail = (props) => {
     React.useEffect(() => {
         Geocode.fromLatLng(hospital.latitude, hospital.longitude).then(
             (response) => {
-                let address = response.results[0].formatted_address;
-                setAddress(address);
+                setAddress(response.results[0].formatted_address);
             },
             (error) => {
             }
@@ -136,38 +157,88 @@ const HospitalDetail = (props) => {
     }
 
     return render && (
-        <Grid item container direction="row" justify="center" alignItems="flex-start" className={classes.container} spacing={2}>
-            <Grid item xs={12} sm={6}>
-                <h1 className={classes.title}>
-                    {hospital.name}
-                </h1>
+        <Grid item container direction="row" justify="center" alignItems="flex-start" className={classes.container} spacing={3}>
+            <Grid item xs={12} sm={6} container direction="column" spacing={3}>
+                <Grid item xs={12}>
+                    <h1 className={classes.title}>
+                        {hospital.name}
+                    </h1>
+                </Grid>
+                <Grid item xs={12} container direction="row" alignItems="center" spacing={2}>
+                    <Grid item xs>
+                        <Chip
+                            avatar={<Avatar>{hospital.staff?hospital.staff.first_name[0].toUpperCase():'N'}</Avatar>}
+                            label={hospital.staff?hospital.staff.first_name.toUpperCase():'No staff'}
+                            variant="default"
+                            style={{ margin: '1% 1% 0 0'}}
+                        />
+                    </Grid>
+                    <Grid item xs>
+                        <Chip
+                            avatar={<Avatar style={{ backgroundColor: colors.pink[500] }}>{hospital.total_beds}</Avatar>}
+                            label="Total Beds"
+                            variant="default"
+                            color='secondary'
+                            style={{ margin: '1%'}}
+                        />
+                    </Grid>
+                    <Grid item xs>
+                        <Chip
+                            avatar={<Avatar>{hospital.available_beds}</Avatar>}
+                            label="Available Beds"
+                            variant="default"
+                            color='primary'
+                            style={{ margin: '1%'}}
+                        />
+                    </Grid>
+                </Grid>
+                {!hospital.patient && (
+                    <Grid item xs={12}>
+                        <Button
+                            color='primary'
+                            variant='contained'
+                            fullWidth
+                        >
+                            Apply for Bed
+                        </Button>
+                    </Grid>
+                )}
+                {!hospital.chat_slug && (
+                    <Grid item xs={12}>
+                        <Button
+                            variant='contained'
+                            onClick={handleCreateChat}
+                        >
+                            Connect with us!
+                        </Button>
+                    </Grid>
+                )}
             </Grid>
             <Grid item xs={12} sm={6}>
-                <Card component={Paper} className={classes.paper} elevation={10}>
+                <Card className={classes.paper} component={Paper} elevation={10}>
+                    <CardMedia
+                        component='img'
+                        className={classes.media}
+                        image={hospital.imageUrl}
+                        title={hospital.name}
+                    />
                     <CardContent>
-                        <CardMedia
-                            component='img'
-                            title={hospital.name}
-                            image={hospital.imageUrl}
-                            className={classes.media}
-                        />
                         <Typography variant='h6'>
                             {address}
                         </Typography>
                     </CardContent>
+                    <CardContent style={{ justifyContent: 'space-between', display: 'flex'}}>
+                        {reviews.map((review, i) => (
+                            <Chip
+                                avatar={<Avatar style={{ backgroundColor: colors.blue[theme.palette.type==='light'?700:400], color: theme.palette.getContrastText(colors.blue[theme.palette.type==='light'?700:400])}}>{review.overallRating}</Avatar>}
+                                label={review.feedback}
+                                key={i}
+                            />
+                        ))}
+                    </CardContent>
                 </Card>
             </Grid>
-            {!hospital.chat_slug?(
-                <Grid item xs={12}>
-                    <Button
-                        style={{width:'30%'}}
-                        variant='contained'
-                        onClick={handleCreateChat}
-                    >
-                        Connect with us!
-                    </Button>
-                </Grid>
-            ):(
+            {hospital.chat_slug && (
                 <Grid item xs={12}>
                     <Widget
                         handleSubmit={sendMessage}
