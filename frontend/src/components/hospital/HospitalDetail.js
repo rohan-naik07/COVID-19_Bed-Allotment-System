@@ -45,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
 
 const HospitalDetail = (props) => {
     const [hospital, setHospital] = React.useState({});
+    // const [reviews, setReviews] = React.useState([]);
     const [socket, setSocket] = React.useState(null);
     const [render, setRender] = React.useState(false);
     const [text, setText] = React.useState('');
@@ -131,6 +132,18 @@ const HospitalDetail = (props) => {
         );
         setRender(true);
     }, [hospital])
+
+    // React.useEffect(() => {
+    //     axios.get(`${process.env.REACT_APP_API_URL}/portal/reviews/${props.match.params.slug}/`, {
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             Authorization: `Token ${getToken()}`,
+    //         }
+    //     }).then(res => {
+    //         setReviews(res.data);
+    //     })
+    //     setRender(true);
+    // }, [])
 
     const handleCreateChat = () => {
         axios.post(`${process.env.REACT_APP_API_URL}/chat/`,
