@@ -58,3 +58,17 @@ class HospitalViewSet(ModelViewSet):
         context['request'] = self.request
 
         return context
+
+
+class ReviewViewSet(ModelViewSet):
+    serializer_class = ReviewSerializer
+    queryset = Review.objects.all()
+    authentication_classes = [JSONWebTokenAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+    lookup_field = 'hospital__slug'
+
+    def get_serializer_context(self):
+        context = super(ReviewViewSet, self).get_serializer_context()
+        context['request'] = self.request
+
+        return context

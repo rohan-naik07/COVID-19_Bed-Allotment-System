@@ -3,6 +3,7 @@ import React from "react";
 import {Grid, Paper, CardContent, Avatar, Typography, makeStyles, Card, CardMedia, Chip, colors} from "@material-ui/core";
 import {Widget, addResponseMessage, addUserMessage, dropMessages} from "react-chat-widget";
 import Geocode from "react-geocode";
+import { withGoogleMap, GoogleMap, DirectionsRenderer } from 'react-google-maps';
 import axios from "axios";
 import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
@@ -27,7 +28,6 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     media: {
-        paddingTop: '56.25%',
     },
 }));
 
@@ -50,6 +50,7 @@ const HospitalDetail = (props) => {
                 }
             }).then(res => {
                 setHospital(res.data);
+                console.log(res.data);
                 if(res.data.chat_slug) {
                     let socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${res.data.chat_slug}/`);
                     socket.onopen = function(e) {
@@ -133,49 +134,75 @@ const HospitalDetail = (props) => {
     }
 
     return render && (
-        <Grid item container direction="row" justify="center" alignItems="flex-start" className={classes.container} spacing={2}>
-            <Grid item xs={12} sm={6}>
-                <h1 className={classes.title}>
-                    {hospital.name}
-                </h1>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-                <Card component={Paper} className={classes.paper} elevation={10}>
-                    <CardContent>
-                        <CardMedia
-                            title={hospital.name}
-                            image={hospital.imageUrl}
-                            className={classes.media}
-                        />
-                        <Typography variant='h6'>
-                            {address}
-                        </Typography>
+        <Grid item container direction="row" justify="center" alignItems="flex-start" className={classes.container} spacing={3}>
+            <Grid item xs={12} sm={6} container direction="column" spacing={3}>
+                <Grid item xs={12}>
+                    <h1 className={classes.title}>
+                        {hospital.name}
+                    </h1>
+                </Grid>
+                <Grid item xs={12} container direction="row" alignItems="center" spacing={2}>
+                    <Grid item xs>
                         <Chip
                             avatar={<Avatar>{hospital.staff?hospital.staff.first_name[0].toUpperCase():'N'}</Avatar>}
                             label={hospital.staff?hospital.staff.first_name.toUpperCase():'No staff'}
                             variant="default"
+                            style={{ margin: '1% 1% 0 0'}}
                         />
+                    </Grid>
+                    <Grid item xs>
                         <Chip
                             avatar={<Avatar style={{ backgroundColor: colors.pink[500] }}>{hospital.total_beds}</Avatar>}
                             label="Total Beds"
                             variant="default"
                             color='secondary'
+                            style={{ margin: '1%'}}
                         />
+                    </Grid>
+                    <Grid item xs>
                         <Chip
                             avatar={<Avatar>{hospital.available_beds}</Avatar>}
                             label="Available Beds"
                             variant="default"
                             color='primary'
+                            style={{ margin: '1%'}}
                         />
-                        {!hospital.chat_slug && (
-                            <Button
-                                style={{width:'30%'}}
-                                variant='contained'
-                                onClick={handleCreateChat}
-                            >
-                                Connect with us!
-                            </Button>
-                        )}
+                    </Grid>
+                </Grid>
+                {!hospital.patient && (
+                    <Grid item xs={12}>
+                        <Button
+                            color='primary'
+                            variant='contained'
+                            fullWidth
+                        >
+                            Apply for Bed
+                        </Button>
+                    </Grid>
+                )}
+                {!hospital.chat_slug && (
+                    <Grid item xs={12}>
+                        <Button
+                            variant='contained'
+                            onClick={handleCreateChat}
+                        >
+                            Connect with us!
+                        </Button>
+                    </Grid>
+                )}
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <Card className={classes.paper} component={Paper} elevation={10}>
+                    <CardMedia
+                        component='img'
+                        className={classes.media}
+                        image={hospital.imageUrl}
+                        title={hospital.name}
+                    />
+                    <CardContent>
+                        <Typography variant='h6'>
+                            {address}
+                        </Typography>
                     </CardContent>
                 </Card>
             </Grid>

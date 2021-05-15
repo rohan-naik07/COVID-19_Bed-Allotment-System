@@ -14,6 +14,9 @@ class PatientSerializer(serializers.ModelSerializer):
                   'user']
 
 
+
+
+
 class HospitalSerializer(serializers.ModelSerializer):
     staff = UserSerializer(required=False)
     patient = PatientSerializer(required=False)
@@ -52,3 +55,13 @@ class HospitalSerializer(serializers.ModelSerializer):
             response['chat_slug'] = None
 
         return response
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    patient = PatientSerializer(required=False)
+    hospital = HospitalSerializer(required=False)
+
+    class Meta:
+        model = Review
+        fields = ['patient', 'hospital', 'rating', 'feedback', 'created']
+        lookup_fields = ['id', 'hospital__slug']
