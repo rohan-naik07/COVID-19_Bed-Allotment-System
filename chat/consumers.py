@@ -25,6 +25,7 @@ class ChatConsumer(WebsocketConsumer):
             user=user,
             text=data['message']
         )
+        print(data['chatSlug'])
         current_chat = get_current_chat(data['chatSlug'])
         current_chat.messages.add(message)
         current_chat.save()
