@@ -58,6 +58,7 @@ const StaffChat = () => {
                 })
                 connecttoSocket(res.data.chats[0].chat_slug);
             }).catch((error)=>{
+                closeAlert('chats',2000);
                 showAlert('chats_error',error.message,'error');
                 closeAlert('chats_error',2000);
             })
@@ -114,8 +115,16 @@ const StaffChat = () => {
             'message': text,
             'from': (jwtDecode(getToken())).email,
             'command': 'new_message',
-            'chatSlug': currentChatUser.slug
+            'chatSlug': currentChatUser.slug //old state
         }));
+        
+        let user_chats = [...chats];
+        user_chats.forEach(chat=>{
+            if(chat.user_email === currentChatUser.email){
+                chat.last_message = text;
+            }
+        })
+        setChats(user_chats);
         setText('');
     }
 
@@ -124,7 +133,8 @@ const StaffChat = () => {
             setcurrentChatUser({
                 ...currentChatUser,
                 email : email,
-                name : name
+                name : name,
+                slug : slug
             })
             //connect to socket
             if(socket){
@@ -137,7 +147,7 @@ const StaffChat = () => {
     const renderMessages = ()=>(
         <React.Fragment>
             {messages.map(message=>(
-                <Box key={message._id} color="primary.main" className={clsx({
+                <Box key={message.id} color="primary.main" className={clsx({
                     [classes.messageLeft] : (message.user !== jwtDecode(token).email), //always applies
                     [classes.messageRight] : (message.user === jwtDecode(token).email) //only when open === true
                 })}>
@@ -230,8 +240,8 @@ const StaffChat = () => {
                             value={text}
                             fullWidth
                         />
-                        <IconButton>
-                            <SendRounded fontSize='large' onClick={sendMessage}/>
+                        <IconButton  onClick={sendMessage}>
+                            <SendRounded fontSize='large'/>
                         </IconButton>
                     </Paper>           
                 </Box>           

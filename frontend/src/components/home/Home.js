@@ -1,9 +1,9 @@
 import React from "react";
 import {Typography} from "@material-ui/core";
-import { Redirect } from "react-router";
 import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
 import Hospitals from "../hospital/Hospitals";
+import StaffPanel from "../staff/StaffPanel";
 
 const Home = () => {
     let token = getToken();
@@ -11,7 +11,7 @@ const Home = () => {
 
     if(token !== '') {
         if(is_staff===true){
-            return <Redirect to='/staff'/>
+            return <StaffPanel/>
         }
         return <Hospitals/>
     }

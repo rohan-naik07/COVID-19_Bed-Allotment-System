@@ -114,7 +114,7 @@ const HospitalDetail = (props) => {
                     };
 
                     socket.onerror = function(error) {
-                        console.log(error.message);
+                        console.log(error);
                     };
                     setSocket(socket);
                 }
