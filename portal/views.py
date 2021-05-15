@@ -1,13 +1,11 @@
-from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from authentication.serializers import UserSerializer
 from .serializers import *
 from .models import *
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 
@@ -55,6 +53,20 @@ class HospitalViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         context = super(HospitalViewSet, self).get_serializer_context()
+        context['request'] = self.request
+
+        return context
+
+
+class ReviewViewSet(ModelViewSet):
+    serializer_class = ReviewSerializer
+    queryset = Review.objects.all()
+    authentication_classes = [JSONWebTokenAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+    lookup_field = 'hospital__slug'
+
+    def get_serializer_context(self):
+        context = super(ReviewViewSet, self).get_serializer_context()
         context['request'] = self.request
 
         return context

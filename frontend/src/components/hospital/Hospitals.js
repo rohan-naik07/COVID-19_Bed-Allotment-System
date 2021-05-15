@@ -147,7 +147,7 @@ const Hospitals = (props) => {
                     </div>
                  </Paper>
              </Grid>
-             <Grid item  md={12} xs={12} style={{marginTop:20}}>
+             <Grid item md={12} xs={12} style={{marginTop:20}}>
                 <Paper elevation={3} >
                     <GridList xs = {12} className={classes.gridList} cols={4}>
                         {tileData.map((tile, i) => (

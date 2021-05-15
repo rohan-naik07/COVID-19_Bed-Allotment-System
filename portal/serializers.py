@@ -16,10 +16,12 @@ class PatientSerializer(serializers.ModelSerializer):
 
 class HospitalSerializer(serializers.ModelSerializer):
     staff = UserSerializer(required=False)
+    patient = PatientSerializer(required=False)
 
     class Meta:
         model = Hospital
-        fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff']
+        fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff',
+                  'patient']
         lookup_fields = ['slug', 'id']
 
     def create(self, validated_data):
@@ -50,3 +52,13 @@ class HospitalSerializer(serializers.ModelSerializer):
             response['chat_slug'] = None
 
         return response
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    patient = PatientSerializer(required=False, many=True)
+    hospital = HospitalSerializer(required=False, many=True)
+
+    class Meta:
+        model = Review
+        fields = ['patient', 'hospital', 'rating', 'feedback', 'created']
+        lookup_fields = ['id', 'hospital__slug', 'user__email']
