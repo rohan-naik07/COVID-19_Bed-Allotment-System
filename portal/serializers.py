@@ -16,10 +16,12 @@ class PatientSerializer(serializers.ModelSerializer):
 
 class HospitalSerializer(serializers.ModelSerializer):
     staff = UserSerializer(required=False)
+    patient = PatientSerializer(required=False)
 
     class Meta:
         model = Hospital
-        fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff']
+        fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff',
+                  'patient']
         lookup_fields = ['slug', 'id']
 
     def create(self, validated_data):

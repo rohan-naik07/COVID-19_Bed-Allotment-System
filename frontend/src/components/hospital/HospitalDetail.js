@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React from "react";
-import {Grid, Paper, CardContent, Avatar, Typography, TextField, IconButton, makeStyles, Card, CardMedia} from "@material-ui/core";
+import {Grid, Paper, CardContent, Avatar, Typography, makeStyles, Card, CardMedia, Chip, colors} from "@material-ui/core";
 import {Widget, addResponseMessage, addUserMessage, dropMessages} from "react-chat-widget";
 import Geocode from "react-geocode";
 import axios from "axios";
@@ -14,22 +14,20 @@ const useStyles = makeStyles((theme) => ({
         padding: '2%'
     },
     paper: {
+        padding: 0,
     },
     title: {
         margin: '2%',
         lineHeight: '1.15',
         [theme.breakpoints.down('md')]: {
-            fontSize: '2.5rem',
+            fontSize: '3.5rem',
         },
         [theme.breakpoints.up('md')]: {
             fontSize: '4.5rem'
         },
     },
     media: {
-        height: 350,
-        display: 'flex',
-        backgroundSize: 'contain',
-        backgroundRepeat: 'no-repeat',
+        paddingTop: '56.25%',
     },
 }));
 
@@ -83,11 +81,11 @@ const HospitalDetail = (props) => {
 
                     socket.onclose = function(event) {
                         if (event.wasClean) {
-                            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                            console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
                         } else {
                             // e.g. server process killed or network down
                             // event.code is usually 1006 in this case
-                            alert('[close] Connection died');
+                            console.log('[close] Connection died');
                         }
                     };
 
@@ -102,8 +100,7 @@ const HospitalDetail = (props) => {
     React.useEffect(() => {
         Geocode.fromLatLng(hospital.latitude, hospital.longitude).then(
             (response) => {
-                let address = response.results[0].formatted_address;
-                setAddress(address);
+                setAddress(response.results[0].formatted_address);
             },
             (error) => {
             }
@@ -146,7 +143,6 @@ const HospitalDetail = (props) => {
                 <Card component={Paper} className={classes.paper} elevation={10}>
                     <CardContent>
                         <CardMedia
-                            component='img'
                             title={hospital.name}
                             image={hospital.imageUrl}
                             className={classes.media}
@@ -154,6 +150,32 @@ const HospitalDetail = (props) => {
                         <Typography variant='h6'>
                             {address}
                         </Typography>
+                        <Chip
+                            avatar={<Avatar>{hospital.staff?hospital.staff.first_name[0].toUpperCase():'N'}</Avatar>}
+                            label={hospital.staff?hospital.staff.first_name.toUpperCase():'No staff'}
+                            variant="default"
+                        />
+                        <Chip
+                            avatar={<Avatar style={{ backgroundColor: colors.pink[500] }}>{hospital.total_beds}</Avatar>}
+                            label="Total Beds"
+                            variant="default"
+                            color='secondary'
+                        />
+                        <Chip
+                            avatar={<Avatar>{hospital.available_beds}</Avatar>}
+                            label="Available Beds"
+                            variant="default"
+                            color='primary'
+                        />
+                        {!hospital.chat_slug && (
+                            <Button
+                                style={{width:'30%'}}
+                                variant='contained'
+                                onClick={handleCreateChat}
+                            >
+                                Connect with us!
+                            </Button>
+                        )}
                     </CardContent>
                 </Card>
             </Grid>
