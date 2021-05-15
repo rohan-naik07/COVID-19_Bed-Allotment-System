@@ -1,9 +1,21 @@
 /* eslint-disable */
 import React from "react";
-import {Grid, Paper, CardContent, Avatar, Typography, makeStyles, Card, CardMedia, Chip, colors} from "@material-ui/core";
+import {
+    Grid,
+    Paper,
+    CardContent,
+    Avatar,
+    Typography,
+    makeStyles,
+    Card,
+    CardMedia,
+    Chip,
+    colors,
+    useTheme
+} from "@material-ui/core";
 import {Widget, addResponseMessage, addUserMessage, dropMessages} from "react-chat-widget";
 import Geocode from "react-geocode";
-import { withGoogleMap, GoogleMap, DirectionsRenderer } from 'react-google-maps';
+import {reviews} from "../chat/reviews";
 import axios from "axios";
 import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
@@ -36,6 +48,7 @@ const HospitalDetail = (props) => {
     const [socket, setSocket] = React.useState(null);
     const [render, setRender] = React.useState(false);
     const [text, setText] = React.useState('');
+    const theme = useTheme();
     const [address, setAddress] = React.useState('');
     const [messages, setMessages] = React.useState([]);
     const classes = useStyles();
@@ -70,14 +83,26 @@ const HospitalDetail = (props) => {
                     };
 
                     socket.onmessage = (e)=>{
-                        setMessages(JSON.parse(e.data).messages)
-                        dropMessages();
-                        JSON.parse(e.data).messages.map((message, i) => {
-                            if(message.user===jwtDecode(getToken()).email)
-                                addUserMessage(message.message);
+                        console.log(JSON.parse(e.data))
+                        if(JSON.parse(e.data).command==='fetch_messages')
+                        {
+                            setMessages(JSON.parse(e.data).messages)
+                            dropMessages();
+                            JSON.parse(e.data).messages.map((message, i) => {
+                                if(message.user===jwtDecode(getToken()).email)
+                                    addUserMessage(message.message);
+                                else
+                                    addResponseMessage(message.message);
+                            })
+                        }
+                        else if(JSON.parse(e.data).command==='new_message')
+                        {
+                            setMessages([...messages, JSON.parse(e.data).message])
+                            if(JSON.parse(e.data).message.user===jwtDecode(getToken()).email)
+                                addUserMessage(JSON.parse(e.data).message.message);
                             else
-                                addResponseMessage(message.message);
-                        })
+                                addResponseMessage(JSON.parse(e.data).message.message);
+                        }
                     }
 
                     socket.onclose = function(event) {
@@ -204,19 +229,18 @@ const HospitalDetail = (props) => {
                             {address}
                         </Typography>
                     </CardContent>
+                    <CardContent style={{ justifyContent: 'space-between', display: 'flex'}}>
+                        {reviews.map((review, i) => (
+                            <Chip
+                                avatar={<Avatar style={{ backgroundColor: colors.blue[theme.palette.type==='light'?700:400], color: theme.palette.getContrastText(colors.blue[theme.palette.type==='light'?700:400])}}>{review.overallRating}</Avatar>}
+                                label={review.feedback}
+                                key={i}
+                            />
+                        ))}
+                    </CardContent>
                 </Card>
             </Grid>
-            {!hospital.chat_slug?(
-                <Grid item xs={12}>
-                    <Button
-                        style={{width:'30%'}}
-                        variant='contained'
-                        onClick={handleCreateChat}
-                    >
-                        Connect with us!
-                    </Button>
-                </Grid>
-            ):(
+            {hospital.chat_slug && (
                 <Grid item xs={12}>
                     <Widget
                         handleSubmit={sendMessage}
