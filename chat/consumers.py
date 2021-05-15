@@ -30,7 +30,7 @@ class ChatConsumer(WebsocketConsumer):
         current_chat.save()
         content = {
             'command': 'new_message',
-            'message': self.messages_to_json(message),
+            'message': self.message_to_json(message),
             'messages': self.messages_to_json(get_messages(get_current_chat(data['chatSlug']).slug))
         }
         return self.send_chat_message(content)
