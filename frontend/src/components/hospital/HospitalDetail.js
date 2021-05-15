@@ -63,7 +63,6 @@ const HospitalDetail = (props) => {
                 }
             }).then(res => {
                 setHospital(res.data);
-                console.log(res.data);
                 if(res.data.chat_slug) {
                     let socket = new WebSocket(`${process.env.REACT_APP_SOCKET_URL}/ws/chat/${res.data.chat_slug}/`);
                     socket.onopen = function(e) {
@@ -83,7 +82,6 @@ const HospitalDetail = (props) => {
                     };
 
                     socket.onmessage = (e)=>{
-                        console.log(JSON.parse(e.data))
                         if(JSON.parse(e.data).command==='fetch_messages')
                         {
                             setMessages(JSON.parse(e.data).messages)
