@@ -159,6 +159,7 @@ const Chat = (props) => {
     const sendMessage = () => {
         socket.send(JSON.stringify({
             'message': text,
+            
             'from': (jwtDecode(getToken())).email,
             'command': 'new_message',
             'chatSlug': hospital.chat_slug

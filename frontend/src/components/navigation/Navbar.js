@@ -26,8 +26,6 @@ import {Switch, Route, useHistory, useLocation} from "react-router";
 import Home from "../home/Home";
 import About from "../about/About";
 import Graphs from "../charts/Graphs";
-import Hospitals from '../hospital/Hospitals'
-import StaffPanel from '../staff/StaffPanel'
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
 import HospitalDetail from "../hospital/HospitalDetail";
@@ -105,7 +103,6 @@ export default function ClippedDrawer() {
     const [openProfile, setOpenProfile] = React.useState(false);
     let token = getToken();
     const is_staff = token===''  ? false : jwtDecode(token).is_staff;
-    console.log(is_staff)
 
     const handleProfileClickOpen = () => {
       setOpenProfile(true);
@@ -167,6 +164,11 @@ export default function ClippedDrawer() {
                     <Typography variant="h5" noWrap>
                         COBAS
                     </Typography>
+                    {is_staff===true ? (
+                         <Typography variant="caption" noWrap style={{marginLeft:10}}>
+                             Staff
+                        </Typography>
+                    ) : null}
                     <div className={classes.space}/>
                     {!loggedIn ? 
                         <Hidden smDown>
@@ -281,7 +283,6 @@ export default function ClippedDrawer() {
                         <Route exact path='/about' component={About}/>
                         <Route exact path='/graphs' component={Graphs}/>
                         <Route path='/hospital/:slug' component={HospitalDetail}/>
-                        <Route exact path='/staff' component={StaffPanel}/>
                         <Route exact path='/staffchat' component={StaffChat}/>
                     </Switch>
                 </main>
