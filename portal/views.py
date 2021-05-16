@@ -1,11 +1,12 @@
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .serializers import *
 from .models import *
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 
@@ -48,7 +49,7 @@ class HospitalViewSet(ModelViewSet):
     serializer_class = HospitalSerializer
     queryset = Hospital.objects.all()
     authentication_classes = [JSONWebTokenAuthentication, ]
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     lookup_field = 'slug'
 
     def get_serializer_context(self):
@@ -56,6 +57,12 @@ class HospitalViewSet(ModelViewSet):
         context['request'] = self.request
 
         return context
+
+    @action(methods=['GET'], detail=False, lookup_field='name')
+    def search(self, request):
+        params = request.query_params
+        return Response(self.get_serializer(Hospital.objects.filter(name__contains=params['name']), many=True).data,
+                        status=status.HTTP_200_OK)
 
 
 class ReviewViewSet(ModelViewSet):

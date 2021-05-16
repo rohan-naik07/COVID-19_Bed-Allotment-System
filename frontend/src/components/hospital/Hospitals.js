@@ -3,7 +3,7 @@ import React from "react";
 import {useHistory} from "react-router";
 import {MenuBookSharp} from '@material-ui/icons';
 import {Map, GoogleApiWrapper, Marker} from 'google-maps-react';
-import { Paper,Typography, Divider, Grid, GridList, GridListTile, IconButton, makeStyles, GridListTileBar } from "@material-ui/core";
+import { Paper,Typography, Divider, Grid, GridList, GridListTile, IconButton, makeStyles, GridListTileBar, TextField } from "@material-ui/core";
 import Geocode from "react-geocode";
 import {getToken} from "../authentication/cookies";
 import axios from "axios";
@@ -39,15 +39,17 @@ const Hospitals = (props) => {
      const [maxBedHospital,setHospital] = React.useState("");
      const [stores,setStores] = React.useState([])
      const [tileData, setTileData] = React.useState([]);
+     const [results, setResults] = React.useState([]);
+     const [search, setSearch] = React.useState('');
+     const [error, setError] = React.useState(false);
      const history = useHistory();
 
      const displayMarkers = () => {
       return stores.map((store, index) => {
           return <Marker key={index} id={index} position={{
-              lat: store.latitude,
-              lng: store.longitude
-          }}
-         onClick={() => console.log("You clicked me!")} />
+                                                      lat: store.latitude,
+                                                      lng: store.longitude
+                                                  }} />
       })
     }
 
@@ -125,9 +127,21 @@ const Hospitals = (props) => {
          }
     }
 
+    const handleSearch = (event) => {
+         setSearch(event.target.value);
+         axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/search/?name=${event.target.value}`, {
+             headers: {
+                 "Content-Type": "application/json",
+                 Authorization: `Token ${getToken()}`,
+             }
+         })
+             .then(res => setResults(res.data))
+             .catch(err => setError(true))
+    }
+
     return (
-         <Grid container direction="row" spacing={2} item justify="center">
-             <Grid item xs={12}>
+            <Grid container direction="row" spacing={2} item justify="center">
+                <Grid item xs={12}>
                  <Paper elevation={10} style={{padding:10}}>
                     <Typography variant='h5'>{address}</Typography>
                     <Divider/>
@@ -137,8 +151,8 @@ const Hospitals = (props) => {
                       </Typography>
                     </div>
                  </Paper>
-             </Grid>
-             <Grid item xs={12}>
+                </Grid>
+                <Grid item xs={12}>
                 <Paper elevation={10} style={{ overflow: 'hidden', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around'}}>
                     <GridList xs={12} className={classes.gridList} cols={3}>
                         {tileData.map((tile, i) => (
@@ -163,23 +177,23 @@ const Hospitals = (props) => {
                         ))}
                     </GridList>
                 </Paper>
-             </Grid>
-             <Grid item xs={12} style={{ padding: '2%', overflow: 'hidden', position: 'relative'}}>
-                 <Map
-                     google={props.google}
-                     zoom={14}
-                     center={getCenter()}
-                     centerAroundCurrentLocation={true}
-                 >
-                     {displayMarkers()}
-                 </Map>
-             </Grid>
-             <Grid item xs={12}>
-                 <Typography variant='h3'>
-                     {address}
-                 </Typography>
-             </Grid>
-          </Grid>
+                </Grid>
+                <Grid item xs={12} container direction="column" alignItems="center">
+                    <TextField
+                        id='search'
+                        label='Search Hospital'
+                        placeholder='Enter the name of hospital'
+                        name='search'
+                        margin='normal'
+                        error={error}
+                        variant='outlined'
+                        autoFocus
+                        onChange={handleSearch}
+                        color='primary'
+                        value={search}
+                    />
+                </Grid>
+            </Grid>
     )
 }
 
