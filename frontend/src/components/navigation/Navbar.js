@@ -3,11 +3,8 @@ import {
     makeStyles,
     Grid,
     Tooltip,
-    List,
     Toolbar,
     Typography,
-    Divider,
-    ListItem,
     IconButton,
     Drawer,
     AppBar,
@@ -16,9 +13,9 @@ import {
     Hidden,
     Tabs,
     Tab,
-    colors, SwipeableDrawer
+    colors, SwipeableDrawer, Backdrop, useTheme
 } from '@material-ui/core';
-import {AccountCircle, ChatBubble, ListAlt, LocalHospital, LockOpen, Mail, Brightness4, Brightness7, Menu} from "@material-ui/icons";
+import {AccountCircle, ChatBubble, ListAlt, LocalHospital, Mail, Brightness4, Brightness7, Menu, ExitToApp, LockOpen} from "@material-ui/icons";
 import {getCookie, getToken} from "../authentication/cookies";
 import {Login} from "../authentication/Login";
 import {SignUp} from "../authentication/SignUp";
@@ -71,26 +68,24 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     content: {
-        flexGrow: 1,
-        margin: theme.spacing(3),
+        flexShrink: 1,
+        margin: theme.spacing(2),
         paddingTop: theme.spacing(2),
-    },
-    contentShift: {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0,
     },
     themer: {
         color: theme.palette.text.primary
-    }
+    },
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
+    },
 }));
 
 
 
 const Navbar = () => {
     const classes = useStyles();
+    const theme = useTheme();
     const [login, setLogin] = React.useState(false);
     const [signUp, setSignUp] = React.useState(false);
     const [loggedIn, setLoggedIn] = React.useState(false);
@@ -155,6 +150,80 @@ const Navbar = () => {
         }
     };
 
+    const drawer = () => {
+        return (
+            <>
+                <Toolbar/>
+                {!loggedIn?(
+                    <Grid container direction="column" alignItems="center" spacing={3} justify="center">
+                        <Grid item xs={12}>
+                            <Tooltip title='Login'>
+                                <IconButton style={{ backgroundColor: colors.blue[theme.palette.type==='dark'?500:700], color: theme.palette.getContrastText(colors.blue[theme.palette.type==='dark'?500:700])}} onClick={() => setLogin(true)}>
+                                    <LockOpen />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Sign Up'>
+                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?500:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?500:700])}} onClick={() => setSignUp(true)}>
+                                    <AccountCircle />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
+                ): !is_staff? (
+                    <Grid container direction="column" alignItems="center" spacing={3} justify="center">
+                        <Grid item xs={12}>
+                            <Tooltip title='Your Applications'>
+                                <IconButton style={{ backgroundColor: colors.blue[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.blue[theme.palette.type==='dark'?600:700])}}>
+                                    <ListAlt />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Your Chats'>
+                                <IconButton style={{ backgroundColor: colors.yellow[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.yellow[theme.palette.type==='dark'?600:700])}}>
+                                    <ChatBubble/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Search Hospitals'>
+                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}}>
+                                    <LocalHospital />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Logout'>
+                                <IconButton onClick={() => setLogout(true)} style={{ backgroundColor: colors.red[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.red[theme.palette.type==='dark'?600:700])}}>
+                                    <ExitToApp />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
+                ) : (
+                    <Grid container direction="column" alignItems="center" spacing={3} justify="center">
+                        <Grid item xs={12}>
+                            <Tooltip title='Chats'>
+                                <IconButton style={{ backgroundColor: colors.cyan[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.cyan[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/staffchat')}>
+                                    <ChatBubble/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Logout'>
+                                <IconButton style={{ backgroundColor: colors.red[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.red[theme.palette.type==='dark'?600:700])}} onClick={() => setLogout(true)}>
+                                    <ExitToApp/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
+                )}
+            </>
+        )
+    }
+
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -207,75 +276,19 @@ const Navbar = () => {
                 </Toolbar>
             </AppBar>
             <Hidden smUp>
-                <SwipeableDrawer
-                    className={classes.drawer}
-                    variant="persistent"
-                    anchor="left"
-                    open={open}
-                    classes={{
-                        paper: classes.drawerPaper
-                    }}
-                >
-                    <Toolbar/>
-                    {!loggedIn?(
-                        <List>
-                            <ListItem button key={'Login'} onClick={() => setLogin(true)}>
-                                <Tooltip title='Login'>
-                                    <IconButton fontSize='large'><LockOpen /></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                            <ListItem button key={'SignUp'} onClick={() => setSignUp(true)}>
-                                <Tooltip title='Sign Up'>
-                                    <IconButton fontSize='large'><AccountCircle /></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                        </List>
-                    ): !is_staff? (
-                        <Grid container direction="column" alignItems="center" spacing={3} justify="center">
-                            <Grid item xs={12}>
-                                <IconButton style={{ backgroundColor: colors.blue[600]}}>
-                                    <Tooltip title='Your Applications'>
-                                        <ListAlt />
-                                    </Tooltip>
-                                </IconButton>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <IconButton style={{ backgroundColor: colors.orange[600]}}>
-                                    <Tooltip title='Your Chats'>
-                                        <ChatBubble/>
-                                    </Tooltip>
-                                </IconButton>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <IconButton style={{ backgroundColor: colors.green[600]}}>
-                                    <Tooltip title='Search Hospitals'>
-                                        <LocalHospital />
-                                    </Tooltip>
-                                </IconButton>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <IconButton onClick={() => setLogout(true)} style={{ backgroundColor: colors.cyan[600]}}>
-                                    <Tooltip title='Logout'>
-                                        <LockOpen />
-                                    </Tooltip>
-                                </IconButton>
-                            </Grid>
-                        </Grid>
-                    ) : (
-                        <List>
-                            <ListItem button key={'Chats'} onClick={() => history.push('/staffchat')}>
-                                <Tooltip title='Chats'>
-                                    <IconButton fontSize='large'><ChatBubble/></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                            <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
-                                <Tooltip title='Logout'>
-                                    <IconButton fontSize='large'><LockOpen /></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                        </List>
-                    )}
-                </SwipeableDrawer>
+                <Backdrop open={open} className={classes.backdrop} onClick={() => setOpen(false)}>
+                    <SwipeableDrawer
+                        anchor="left"
+                        open={open}
+                        onOpen={() => setOpen(true)}
+                        onClose={() => setOpen(false)}
+                        classes={{
+                            paper: classes.drawerPaper
+                        }}
+                    >
+                        {drawer()}
+                    </SwipeableDrawer>
+                </Backdrop>
             </Hidden>
             <Hidden smDown>
                 <Drawer
@@ -287,65 +300,7 @@ const Navbar = () => {
                         paper: classes.drawerPaper
                     }}
                 >
-                    <Toolbar/>
-                    {!loggedIn?(
-                        <List>
-                            <ListItem button key={'Login'} onClick={() => setLogin(true)}>
-                                <Tooltip title='Login'>
-                                    <IconButton fontSize='large'><LockOpen /></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                            <ListItem button key={'SignUp'} onClick={() => setSignUp(true)}>
-                                <Tooltip title='Sign Up'>
-                                    <IconButton fontSize='large'><AccountCircle /></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                        </List>
-                    ): !is_staff? (
-                        <Grid container direction="column" alignItems="center" spacing={3} justify="center">
-                            <Grid item xs={12}>
-                                <IconButton style={{ backgroundColor: colors.blue[600]}}>
-                                    <Tooltip title='Your Applications'>
-                                        <ListAlt />
-                                    </Tooltip>
-                                </IconButton>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <IconButton style={{ backgroundColor: colors.orange[600]}}>
-                                    <Tooltip title='Your Chats'>
-                                        <ChatBubble/>
-                                    </Tooltip>
-                                </IconButton>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <IconButton style={{ backgroundColor: colors.green[600]}}>
-                                    <Tooltip title='Search Hospitals'>
-                                        <LocalHospital />
-                                    </Tooltip>
-                                </IconButton>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <IconButton onClick={() => setLogout(true)} style={{ backgroundColor: colors.cyan[600]}}>
-                                    <Tooltip title='Logout'>
-                                        <LockOpen />
-                                    </Tooltip>
-                                </IconButton>
-                            </Grid>
-                        </Grid>
-                    ) : (
-                        <List>
-                            <ListItem button key={'Chats'} onClick={() => history.push('/staffchat')}>
-                                <Tooltip title='Chats'>
-                                    <IconButton fontSize='large'><ChatBubble/></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                            <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
-                                <Tooltip title='Logout'>
-                                    <IconButton fontSize='large'><LockOpen /></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                        </List>
-                    )}
+                    {drawer()}
                 </Drawer>
             </Hidden>
             <Login open={login} setOpen={setLogin} setOTP={setOTP}/>
@@ -353,7 +308,7 @@ const Navbar = () => {
             <OTP open={otp} setOpen={setOTP} setLoggedIn={setLoggedIn}/>
             <Logout open={logout} setOpen={setLogout} setLoggedIn={setLoggedIn}/>
             <UserProfile open={openProfile} handleClose = {handleProfileClose}/>
-            <main className={classes.content}>
+            <Grid container direction="column" alignItems="center" className={classes.content}>
                 <Toolbar variant='dense'/>
                 <Switch>
                     <Route exact path='/' component={Home}/>
@@ -362,7 +317,7 @@ const Navbar = () => {
                     <Route path='/hospital/:slug' component={HospitalDetail}/>
                     <Route exact path='/staffchat' component={StaffChat}/>
                 </Switch>
-            </main>
+            </Grid>
         </div>
     );
 }
