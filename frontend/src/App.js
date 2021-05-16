@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React from "react";
-import {ThemeProvider, createMuiTheme, colors, CssBaseline} from "@material-ui/core";
+import {ThemeProvider, createMuiTheme, CssBaseline} from "@material-ui/core";
 import Navbar from "./components/navigation/Navbar";
 import {blue, red} from "@material-ui/core/colors";
 import {ThemeContext} from "./context/ThemeContext";

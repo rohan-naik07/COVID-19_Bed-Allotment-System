@@ -2,7 +2,7 @@ export const reviews = [
     {
        _id : '-MN7Jk1eosivUUOfUnZ1',
        city: 'Pune',
-       feedback: 'good service',
+       feedback: 'Good Service',
        isp_Name: 'Hathway Cable and Datacom Pvt Ltd',
        locality: 'Erandwane',
        map_Latitude: '18.503198',
@@ -18,7 +18,7 @@ export const reviews = [
      {
        _id : '-MN7cTjRW6k08RMMvo2w',
        city: 'Pune',
-       feedback: 'good',
+       feedback: 'Good',
        isp_Name: 'Bharti Airtel Ltd.',
        locality: 'Erandwane',
        map_Latitude: '18.5031986',
@@ -33,7 +33,7 @@ export const reviews = [
      },{
        _id : '-MNEMO2qPMWu6epVbkzp',
        city: 'Pune',
-       feedback: 'iyhkj',
+       feedback: 'Not Bad',
        isp_Name: 'Reliance Jio Infocomm Limited',
        locality: 'Erandwane',
        map_Latitude: '18.5031985',
@@ -48,7 +48,7 @@ export const reviews = [
      },{
        _id : '-MNKNCwZwsr9D8o4aKpM',
        city: 'Pune',
-       feedback: 'shit',
+       feedback: 'Shitty',
        isp_Name: 'Vodafone Essar Limited-Value Added Services',
        locality: 'Erandwane',
        map_Latitude: '18.5032541',
@@ -64,7 +64,7 @@ export const reviews = [
      {
        _id : '-MNMpt05KhZY4FpNKUGf',
        city: 'Pune',
-       feedback: 'noice',
+       feedback: 'Noice',
        isp_Name: 'Vodafone Essar Limited-Value Added Services',
        locality: 'Erandwane',
        map_Latitude: '18.5032026',

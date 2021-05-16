@@ -1,33 +1,166 @@
 import React from "react";
-import {Typography} from "@material-ui/core";
+import {Box, Divider, Grid, makeStyles, TextField,Typography,Paper,Button,Chip} from "@material-ui/core";
 import { Redirect } from "react-router";
 import jwtDecode from 'jwt-decode'
 import {getToken} from "../authentication/cookies";
+import { LineChart,Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import axios from "axios";
+import { useSnackbar } from "notistack";
+
+const data = [
+    {
+      "name": "Page A",
+      "uv": 4000,
+      "pv": 2400,
+      "amt": 2400
+    },
+    {
+      "name": "Page B",
+      "uv": 3000,
+      "pv": 1398,
+      "amt": 2210
+    },
+    {
+      "name": "Page C",
+      "uv": 2000,
+      "pv": 9800,
+      "amt": 2290
+    },
+    {
+      "name": "Page D",
+      "uv": 2780,
+      "pv": 3908,
+      "amt": 2000
+    },
+    {
+      "name": "Page E",
+      "uv": 1890,
+      "pv": 4800,
+      "amt": 2181
+    },
+    {
+      "name": "Page F",
+      "uv": 2390,
+      "pv": 3800,
+      "amt": 2500
+    },
+    {
+      "name": "Page G",
+      "uv": 3490,
+      "pv": 4300,
+      "amt": 2100
+    }
+  ]
+
+const useStyles = makeStyles((theme)=>({
+    container: {
+        position: 'relative',
+        borderRadius : 20,
+        backgroundColor: theme.palette.grey[800],
+        color: theme.palette.common.white,
+        marginBottom: theme.spacing(3),
+        backgroundImage: `url(${Image})`,
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+      },
+      overlay: {
+        position: 'absolute',
+        top: 0,
+        borderRadius : 20,
+        bottom: 0,
+        right: 0,
+        left: 0,
+        backgroundColor: 'rgba(0,0,0,.5)',
+      },
+      content: {
+        position: 'relative',
+        width : '100%',
+        paddingTop: theme.spacing(5),
+        padding : 10
+      }
+  }));
 
 const StaffPanel = () => {
     let token = getToken();
-    let is_staff = jwtDecode(token).is_staff;
+    const classes = useStyles();
+    const [hospital,setHospital] = React.useState([]);
+    const [edit,setEdit] = React.useState(false);
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
+    const closeAlert = (key,time)=>setTimeout(() => closeSnackbar(key),time);
 
-    if(token === '') {
-        return <Redirect to='/'/>
-    }
-
-    if(is_staff==='false'){
-        return <Redirect to='/hospitals'/>
-    }
+    React.useEffect(()=>{
+      showAlert('data','Loading...','info');
+      let slug = token==='' ? '' : jwtDecode(token).hospital_slug;
+      if(slug===''){ return; }
+      axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${slug}/`,{
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Token ${getToken()}`,
+                }
+            }).then(res=>{
+              closeAlert('data',2000);
+              setHospital(res.data)
+            }).catch(err=>{
+              closeAlert('data',2000);
+              showAlert('chats_error',err.message,'error');
+              closeAlert('chats_error',2000);
+            })
+    },[])
 
     return (
-        <Typography paragraph>
-        Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
-        facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
-        tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
-        consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-        vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
-        hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
-        tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
-        nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
-        accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
-    </Typography>
+        <Grid container>
+            <Grid item xs={12} sm={6}>
+                <Paper className={classes.container} style={{ backgroundImage: `url(${hospital.imageUrl})` }}>
+                    {/* Increase the priority of the hero background image */}
+                    {<img style={{ display: 'none',marginTop:"10Px" }} src={`url(${hospital.imageUrl})`} alt='bg'/>}
+                    <div className={classes.overlay} />
+                    <Box className={classes.content}>
+                        <Typography component="h1" variant="h3" color="inherit">
+                            {hospital.name}
+                        </Typography>
+                        <br/>
+                        <Box style={{display:'flex',justifyContent:'flex-end'}}>
+                            <Chip size='medium' variant='outlined' label={`Average Rating : 3.4`} color='primary'/>
+                        </Box>
+                    </Box>
+                </Paper>
+                <Paper elevation={3} style={{padding:10}}>
+                    <Typography component="h1" variant="h4" color="textSecondary">
+                        Bed Allotment Status
+                    </Typography>
+                    <Divider/>
+                    <Box style={{display:'flex',padding:10,justifyContent:'space-around'}}>
+                        <Chip size='medium' label={`${hospital.available_beds} Beds Available`} color='primary'/>
+                        <Chip size='medium' label={`${100-(Math.round(hospital.available_beds/hospital.total_beds*100))}% occupied`}/>
+                    </Box>
+                    <Box style={{display:'flex',justifyContent:'space-between',padding:10,alignItems:'center'}}>
+                        <Typography  variant="h5">
+                            Total Beds
+                        </Typography>
+                        <TextField variant='outlined' value={hospital.total_beds} disabled={edit}/>
+                        <Button variant='outlined' color='primary'onClick={()=>setEdit(!edit)}>Edit</Button>
+                    </Box>                     
+                </Paper>
+                <Paper elevation={3} style={{padding:10,marginTop:20}}>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart width={600} height={250} data={data}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="pv" stroke="#ffc107" />
+                        <Line type="monotone" dataKey="uv" stroke="#1565c0" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6} style={{height:'100%'}}>              
+            </Grid>
+        </Grid>
     )
 }
 

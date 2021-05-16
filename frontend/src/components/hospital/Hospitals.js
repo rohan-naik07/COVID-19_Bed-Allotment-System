@@ -1,19 +1,10 @@
 /* eslint-disable */
 import React from "react";
-import GridList from '@material-ui/core/GridList';
-import Grid from '@material-ui/core/Grid';
-import GridListTile from '@material-ui/core/GridListTile';
-import GridListTileBar from '@material-ui/core/GridListTileBar';
-import { makeStyles } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
 import {useHistory} from "react-router";
-import MenuBookSharpIcon from '@material-ui/icons/MenuBookSharp';
+import {MenuBookSharp} from '@material-ui/icons';
 import {Map, GoogleApiWrapper, Marker} from 'google-maps-react';
-import { Paper,Typography } from "@material-ui/core";
+import { Paper,Typography, Divider, Grid, GridList, GridListTile, IconButton, makeStyles, GridListTileBar } from "@material-ui/core";
 import Geocode from "react-geocode";
-import {
-  Divider
-} from "@material-ui/core";
 import {getToken} from "../authentication/cookies";
 import axios from "axios";
 require('dotenv').config();
@@ -28,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     gridList: {
         flexWrap: 'nowrap',
         // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-        marginTop : 10,
+        overflowX: 'scroll',
         transform: 'translateZ(0)'
     },
     icon: {
@@ -122,22 +113,22 @@ const Hospitals = (props) => {
         
     },[] )// eslint-disable-line react-hooks/exhaustive-deps
 
+    const getCenter = () => {
+         let lat = 0, lng = 0;
+         stores.map(store => {
+             lat += store.latitude;
+             lng += store.longitude
+         })
+         return {
+             lat: lat/stores.length,
+             lng: lng/stores.length
+         }
+    }
+
     return (
-         <Grid container >
-            <Grid item md={6} xs={12} style={{position: 'relative'}}>
-               <Paper elevation={2} >
-                <Map
-                  google={props.google}
-                  zoom={15}
-                  center={stores[0]}
-                  centerAroundCurrentLocation={true}
-                  resetBoundsOnResize={true}>
-                  {displayMarkers()}
-                  </Map>
-               </Paper>
-             </Grid>
-             <Grid item  md={6} xs={12}>
-                 <Paper elevation={3} style={{marginLeft:10,padding:10}}>
+         <Grid container direction="row" spacing={2} item justify="center">
+             <Grid item xs={12}>
+                 <Paper elevation={10} style={{padding:10}}>
                     <Typography variant='h5'>{address}</Typography>
                     <Divider/>
                     <div className={classes.text}>
@@ -147,37 +138,46 @@ const Hospitals = (props) => {
                     </div>
                  </Paper>
              </Grid>
-             <Grid item  md={12} xs={12} style={{marginTop:20}}>
-                <Paper elevation={3} >
-                    <GridList xs = {12} className={classes.gridList} cols={4}>
+             <Grid item xs={12}>
+                <Paper elevation={10} style={{ overflow: 'hidden', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around'}}>
+                    <GridList xs={12} className={classes.gridList} cols={3}>
                         {tileData.map((tile, i) => (
-                        <GridListTile key={i} style={{margin:10}}>
-                            <img src={tile.imageUrl} alt={tile.name} />
-                            <GridListTileBar
-                                title={tile.name}  
-                                classes={{
-                                    root: classes.titleBar,
-                                    title: classes.title,
-                                }}
-                                actionIcon={
-                                    <IconButton aria-label={`star ${tile.name}`} 
-                                          color='primary' 
-                                          onClick={()=>{
-                                            history.push({
-                                              pathname : `/hospital/${tile.slug}`,
-                                              state : {
-                                                hospital : tile
-                                              }
-                                            })
-                                          }}>
-                                        <MenuBookSharpIcon className={classes.title} />
-                                    </IconButton>
-                                }
-                            />
-                        </GridListTile>
+                            <GridListTile key={i} style={{margin:10}}>
+                                <img src={tile.imageUrl} alt={tile.name} />
+                                <GridListTileBar
+                                    title={tile.name}
+                                    classes={{
+                                        title: classes.title,
+                                    }}
+                                    actionIcon={
+                                        <IconButton
+                                            aria-label={`star ${tile.name}`}
+                                            color='primary'
+                                            onClick={() => history.push(`/hospital/${tile.slug}`)}
+                                        >
+                                            <MenuBookSharp className={classes.title} />
+                                        </IconButton>
+                                    }
+                                />
+                            </GridListTile>
                         ))}
                     </GridList>
                 </Paper>
+             </Grid>
+             <Grid item xs={12} style={{ padding: '2%', overflow: 'hidden', position: 'relative'}}>
+                 <Map
+                     google={props.google}
+                     zoom={14}
+                     center={getCenter()}
+                     centerAroundCurrentLocation={true}
+                 >
+                     {displayMarkers()}
+                 </Map>
+             </Grid>
+             <Grid item xs={12}>
+                 <Typography variant='h3'>
+                     {address}
+                 </Typography>
              </Grid>
           </Grid>
     )
