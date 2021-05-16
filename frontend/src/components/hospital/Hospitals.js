@@ -17,10 +17,9 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.background.paper,
     },
     gridList: {
-        flexWrap: 'nowrap',
         // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-        overflowX: 'scroll',
         transform: 'translateZ(0)',
+        width: 500,
     },
     icon: {
       color: 'rgba(0, 150, 255, 0.54)',
@@ -166,7 +165,7 @@ const Hospitals = (props) => {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <GridList cellHeight={180} className={classes.gridList}>
+                        <GridList cellHeight={180} className={classes.gridList} cols={2}>
                             {tileData.map((tile, i) => (
                                 <GridListTile key={i}>
                                     <img src={tile.imageUrl} alt={tile.name} />
@@ -175,7 +174,7 @@ const Hospitals = (props) => {
                                         actionIcon={
                                             <IconButton
                                                 aria-label={`info about ${tile.title}`}
-                                                className={classes.icon}
+                                                color='primary'
                                                 onClick={() => history.push(`/hospital/${tile.slug}`)}
                                             >
                                                 <MenuBookSharp />

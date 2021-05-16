@@ -189,7 +189,7 @@ const Navbar = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <Tooltip title='Search Hospitals'>
-                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}}>
+                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/hospital')}>
                                     <LocalHospital />
                                 </IconButton>
                             </Tooltip>
