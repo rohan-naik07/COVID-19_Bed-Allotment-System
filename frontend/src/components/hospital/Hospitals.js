@@ -19,7 +19,8 @@ const useStyles = makeStyles((theme) => ({
     gridList: {
         // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
         transform: 'translateZ(0)',
-        width: 500,
+        minWidth: 500,
+        maxWidth: 750
     },
     icon: {
       color: 'rgba(0, 150, 255, 0.54)',
@@ -165,25 +166,27 @@ const Hospitals = (props) => {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <GridList cellHeight={180} className={classes.gridList} cols={2}>
-                            {tileData.map((tile, i) => (
-                                <GridListTile key={i}>
-                                    <img src={tile.imageUrl} alt={tile.name} />
-                                    <GridListTileBar
-                                        title={tile.name}
-                                        actionIcon={
-                                            <IconButton
-                                                aria-label={`info about ${tile.title}`}
-                                                color='primary'
-                                                onClick={() => history.push(`/hospital/${tile.slug}`)}
-                                            >
-                                                <MenuBookSharp />
-                                            </IconButton>
-                                        }
-                                    />
-                                </GridListTile>
-                            ))}
-                        </GridList>
+                        <Paper elevation={10} style={{ padding: '1%'}}>
+                            <GridList cellHeight={180} className={classes.gridList} cols={tileData.length>1?2:1}>
+                                {tileData.map((tile, i) => (
+                                    <GridListTile key={i}>
+                                        <img src={tile.imageUrl} alt={tile.name} />
+                                        <GridListTileBar
+                                            title={tile.name}
+                                            actionIcon={
+                                                <IconButton
+                                                    aria-label={`info about ${tile.title}`}
+                                                    color='primary'
+                                                    onClick={() => history.push(`/hospital/${tile.slug}`)}
+                                                >
+                                                    <MenuBookSharp />
+                                                </IconButton>
+                                            }
+                                        />
+                                    </GridListTile>
+                                ))}
+                            </GridList>
+                        </Paper>
                     </Grid>
                 </Grid>
             </Grid>
