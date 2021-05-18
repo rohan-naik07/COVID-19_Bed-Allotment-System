@@ -140,7 +140,7 @@ const StaffPanel = () => {
                             Total Beds
                         </Typography>
                         <TextField variant='outlined' value={hospital.total_beds} disabled={edit}/>
-                        <Button variant='outlined' color='primary'onClick={()=>setEdit(!edit)}>Edit</Button>
+                        <Button variant='outlined' color='primary' onClick={()=>setEdit(!edit)}>Edit</Button>
                     </Box>                     
                 </Paper>
                 <Paper elevation={3} style={{padding:10,marginTop:20}}>
