@@ -43,7 +43,7 @@ class ChatView(generics.ListCreateAPIView):
             chat = Chat.objects.get(user=request.user, hospital__slug=request.data['hospital'])
         except Chat.DoesNotExist:
             chat = Chat.objects.create(user=request.user,
-                                       hospital=Hospital.objects.get(slug=request.data.get('hospital')))
+                                       hospital=Hospital.objects.get(slug=request.data['hospital']))
             chat.save()
 
         return Response(data=ChatSerializer(chat).data, status=status.HTTP_201_CREATED)

@@ -1,11 +1,12 @@
 import React from "react";
-import {Box, Divider, Grid, makeStyles, TextField,Typography,Paper,Button,Chip} from "@material-ui/core";
+import {Box, Divider, Grid, makeStyles, TextField,Typography,Paper,Button,Chip, Container} from "@material-ui/core";
 import { Redirect } from "react-router";
 import jwtDecode from 'jwt-decode'
 import {getToken} from "../authentication/cookies";
 import { LineChart,Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import { EventNote } from "@material-ui/icons";
 
 const data = [
     {
@@ -49,6 +50,40 @@ const data = [
       "uv": 3490,
       "pv": 4300,
       "amt": 2100
+    }
+  ]
+
+  const applications = [
+    {
+      _id : "1",
+      name : "Pohan Naik",
+      age : 46,
+      vaccine_status : "One dose over",
+      date : '17/5/2021'
+    },{
+      _id : "2",
+      name : "John Sena",
+      age : 50,
+      vaccine_status : "No doses taken",
+      date : '18/5/2021'
+    },{
+      _id : "3",
+      name : "MS Dhoni",
+      age : 40,
+      vaccine_status : "One dose over",
+      date : '15/5/2021'
+    },{
+      _id : "4",
+      name : "Sohan Naik",
+      age : 75,
+      vaccine_status : "Fully administered",
+      date : '14/5/2021'
+    },{
+      _id : "5",
+      name : "Sohan Naik",
+      age : 75,
+      vaccine_status : "Fully administered",
+      date : '14/5/2021'
     }
   ]
 
@@ -110,7 +145,8 @@ const StaffPanel = () => {
     },[])
 
     return (
-        <Grid container>
+      <Container>
+        <Grid container style={{padding:5}} spacing={2}>
             <Grid item xs={12} sm={6}>
                 <Paper className={classes.container} style={{ backgroundImage: `url(${hospital.imageUrl})` }}>
                     {/* Increase the priority of the hero background image */}
@@ -144,8 +180,8 @@ const StaffPanel = () => {
                     </Box>                     
                 </Paper>
                 <Paper elevation={3} style={{padding:10,marginTop:20}}>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart width={600} height={250} data={data}
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart width={600} height={200} data={data}
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
@@ -158,9 +194,35 @@ const StaffPanel = () => {
                   </ResponsiveContainer>
                 </Paper>
             </Grid>
-            <Grid item xs={12} sm={6} style={{height:'100%'}}>              
+            <Grid item xs={12} sm={6}>
+              <Paper elevation={3} style={{padding:10,display:'flex',alignItems:'center'}}>
+                <EventNote fontSize='large' color='primary'/>
+                <Typography component="h1" variant="h4" style={{marginLeft:10}}>
+                  Applications
+                </Typography>
+              </Paper>
+              <Box style={{padding:10,height:600,overflow:'auto'}}>
+                  {applications.map(application=>(
+                    <Paper elevation={3} key={application._id} style={{padding:10,marginTop:10}}>
+                      <Typography component="h1" variant="h5">
+                        {application.name}
+                      </Typography>
+                      <Box style={{display:'flex',justifyContent:'space-between',padding:5}}>
+                        <Chip size='medium' label={`Age ${application.age}`} color='primary'/>
+                        <Chip size='medium' label={application.vaccine_status}/>
+                      </Box>
+                      <Box style={{display:'flex',justifyContent:'space-between',padding:5,alignItems:'center'}}>
+                        <Typography component="h1" variant="caption">
+                          {application.date}
+                        </Typography>
+                        <Button variant='contained' color='primary'>View Details</Button>
+                      </Box>
+                    </Paper>
+                  ))}
+              </Box>           
             </Grid>
         </Grid>
+        </Container>
     )
 }
 

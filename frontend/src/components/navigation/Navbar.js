@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
     },
     content: {
         flexShrink: 1,
-        margin: theme.spacing(2),
+        margin: theme.spacing(1),
         paddingTop: theme.spacing(2),
     },
     themer: {

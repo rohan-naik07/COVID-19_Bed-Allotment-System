@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Chip,Grid, IconButton, Paper, TextField, Typography,makeStyles} from "@material-ui/core";
+import { Box,Chip,Grid, IconButton, Paper, TextField, Typography,makeStyles, Container, Dialog, DialogTitle, DialogContent,DialogContentText,DialogActions} from "@material-ui/core";
 import { Redirect } from "react-router";
 import jwtDecode from 'jwt-decode'
 import axios from "axios";
@@ -34,6 +34,7 @@ const StaffChat = () => {
     const [messages, setMessages] = React.useState([]);
     const [chats,setChats] = React.useState([]);
     const [socket,setSocket] = React.useState(null);
+    const [open,setOpen] = React.useState(false);
     const classes = useStyles();
     const [currentChatUser,setcurrentChatUser] = React.useState({email : '',name : '',slug : ''});
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
@@ -190,6 +191,31 @@ const StaffChat = () => {
         return prefix;
     };
 
+    const broadcastDialog = ()=>(
+        <Dialog open = {open}>
+            <DialogTitle>Broadcast a message</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    You can broadcast a message to all the applicants of your hospital.
+                </DialogContentText>
+                <TextField
+                    variant="outlined"
+                    label="Type your message here..."
+                    margin="normal"
+                    onChange={event => setText(event.target.value)}
+                    fullWidth
+                    required/>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={()=> setOpen(false)} color="secondary">
+                    Cancel
+                </Button>
+                <Button onClick={broadcastMessage} color="primary">
+                    Send
+                </Button>
+            </DialogActions>
+        </Dialog>
+    )
     const renderChats = ()=>(
         <React.Fragment>
             {chats.map(chat=>( 
@@ -210,55 +236,55 @@ const StaffChat = () => {
     )
 
     return (
-       <Grid container spacing={3} direction="row" justify="center">
-           <Grid item xs={12} sm={6} container direction="row" justify="center">
-                <Grid item xs={12}>
-                    <Paper elevation={2} style={{padding:10,display:"flex",justifyContent:'space-between'}}>
-                        <Typography variant='h4'>Chats</Typography>
-                        <Button variant='contained' color='primary' size="small">Broadcast Message</Button>
-                    </Paper>
+        <Container>
+            <Grid container spacing={3}>
+                <Grid item xs={6}>
+                        <Paper elevation={2} style={{padding:10,display:"flex",justifyContent:'space-between'}}>
+                            <Typography variant='h4'>Chats</Typography>
+                            <Button variant='contained' color='primary' size="small" 
+                                onClick={()=>setOpen(true)}>Broadcast Message</Button>
+                        </Paper>   
+                        {renderChats()}
                 </Grid>
-                <Grid item xs={12}>
-                    {renderChats()}
+                <Grid item xs={12} sm={6}>
+                        <Box>
+                            <Paper elevation={3} style={{padding:10}}>
+                                <Typography variant='h5'>{currentChatUser.name}</Typography>
+                                <Typography variant='h6' color="textSecondary" >{currentChatUser.email}</Typography>
+                            </Paper>
+                            <Paper elevation={3} id='chat' style={{
+                                marginTop:10,
+                                height:500,
+                                padding:10,
+                                overflow:'auto'
+                                }}>
+                                {renderMessages()}
+                            </Paper>
+                            <Paper elevation={3} style={{
+                                padding :10,
+                                alignItems:'center',
+                                bottom:0,
+                                overflow:'hidden',
+                                display:'flex',
+                                justifyContent:'space-between',
+                                marginTop:10
+                            }}>
+                                <TextField
+                                    placeholder="Type a message"
+                                    variant='outlined'
+                                    onChange={(event => setText(event.target.value))}
+                                    value={text}
+                                    fullWidth
+                                />
+                                <IconButton  onClick={sendMessage}>
+                                    <SendRounded fontSize='large'/>
+                                </IconButton>
+                            </Paper>           
+                        </Box>           
                 </Grid>
-           </Grid>
-           <Grid item xs={12} sm={6}>
-                <Box>
-                    <Paper elevation={3} style={{padding:10}}>
-                        <Typography variant='h5'>{currentChatUser.name}</Typography>
-                        <Typography variant='h6' color="textSecondary" >{currentChatUser.email}</Typography>
-                    </Paper>
-                    <Paper elevation={3} id='chat' style={{
-                        marginTop:10,
-                        height:500,
-                        padding:10,
-                        overflow:'auto'
-                        }}>
-                        {renderMessages()}
-                    </Paper>
-                    <Paper elevation={3} style={{
-                        padding :10,
-                        alignItems:'center',
-                        bottom:0,
-                        overflow:'hidden',
-                        display:'flex',
-                        justifyContent:'space-between',
-                        marginTop:10
-                    }}>
-                        <TextField
-                            placeholder="Type a message"
-                            variant='outlined'
-                            onChange={(event => setText(event.target.value))}
-                            value={text}
-                            fullWidth
-                        />
-                        <IconButton  onClick={sendMessage}>
-                            <SendRounded fontSize='large'/>
-                        </IconButton>
-                    </Paper>           
-                </Box>           
-           </Grid>
-       </Grid>
+                {broadcastDialog()}
+            </Grid>
+       </Container>
     )
 }
 
