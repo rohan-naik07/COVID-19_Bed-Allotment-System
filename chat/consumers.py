@@ -45,10 +45,14 @@ class ChatConsumer(WebsocketConsumer):
             chat.messages.add(message)
             chat.save()
             async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
+                f'chat_{chat.slug}',
                 {
                     'type': 'chat_message',
-                    'message': message
+                    'message': {
+                        'command' : 'broadcast_message',
+                        'message': self.message_to_json(message),
+                        'messages': self.messages_to_json(chat.messages.all())
+                    }
                 }
             )
 
