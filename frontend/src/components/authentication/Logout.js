@@ -20,12 +20,12 @@ export const Logout = ({ open, setOpen, setLoggedIn }) => {
 
     const handleSubmit = () => {
         enqueueSnackbar('Logging out....', {variant: 'info', key: 'logging_out'});
-        history.push('/');
         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         setTimeout(() => closeSnackbar('logging_out'), 3000);
-        setTimeout(() => enqueueSnackbar('Logged out Successfully!', {variant: 'success', key: 'logged_out'}), 3000);
-        setTimeout(() => closeSnackbar('logged_out'), 6000);
-        setTimeout(() => setLoggedIn(false), 3000);
+        setTimeout(() => enqueueSnackbar('Logged out Successfully!', {variant: 'success', key: 'logged_out'}), 1000);
+        setTimeout(() => closeSnackbar('logged_out'), 2000);
+        setTimeout(() => setLoggedIn(false), 2000);
+        history.push('/');
         setOpen(false);
     }
 

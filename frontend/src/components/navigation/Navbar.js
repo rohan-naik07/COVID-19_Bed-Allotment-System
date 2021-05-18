@@ -1,35 +1,34 @@
+/* eslint-disable */
 import React, {useEffect} from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import IconButton from "@material-ui/core/IconButton";
-import clsx from "clsx";
-import {AccountCircle, ChatBubble, ListAlt, LocalHospital, LockOpen} from "@material-ui/icons";
+import {
+    makeStyles,
+    Grid,
+    Tooltip,
+    Toolbar,
+    Typography,
+    IconButton,
+    Drawer,
+    AppBar,
+    CssBaseline,
+    Badge,
+    Hidden,
+    Tabs,
+    Tab,
+    colors, SwipeableDrawer, Backdrop, useTheme
+} from '@material-ui/core';
+import {AccountCircle, ChatBubble, ListAlt, LocalHospital, Mail, Brightness4, Brightness7, Menu, ExitToApp, LockOpen} from "@material-ui/icons";
 import {getCookie, getToken} from "../authentication/cookies";
 import {Login} from "../authentication/Login";
 import {SignUp} from "../authentication/SignUp";
 import UserProfile from "../profile/UserProfile";
 import {OTP} from "../authentication/OTP";
-import Badge from '@material-ui/core/Badge';
-import MailIcon from '@material-ui/icons/Mail';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Hidden from "@material-ui/core/Hidden";
 import {Logout} from "../authentication/Logout";
 import {Switch, Route, useHistory, useLocation} from "react-router";
 import Home from "../home/Home";
 import About from "../about/About";
 import Graphs from "../charts/Graphs";
-import {Brightness4, Brightness7} from "@material-ui/icons";
 import {ThemeContext} from "../../context/ThemeContext";
 import HospitalDetail from "../hospital/HospitalDetail";
-import { Container, Tooltip } from '@material-ui/core';
 import StaffChat from '../staff/StaffChat';
 import jwtDecode from 'jwt-decode';
 
@@ -55,13 +54,13 @@ const useStyles = makeStyles((theme) => ({
     },
     drawer: {
         width: drawerWidth,
-        flexShrink: 0,
+        overflowX: 'hidden',
     },
     drawerPaper: {
         width: drawerWidth,
+        overflowX: 'hidden'
     },
     drawerContainer: {
-        overflow: 'auto',
     },
     sectionDesktop: {
         display: 'none',
@@ -70,29 +69,24 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     content: {
-        flexGrow: 1,
-        paddingTop: theme.spacing(3),
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-    },
-    contentShift: {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0,
+        flexShrink: 1,
+        margin: theme.spacing(1),
+        paddingTop: theme.spacing(2),
     },
     themer: {
         color: theme.palette.text.primary
-    }
+    },
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
+    },
 }));
 
 
 
-export default function ClippedDrawer() {
+const Navbar = () => {
     const classes = useStyles();
+    const theme = useTheme();
     const [login, setLogin] = React.useState(false);
     const [signUp, setSignUp] = React.useState(false);
     const [loggedIn, setLoggedIn] = React.useState(false);
@@ -101,6 +95,7 @@ export default function ClippedDrawer() {
     const [tab, setTab] = React.useState(0);
     const {dark, toggleTheme} = React.useContext(ThemeContext);
     const [openProfile, setOpenProfile] = React.useState(false);
+    const [open, setOpen] = React.useState(false);
     let token = getToken();
     const is_staff = token===''  ? false : jwtDecode(token).is_staff;
 
@@ -156,11 +151,90 @@ export default function ClippedDrawer() {
         }
     };
 
+    const drawer = () => {
+        return (
+            <>
+                <Toolbar/>
+                {!loggedIn?(
+                    <Grid container direction="column" alignItems="center" spacing={3} justify="center">
+                        <Grid item xs={12}>
+                            <Tooltip title='Login'>
+                                <IconButton style={{ backgroundColor: colors.blue[theme.palette.type==='dark'?500:700], color: theme.palette.getContrastText(colors.blue[theme.palette.type==='dark'?500:700])}} onClick={() => setLogin(true)}>
+                                    <LockOpen />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Sign Up'>
+                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?500:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?500:700])}} onClick={() => setSignUp(true)}>
+                                    <AccountCircle />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
+                ): !is_staff? (
+                    <Grid container direction="column" alignItems="center" spacing={3} justify="center">
+                        <Grid item xs={12}>
+                            <Tooltip title='Your Applications'>
+                                <IconButton style={{ backgroundColor: colors.blue[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.blue[theme.palette.type==='dark'?600:700])}}>
+                                    <ListAlt />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Your Chats'>
+                                <IconButton style={{ backgroundColor: colors.yellow[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.yellow[theme.palette.type==='dark'?600:700])}}>
+                                    <ChatBubble/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Search Hospitals'>
+                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/hospital')}>
+                                    <LocalHospital />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Logout'>
+                                <IconButton onClick={() => setLogout(true)} style={{ backgroundColor: colors.red[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.red[theme.palette.type==='dark'?600:700])}}>
+                                    <ExitToApp />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
+                ) : (
+                    <Grid container direction="column" alignItems="center" spacing={3} justify="center">
+                        <Grid item xs={12}>
+                            <Tooltip title='Chats'>
+                                <IconButton style={{ backgroundColor: colors.cyan[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.cyan[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/staffchat')}>
+                                    <ChatBubble/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Tooltip title='Logout'>
+                                <IconButton style={{ backgroundColor: colors.red[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.red[theme.palette.type==='dark'?600:700])}} onClick={() => setLogout(true)}>
+                                    <ExitToApp/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
+                )}
+            </>
+        )
+    }
+
     return (
         <div className={classes.root}>
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
-                <Toolbar variant='dense'> 
+                <Toolbar variant='dense'>
+                    <Hidden smUp>
+                        <IconButton onClick={() => setOpen(!open)}>
+                            <Menu/>
+                        </IconButton>
+                    </Hidden>
                     <Typography variant="h5" noWrap>
                         COBAS
                     </Typography>
@@ -186,7 +260,7 @@ export default function ClippedDrawer() {
                     <div className={classes.sectionDesktop}>
                         <IconButton aria-label="show 4 new mails" color="inherit">
                             <Badge color="secondary">
-                                <MailIcon />
+                                <Mail />
                             </Badge>
                         </IconButton>
                         <IconButton
@@ -202,91 +276,51 @@ export default function ClippedDrawer() {
                     </div> : null}
                 </Toolbar>
             </AppBar>
-            <Drawer
-                className={classes.drawer}
-                variant="permanent"
-                anchor="left"
-                open={true}
-                classes={{
-                    paper: classes.drawerPaper
-                }}
-            >
-                <Toolbar variant='dense' />
-                <div className={classes.drawerContainer}>
-                    {!loggedIn?(
-                        <List>
-                            <ListItem button key={'Login'} onClick={() => setLogin(true)}>
-                                <Tooltip title='Login'>
-                                    <IconButton fontSize='large'><LockOpen /></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                            <ListItem button key={'SignUp'} onClick={() => setSignUp(true)}>
-                                <Tooltip title='Sign Up'>
-                                    <IconButton fontSize='large'><AccountCircle /></IconButton>
-                                </Tooltip>
-                            </ListItem>
-                        </List>
-                    ): is_staff=== false ? (
-                        <List>
-                         <ListItem button key={'Your Applications'}>
-                             <Tooltip title='Your Applications'>
-                                <IconButton fontSize='large'><ListAlt /></IconButton>
-                             </Tooltip>
-                        </ListItem>
-                         <ListItem button key={'Your Chats'} >
-                            <Tooltip title='Your Chats'>
-                                <IconButton fontSize='large'><ChatBubble/></IconButton>  
-                            </Tooltip>
-                        </ListItem>
-                         <ListItem button key={'Search Hospitals'}>
-                            <Tooltip title='Search Hospitals'>
-                                <IconButton fontSize='large'><LocalHospital /></IconButton>
-                            </Tooltip> 
-                        </ListItem>
-                        <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
-                            <Tooltip title='Logout'>
-                                <IconButton fontSize='large'><LockOpen /></IconButton>
-                            </Tooltip>
-                        </ListItem>
-                    </List>
-                    ) : (
-                    <List>
-                        <ListItem button key={'Chats'} onClick={() => history.push('/staffchat')}>
-                            <Tooltip title='Chats'>
-                                <IconButton fontSize='large'><ChatBubble/></IconButton>  
-                            </Tooltip>
-                        </ListItem>
-                        <ListItem button key={'Logout'} onClick={() => setLogout(true)}>
-                            <Tooltip title='Logout'>
-                                <IconButton fontSize='large'><LockOpen /></IconButton>
-                            </Tooltip>
-                        </ListItem>
-                    </List>
-                    )}
-                    <Divider />
-                </div>
-            </Drawer>
+            <Hidden smUp>
+                <Backdrop open={open} className={classes.backdrop} onClick={() => setOpen(false)}>
+                    <SwipeableDrawer
+                        anchor="left"
+                        open={open}
+                        onOpen={() => setOpen(true)}
+                        onClose={() => setOpen(false)}
+                        classes={{
+                            paper: classes.drawerPaper
+                        }}
+                    >
+                        {drawer()}
+                    </SwipeableDrawer>
+                </Backdrop>
+            </Hidden>
+            <Hidden smDown>
+                <Drawer
+                    className={classes.drawer}
+                    variant="permanent"
+                    anchor="left"
+                    open={true}
+                    classes={{
+                        paper: classes.drawerPaper
+                    }}
+                >
+                    {drawer()}
+                </Drawer>
+            </Hidden>
             <Login open={login} setOpen={setLogin} setOTP={setOTP}/>
             <SignUp open={signUp} setOpen={setSignUp} otp={otp} setOTP={setOTP}/>
             <OTP open={otp} setOpen={setOTP} setLoggedIn={setLoggedIn}/>
             <Logout open={logout} setOpen={setLogout} setLoggedIn={setLoggedIn}/>
             <UserProfile open={openProfile} handleClose = {handleProfileClose}/>
-            <Container>
-                <main
-                    className={clsx(classes.content, {
-                        [classes.contentShift]: true,
-                    })}
-                >
-                    <Toolbar variant='dense'/>
-                    <Switch>
-                        <Route exact path='/' component={Home}/>
-                        <Route exact path='/about' component={About}/>
-                        <Route exact path='/graphs' component={Graphs}/>
-                        <Route path='/hospital/:slug' component={HospitalDetail}/>
-                        <Route exact path='/staffchat' component={StaffChat}/>
-                    </Switch>
-                </main>
-            </Container>
+            <Grid container direction="column" alignItems="center" className={classes.content}>
+                <Toolbar variant='dense'/>
+                <Switch>
+                    <Route exact path='/' component={Home}/>
+                    <Route exact path='/about' component={About}/>
+                    <Route exact path='/graphs' component={Graphs}/>
+                    <Route path='/hospital/:slug' component={HospitalDetail}/>
+                    <Route exact path='/staffchat' component={StaffChat}/>
+                </Switch>
+            </Grid>
         </div>
     );
 }
+
+export default Navbar;

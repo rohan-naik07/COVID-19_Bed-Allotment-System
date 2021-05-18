@@ -1,19 +1,10 @@
 /* eslint-disable */
 import React from "react";
-import GridList from '@material-ui/core/GridList';
-import Grid from '@material-ui/core/Grid';
-import GridListTile from '@material-ui/core/GridListTile';
-import GridListTileBar from '@material-ui/core/GridListTileBar';
-import { makeStyles } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
 import {useHistory} from "react-router";
-import MenuBookSharpIcon from '@material-ui/icons/MenuBookSharp';
+import {MenuBookSharp} from '@material-ui/icons';
 import {Map, GoogleApiWrapper, Marker} from 'google-maps-react';
-import { Paper,Typography } from "@material-ui/core";
+import { Paper,Typography, Divider, Grid, GridList, GridListTile, IconButton, makeStyles, GridListTileBar, TextField } from "@material-ui/core";
 import Geocode from "react-geocode";
-import {
-  Divider
-} from "@material-ui/core";
 import {getToken} from "../authentication/cookies";
 import axios from "axios";
 require('dotenv').config();
@@ -26,13 +17,13 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.background.paper,
     },
     gridList: {
-        flexWrap: 'nowrap',
         // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-        marginTop : 10,
-        transform: 'translateZ(0)'
+        transform: 'translateZ(0)',
+        minWidth: 500,
+        maxWidth: 750
     },
     icon: {
-      color: 'rgba(255, 255, 255, 0.54)',
+      color: 'rgba(0, 150, 255, 0.54)',
     },
     text : {
       padding : 5,
@@ -48,15 +39,15 @@ const Hospitals = (props) => {
      const [maxBedHospital,setHospital] = React.useState("");
      const [stores,setStores] = React.useState([])
      const [tileData, setTileData] = React.useState([]);
+     const [results, setResults] = React.useState([]);
+     const [search, setSearch] = React.useState('');
+     const [error, setError] = React.useState(false);
      const history = useHistory();
 
      const displayMarkers = () => {
       return stores.map((store, index) => {
-          return <Marker key={index} id={index} position={{
-              lat: store.latitude,
-              lng: store.longitude
-          }}
-         onClick={() => console.log("You clicked me!")} />
+
+          return <Marker key={index} id={index} position={{ lat: store.lat, lng: store.lng}} />
       })
     }
 
@@ -100,8 +91,9 @@ const Hospitals = (props) => {
                         prob : (obj.available_beds/obj.total_beds)*100
                     });
                     markers.push({
-                      latitude : obj.latitude,
-                      longitude : obj.longitude
+                        slug: obj.slug,
+                        lat : obj.latitude,
+                        lng: obj.longitude
                   })
                 });
 
@@ -122,64 +114,82 @@ const Hospitals = (props) => {
         
     },[] )// eslint-disable-line react-hooks/exhaustive-deps
 
+    const getCenter = () => {
+         let lat = 0, lng = 0;
+         stores.map(store => {
+             lat += store.lat;
+             lng += store.lng
+         })
+         return {
+             lat: lat/stores.length,
+             lng: lng/stores.length
+         }
+    }
+
+    const handleSearch = (event) => {
+         setSearch(event.target.value);
+         axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/search/?name=${event.target.value}`, {
+             headers: {
+                 "Content-Type": "application/json",
+                 Authorization: `Token ${getToken()}`,
+             }
+         })
+             .then(res => setTileData(res.data))
+             .catch(err => setError(true))
+    }
+
     return (
-         <Grid container >
-            <Grid item md={6} xs={12} style={{position: 'relative'}}>
-               <Paper elevation={2} >
-                <Map
-                  google={props.google}
-                  zoom={15}
-                  center={stores[0]}
-                  centerAroundCurrentLocation={true}
-                  resetBoundsOnResize={true}>
-                  {displayMarkers()}
-                  </Map>
-               </Paper>
-             </Grid>
-             <Grid item  md={6} xs={12}>
-                 <Paper elevation={3} style={{marginLeft:10,padding:10}}>
+            <Grid container direction="row" spacing={2} item justify="center">
+                <Grid item xs={12}>
+                    <Paper elevation={10} style={{padding:10}}>
                     <Typography variant='h5'>{address}</Typography>
                     <Divider/>
-                    <div className={classes.text}>
-                      <Typography variant='h6' color='primary'>
-                        {`Most chances are in ${maxBedHospital.name} (${maxBedHospital.prob}%)`}
-                      </Typography>
-                    </div>
-                 </Paper>
-             </Grid>
-             <Grid item md={12} xs={12} style={{marginTop:20}}>
-                <Paper elevation={3} >
-                    <GridList xs = {12} className={classes.gridList} cols={4}>
-                        {tileData.map((tile, i) => (
-                        <GridListTile key={i} style={{margin:10}}>
-                            <img src={tile.imageUrl} alt={tile.name} />
-                            <GridListTileBar
-                                title={tile.name}  
-                                classes={{
-                                    root: classes.titleBar,
-                                    title: classes.title,
-                                }}
-                                actionIcon={
-                                    <IconButton aria-label={`star ${tile.name}`} 
-                                          color='primary' 
-                                          onClick={()=>{
-                                            history.push({
-                                              pathname : `/hospital/${tile.slug}`,
-                                              state : {
-                                                hospital : tile
-                                              }
-                                            })
-                                          }}>
-                                        <MenuBookSharpIcon className={classes.title} />
-                                    </IconButton>
-                                }
-                            />
-                        </GridListTile>
-                        ))}
-                    </GridList>
-                </Paper>
-             </Grid>
-          </Grid>
+                        <Typography variant='h6' color='primary' className={classes.text}>
+                            {`Most chances are in ${maxBedHospital.name} (${maxBedHospital.prob}%)`}
+                        </Typography>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} container direction="column" alignItems="center" spacing={2}>
+                    <Grid item xs={12}>
+                        <TextField
+                            id='search'
+                            label='Search Hospital'
+                            placeholder='Enter the name of hospital'
+                            name='search'
+                            margin='normal'
+                            error={error}
+                            variant='outlined'
+                            autoFocus
+                            onChange={handleSearch}
+                            color='primary'
+                            value={search}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Paper elevation={10} style={{ padding: '1%'}}>
+                            <GridList cellHeight={180} className={classes.gridList} cols={tileData.length>1?2:1}>
+                                {tileData.map((tile, i) => (
+                                    <GridListTile key={i}>
+                                        <img src={tile.imageUrl} alt={tile.name} />
+                                        <GridListTileBar
+                                            title={tile.name}
+                                            actionIcon={
+                                                <IconButton
+                                                    aria-label={`info about ${tile.title}`}
+                                                    color='primary'
+                                                    onClick={() => history.push(`/hospital/${tile.slug}`)}
+                                                >
+                                                    <MenuBookSharp />
+                                                </IconButton>
+                                            }
+                                        />
+                                    </GridListTile>
+                                ))}
+                            </GridList>
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Grid>
     )
 }
 

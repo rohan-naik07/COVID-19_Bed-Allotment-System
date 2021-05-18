@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Chip,Grid, IconButton, Paper, TextField, Typography,makeStyles} from "@material-ui/core";
+import { Box, Chip,Grid, IconButton, Paper, TextField, Typography,makeStyles, Container} from "@material-ui/core";
 import { Redirect } from "react-router";
 import jwtDecode from 'jwt-decode'
 import axios from "axios";
@@ -202,6 +202,7 @@ const StaffChat = () => {
     )
 
     return (
+        <Container>
        <Grid container spacing={3}>
            <Grid item xs={6}>
                 <Paper elevation={2} style={{padding:10,display:"flex",justifyContent:'space-between'}}>
@@ -247,6 +248,7 @@ const StaffChat = () => {
                 </Box>           
            </Grid>
        </Grid>
+       </Container>
     )
 }
 
