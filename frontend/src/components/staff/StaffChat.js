@@ -135,6 +135,13 @@ const StaffChat = () => {
             'from': jwtDecode(getToken()).email,
             'command': 'broadcast_message',
         }));
+        let user_chats = [...chats];
+        user_chats.forEach(chat=>{
+           
+                chat.last_message = text;
+        })
+        setChats(user_chats);
+        setText('');
     }
 
     const handleChange = (email,name,slug)=>{
