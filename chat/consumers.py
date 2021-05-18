@@ -44,6 +44,13 @@ class ChatConsumer(WebsocketConsumer):
         for chat in chats:
             chat.messages.add(message)
             chat.save()
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': message
+                }
+            )
 
     def messages_to_json(self, messages):
         result = []

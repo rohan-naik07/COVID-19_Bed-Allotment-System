@@ -128,6 +128,14 @@ const StaffChat = () => {
         setText('');
     }
 
+    const broadcastMessage = () => {
+        socket.send(JSON.stringify({
+            'message': text,
+            'from': jwtDecode(getToken()).email,
+            'command': 'broadcast_message',
+        }));
+    }
+
     const handleChange = (email,name,slug)=>{
         if(email!==currentChatUser.email){
             setcurrentChatUser({
@@ -202,6 +210,7 @@ const StaffChat = () => {
     )
 
     return (
+<<<<<<< HEAD
         <Container>
        <Grid container spacing={3}>
            <Grid item xs={6}>
@@ -210,8 +219,21 @@ const StaffChat = () => {
                     <Button variant='contained' color='primary' size="small">Broadcast Message</Button>
                 </Paper>   
                 {renderChats()}
+=======
+       <Grid container spacing={3} direction="row" justify="center">
+           <Grid item xs={12} sm={6} container direction="row" justify="center">
+                <Grid item xs={12}>
+                    <Paper elevation={2} style={{padding:10,display:"flex",justifyContent:'space-between'}}>
+                        <Typography variant='h4'>Chats</Typography>
+                        <Button variant='contained' color='primary' size="small">Broadcast Message</Button>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12}>
+                    {renderChats()}
+                </Grid>
+>>>>>>> 22381321f963c8df1ac4127918ae0f5129a7553e
            </Grid>
-           <Grid item xs={6}>
+           <Grid item xs={12} sm={6}>
                 <Box>
                     <Paper elevation={3} style={{padding:10}}>
                         <Typography variant='h5'>{currentChatUser.name}</Typography>
