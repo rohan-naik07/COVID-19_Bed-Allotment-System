@@ -4,6 +4,6 @@ templates
 BedAllotmentSystem\settings.py
 .expo
 .vscode
+.env
 node_modules
-db.sqlite3
 github_key

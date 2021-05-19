@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.text import slugify
 import uuid
@@ -12,9 +13,10 @@ class Patient(models.Model):
     on_medications = models.BooleanField(default=False)
     is_diabetic = models.BooleanField(default=False)
     is_heart_patient = models.BooleanField(default=False)
-    has_applied = models.BooleanField(default=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Patient Profile')
-    application = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True)
+    accepted = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Patient Profile')
+    hospital = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True)
+    documents = ArrayField(models.FileField(upload_to=f'Documents/'), null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -31,6 +33,11 @@ class Hospital(models.Model):
     staff = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, related_name='hospital_staff',
                                  null=True)
     slug = models.SlugField(max_length=8, unique=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(str(uuid.uuid4()[:8]))
+        super(Hospital, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
