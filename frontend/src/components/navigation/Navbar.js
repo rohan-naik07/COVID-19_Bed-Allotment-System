@@ -31,6 +31,7 @@ import {ThemeContext} from "../../context/ThemeContext";
 import HospitalDetail from "../hospital/HospitalDetail";
 import StaffChat from '../staff/StaffChat';
 import jwtDecode from 'jwt-decode';
+import CreateApplication from '../application/CreateApplication';
 
 const drawerWidth = 80;
 
@@ -315,6 +316,7 @@ const Navbar = () => {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
+                    <Route exact path='/application' component={CreateApplication}/>
                     <Route path='/hospital/:slug' component={HospitalDetail}/>
                     <Route exact path='/staffchat' component={StaffChat}/>
                 </Switch>
