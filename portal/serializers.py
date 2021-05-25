@@ -43,9 +43,11 @@ class HospitalSerializer(serializers.ModelSerializer):
                                           'last_message': chat.messages.last().text}
                                          for chat in Chat.objects.filter(hospital=instance)]
                 else:
-                    response['chat_slug'] = Chat.objects.get(user=request.user, hospital=instance).slug
+                    try:
+                        response['chat_slug'] = Chat.objects.get(user=request.user, hospital=instance).slug
+                    except Chat.DoesNotExist:
+                        response['chat_slug'] = None
             else:
-                print('no request')
                 response['chat_slug'] = None
         except Exception as e:
             print(e.__str__())
