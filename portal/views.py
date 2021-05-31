@@ -12,7 +12,9 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 # Create your views here.
 
-class PatientView(APIView):
+class PatientViewSet(ModelViewSet):
+    serializer_class = PatientSerializer
+    queryset = Patient.objects.all()
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JSONWebTokenAuthentication, ]
 

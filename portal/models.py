@@ -14,8 +14,8 @@ class Patient(models.Model):
     is_diabetic = models.BooleanField(default=False)
     is_heart_patient = models.BooleanField(default=False)
     accepted = models.BooleanField(default=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Patient Profile')
-    hospital = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Patient Profile', related_name='applications')
+    hospital = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True, related_name='patients')
     documents = ArrayField(models.FileField(upload_to=f'Documents/'), null=True, blank=True)
 
     def __str__(self):
@@ -30,8 +30,9 @@ class Hospital(models.Model):
     latitude = models.FloatField(default=0.0, null=True)
     longitude = models.FloatField(default=0.0, null=True)
     contact = models.CharField(max_length=120, null=True)
-    staff = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, related_name='hospital_staff',
+    staff = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, related_name='hospital',
                                  null=True)
+    required_documents = ArrayField(models.CharField(max_length=20, null=True), null=True, blank=True)
     slug = models.SlugField(max_length=8, unique=True, null=True)
 
     def save(self, *args, **kwargs):
