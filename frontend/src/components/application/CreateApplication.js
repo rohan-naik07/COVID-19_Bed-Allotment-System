@@ -29,26 +29,23 @@ const CreateApplication = () => {
     const token = getToken();
     const history = useHistory();
     const hospital = history.location.state.hospital;
-    const [errors, setErrors] = React.useState(false);
     const [vaccine_info,setVaccineinfo] = React.useState("");
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [url,setUrl] = React.useState(null);
     const classes = useStyles();
     const [switchData,setswitchData] = React.useState({
-        is_diabetic: true,
-        is_corona_positive : true,
-        is_heart_patient : true,
-        on_medications: true
+        is_diabetic: false,
+        is_corona_positive : false,
+        is_heart_patient : false,
+        on_medications: false
     });
     const [numPages, setNumPages] = React.useState(null);
     const [documents,setDocuments] = React.useState([]);
     const [pageNumber, setPageNumber] = React.useState(1);
+    const onDocumentLoadSuccess = ({ numPages })=> setNumPages(numPages);
+    
 
-    function onDocumentLoadSuccess({ numPages }) {
-      setNumPages(numPages);
-    }
-
-    function UploadButtons() {
+    const UploadButtons = ()=> {
       return (
         <React.Fragment>
           <input
@@ -69,8 +66,8 @@ const CreateApplication = () => {
 
     const base64toBlob = (data) => {
       // Cut the prefix `data:application/pdf;base64` from the raw base 64
-      const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
-      const bytes = atob(base64WithoutPrefix);
+      let base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+      let bytes = atob(base64WithoutPrefix);
       let length = bytes.length;
       let out = new Uint8Array(length);
       while (length--) {
@@ -85,7 +82,7 @@ const CreateApplication = () => {
     }
 
     const handleDisplayFile = (file)=>{
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = function () {
         let blob = base64toBlob(reader.result);
@@ -93,15 +90,15 @@ const CreateApplication = () => {
         setUrl(url)
       }.bind(this);
     }
-
-    const handlefileDelete=(name)=>setDocuments(documents.filter(document=>document.name!==name));
+    const handlefileDelete=(name)=>{
+      setDocuments(documents.filter(document=>document.name!==name));
+      setUrl(null);
+    }
+    const handleSwitchChange = (event) =>setswitchData({ ...switchData, [event.target.name]: event.target.checked });
     
-    const handleSwitchChange = (event) => {
-        setswitchData({ ...switchData, [event.target.name]: event.target.checked });
-    };
 
     const handleSubmit = () => {
-        const data = new FormData();
+        let data = new FormData();
         let dataObj = {
           ...switchData,
           vaccines : vaccine_info,
@@ -126,19 +123,18 @@ const CreateApplication = () => {
             enqueueSnackbar('Sending OTP...', {variant: 'info', key: 'send-otp'})
         }).catch(error => {
             closeSnackbar('try_signUp')
-            setErrors(error.message);
             enqueueSnackbar('Failed to Register Application', { variant: 'error', key: 'signUp_error'})
             setTimeout(() => closeSnackbar('signUp_error'), 5000)
         })
     }
 
     return (
-      <Grid container spacing={4}>
-        <Grid item container xs={12} md={6}>
+      <Grid container spacing={2} justify='center'>
+        <Grid item xs={12} md={6} justify='center' alignItems='center'>
           <Paper elevation={3} style={{padding:10,width:'100%',textAlign:'center'}}>
               <Typography variant='h4'>Create an Application for Bed</Typography>
               <Paper elevation={4} style={{padding:10}}>
-                <Typography variant='h5'>{hospital.name}</Typography>
+                <Typography variant='h5' color='textSecondary'>{hospital.name}</Typography>
               </Paper>
                   <FormGroup style={{padding:10}}>
                       <FormControlLabel
@@ -203,7 +199,10 @@ const CreateApplication = () => {
               <Box style={{margin:10}}>
                 {documents.map(document=>(
                   <Paper elevation={3} onClick={handleDisplayFile.bind(this,document)}
-                  style={{margin:10,display:'flex',justifyContent:'space-between'}}>
+                        style={{margin:10,
+                                padding:10,
+                                display:'flex',
+                                justifyContent:'space-between'}}>
                     <Typography variant='caption'>{document.name}</Typography>
                     <Button variant='contained' color='secondary' 
                       onClick={handlefileDelete.bind(this,document.name)}>Remove</Button>
@@ -211,7 +210,17 @@ const CreateApplication = () => {
                 ))}
               </Box>
                 <Box style={{margin:10,display:'flex',justifyContent:'space-between'}}>
-                    <Button color="primary" variant='contained'>
+                    <Button color='secondary' variant='contained' onClick={()=>{
+                      setDocuments([]);
+                      setVaccineinfo("");
+                      setswitchData({
+                        is_diabetic: false,
+                        is_corona_positive : false,
+                        is_heart_patient : false,
+                        on_medications: false
+                      });
+                      setUrl(null);
+                    }}>
                         Reset
                     </Button>
                     <Button color="primary" variant='contained' onClick={handleSubmit}>
@@ -220,7 +229,7 @@ const CreateApplication = () => {
                 </Box>
           </Paper> 
        </Grid>
-        <Grid item container xs={12} md={6}>
+        <Grid item container xs={12} md={6} justify='center' alignItems='center'>
           <Paper elevation={3} style={{overflow:'hidden'}}>
             <Document
                 file={url}
