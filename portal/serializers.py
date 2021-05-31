@@ -10,18 +10,19 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ['is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'has_applied',
-                  'user']
+        fields = ['is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'accepted',
+                  'user', 'hospital__name']
 
 
 class HospitalSerializer(serializers.ModelSerializer):
     staff = UserSerializer(required=False)
-    patient = PatientSerializer(required=False)
+    required_documents = serializers.ListField(child=serializers.CharField(max_length=20), required=False)
+    patients = PatientSerializer(required=False, many=True)
 
     class Meta:
         model = Hospital
         fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff',
-                  'patient']
+                  'patients', 'required_documents']
         lookup_fields = ['slug', 'id']
 
     def create(self, validated_data):
