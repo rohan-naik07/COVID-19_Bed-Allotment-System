@@ -11,7 +11,7 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = ['is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'accepted',
-                  'user', 'hospital__name']
+                  'user', 'hospital']
 
 
 class HospitalSerializer(serializers.ModelSerializer):

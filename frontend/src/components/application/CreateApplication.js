@@ -4,10 +4,12 @@ import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import {getToken} from "../authentication/cookies";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { CloudUpload } from "@material-ui/icons";
 import { Document, Page, pdfjs  } from 'react-pdf';
+import { useHistory } from "react-router";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const useStyles = makeStyles(theme=>({
@@ -23,10 +25,10 @@ const useStyles = makeStyles(theme=>({
   }
 }))
 
-
-
-
 const CreateApplication = () => {
+    const token = getToken();
+    const history = useHistory();
+    const hospital = history.location.state.hospital;
     const [errors, setErrors] = React.useState(false);
     const [vaccine_info,setVaccineinfo] = React.useState("");
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -102,7 +104,8 @@ const CreateApplication = () => {
         const data = new FormData();
         let dataObj = {
           ...switchData,
-          vaccines : vaccine_info
+          vaccines : vaccine_info,
+          slug : hospital.slug
         }
         data.append('data',JSON.stringify(dataObj));
         documents.forEach((document,index)=>data.append(`file ${index}`,document));
@@ -111,7 +114,8 @@ const CreateApplication = () => {
         axios({
             method: 'POST',
             headers: {
-                "Content-Type" : "application/json"
+                "Content-Type" : "multipart/form-data",
+                Authorization: `Token ${token}`
             },
             data: data,
             url: `${process.env.REACT_APP_API_URL}/portal/patients/`
@@ -131,8 +135,11 @@ const CreateApplication = () => {
     return (
       <Grid container spacing={4}>
         <Grid item container xs={12} md={6}>
-          <Paper elevation={3} style={{padding:10,width:'100%'}}>
+          <Paper elevation={3} style={{padding:10,width:'100%',textAlign:'center'}}>
               <Typography variant='h4'>Create an Application for Bed</Typography>
+              <Paper elevation={4} style={{padding:10}}>
+                <Typography variant='h5'>{hospital.name}</Typography>
+              </Paper>
                   <FormGroup style={{padding:10}}>
                       <FormControlLabel
                           key={'one'}

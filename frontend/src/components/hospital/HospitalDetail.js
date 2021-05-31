@@ -200,7 +200,12 @@ const HospitalDetail = (props) => {
                         <Button
                             color='primary'
                             variant='contained'
-                            onClick={()=>history.push(`/application/${hospital.slug}`)}
+                            onClick={()=>history.push({
+                                pathname:`/application/${hospital.slug}`,
+                                state : {
+                                    hospital : hospital
+                                }
+                            })}
                             fullWidth
                         >
                             Apply for Bed
