@@ -61,7 +61,7 @@ class HospitalViewSet(ModelViewSet):
     @action(methods=['GET'], detail=False, lookup_field='name')
     def search(self, request):
         params = request.query_params
-        return Response(self.get_serializer(Hospital.objects.filter(name__contains=params['name']), many=True).data,
+        return Response(self.get_serializer(Hospital.objects.filter(name__icontains=params['name']), many=True).data,
                         status=status.HTTP_200_OK)
 
 
