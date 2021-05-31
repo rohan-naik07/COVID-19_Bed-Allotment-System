@@ -316,7 +316,7 @@ const Navbar = () => {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
-                    <Route exact path='/application' component={CreateApplication}/>
+                    <Route exact path='/application/:slug' component={CreateApplication}/>
                     <Route path='/hospital/:slug' component={HospitalDetail}/>
                     <Route exact path='/staffchat' component={StaffChat}/>
                 </Switch>

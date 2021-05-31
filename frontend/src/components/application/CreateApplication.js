@@ -1,173 +1,229 @@
 import React from "react";
-import {Box, Typography,withStyles,Paper,TextField, FormControl, Select, InputLabel} from "@material-ui/core";
+import {Box, Typography,Checkbox,Paper,Grid, FormControl, Select, InputLabel,makeStyles,IconButton} from "@material-ui/core";
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import { CloudUpload } from "@material-ui/icons";
+import { Document, Page, pdfjs  } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const IOSSwitch = withStyles((theme) => ({
-    root: {
-      width: 42,
-      height: 26,
-      padding: 0,
-      margin: theme.spacing(1),
-    },
-    switchBase: {
-      padding: 1,
-      '&$checked': {
-        transform: 'translateX(16px)',
-        color: theme.palette.common.white,
-        '& + $track': {
-          backgroundColor: '#52d869',
-          opacity: 1,
-          border: 'none',
-        },
-      },
-      '&$focusVisible $thumb': {
-        color: '#52d869',
-        border: '6px solid #fff',
-      },
-    },
-    thumb: {
-      width: 24,
-      height: 24,
-    },
-    track: {
-      borderRadius: 26 / 2,
-      border: `1px solid ${theme.palette.grey[400]}`,
-      backgroundColor: theme.palette.grey[50],
-      opacity: 1,
-      transition: theme.transitions.create(['background-color', 'border']),
-    },
-    checked: {},
-    focusVisible: {},
-  }))(({ classes, ...props }) => {
-    return (
-      <Switch
-        focusVisibleClassName={classes.focusVisible}
-        disableRipple
-        classes={{
-          root: classes.root,
-          switchBase: classes.switchBase,
-          thumb: classes.thumb,
-          track: classes.track,
-          checked: classes.checked,
-        }}
-        {...props}
-      />
-    );
-  });
-  
+const useStyles = makeStyles(theme=>({
+  map : {
+      padding : 10
+  },
+  large: {
+      width: theme.spacing(5),
+      height: theme.spacing(5),
+  },
+  input: {
+      display: 'none',
+  }
+}))
+
+
+
 
 const CreateApplication = () => {
     const [errors, setErrors] = React.useState(false);
-    const [aadharNumber, setaadharNumber] = React.useState("");
     const [vaccine_info,setVaccineinfo] = React.useState("");
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const [url,setUrl] = React.useState(null);
+    const classes = useStyles();
     const [switchData,setswitchData] = React.useState({
         is_diabetic: true,
         is_corona_positive : true,
         is_heart_patient : true,
         on_medications: true
     });
-    const handleChange = (e) => {
-      var numbers = /^[0-9]+$/;
-      if(e.target.value.match(numbers)){
-        setErrors(true)
-      } else {
-        setaadharNumber(e.target.value);
-      }
+    const [numPages, setNumPages] = React.useState(null);
+    const [documents,setDocuments] = React.useState([]);
+    const [pageNumber, setPageNumber] = React.useState(1);
+
+    function onDocumentLoadSuccess({ numPages }) {
+      setNumPages(numPages);
     }
-    const handleSwitchChange = (event) => {
-        setswitchData({ ...setswitchData, [event.target.name]: event.target.checked });
+
+    function UploadButtons() {
+      return (
+        <React.Fragment>
+          <input
+            className={classes.input}
+            onChange={handlefileUpload}
+            type="file"
+          />
+          <input className={classes.input} id="icon-button-file" type="file" onChange={handlefileUpload}/>
+          <label htmlFor="icon-button-file">
+            <IconButton color="primary" aria-label="upload picture" component="span">
+              <CloudUpload fontSize='large'/>
+            </IconButton>
+          </label>
+          
+        </React.Fragment>
+      );
+    }
+
+    const base64toBlob = (data) => {
+      // Cut the prefix `data:application/pdf;base64` from the raw base 64
+      const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+      const bytes = atob(base64WithoutPrefix);
+      let length = bytes.length;
+      let out = new Uint8Array(length);
+      while (length--) {
+          out[length] = bytes.charCodeAt(length);
+      }
+      return new Blob([out], { type: 'application/pdf' });
     };
+
+    const handlefileUpload = (event)=>{
+      handleDisplayFile(event.target.files[0]);
+      setDocuments([...documents,event.target.files[0]]);
+    }
+
+    const handleDisplayFile = (file)=>{
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = function () {
+        let blob = base64toBlob(reader.result);
+        let url = URL.createObjectURL(blob);
+        setUrl(url)
+      }.bind(this);
+    }
+
+    const handlefileDelete=(name)=>setDocuments(documents.filter(document=>document.name!==name));
+    
+    const handleSwitchChange = (event) => {
+        setswitchData({ ...switchData, [event.target.name]: event.target.checked });
+    };
+
     const handleSubmit = () => {
+        const data = new FormData();
+        let dataObj = {
+          ...switchData,
+          vaccines : vaccine_info
+        }
+        data.append('data',JSON.stringify(dataObj));
+        documents.forEach((document,index)=>data.append(`file ${index}`,document));
+
         enqueueSnackbar('Sending data....', {variant: "info", key: 'try_signUp'})
         axios({
             method: 'POST',
             headers: {
                 "Content-Type" : "application/json"
             },
-            data: {
-            },
-            url: `${process.env.REACT_APP_API_URL}/auth/register/`
+            data: data,
+            url: `${process.env.REACT_APP_API_URL}/portal/patients/`
         }).then(response => {
             closeSnackbar('try_signUp')
-            setErrors({...errors, signUpError: false});
-            enqueueSnackbar('Signed Up Successfully!', { variant: 'success', key: 'signUp_success'})
+            enqueueSnackbar('Application Successfull!', { variant: 'success', key: 'signUp_success'})
             setTimeout(() => closeSnackbar('signUp_success'), 5000);
             enqueueSnackbar('Sending OTP...', {variant: 'info', key: 'send-otp'})
         }).catch(error => {
             closeSnackbar('try_signUp')
-            setErrors({...errors, signUpError: true});
-            enqueueSnackbar('Failed to Register', { variant: 'error', key: 'signUp_error'})
+            setErrors(error.message);
+            enqueueSnackbar('Failed to Register Application', { variant: 'error', key: 'signUp_error'})
             setTimeout(() => closeSnackbar('signUp_error'), 5000)
         })
     }
 
     return (
-       <Paper elevation={3} style={{margin : 10,padding:10}}>
-           <Typography variant='h4'>Create an Application for Bed</Typography>
-           <Paper elevation={3} style={{margin:10,padding:10}}>
-               <FormControl component='fieldset'>
-                <FormGroup>
-                    <FormControlLabel
-                        control={<IOSSwitch checked={switchData.is_corona_positive} onChange={handleSwitchChange} name="is_corona_positive" />}
-                        label="Are you COVID Positive ?"
-                    />
-                    <FormControlLabel
-                        control={<IOSSwitch checked={switchData.is_diabetic} onChange={handleSwitchChange} name="is_diabetic" />}
-                        label="Are you diabetic?"
-                    />
-                    <FormControlLabel
-                        control={<IOSSwitch checked={switchData.is_heart_patient} onChange={handleSwitchChange} name="is_heart_patient" />}
-                        label="Do you have heart complications ?"
-                    />
-                    <FormControlLabel
-                        control={<IOSSwitch checked={switchData.on_medications} onChange={handleSwitchChange} name="on_medications" />}
-                        label="Are you on some medication ?"
-                    />
-                    </FormGroup>
-               </FormControl>
-           </Paper>
-            <Paper elevation={3} style={{margin:10,padding:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                <FormControl style={{width:'100%'}}>
-                  <InputLabel id="demo-simple-select-label">Select Number of Vaccines Doses Taken</InputLabel>
-                  <Select
-                    labelId="vaccine"
-                    value={vaccine_info}
-                    onChange={(e)=>setVaccineinfo(e.target.value)}
-                  >
-                    <MenuItem value={'No Doses Taken'}>No Doses Taken</MenuItem>
-                    <MenuItem value={'First Dose Over'}>First Dose Over</MenuItem>
-                    <MenuItem value={'All Doses Over'}>All Doses Over</MenuItem>
-                  </Select>
+      <Grid container spacing={4}>
+        <Grid item container xs={12} md={6}>
+          <Paper elevation={3} style={{padding:10,width:'100%'}}>
+              <Typography variant='h4'>Create an Application for Bed</Typography>
+                  <FormGroup style={{padding:10}}>
+                      <FormControlLabel
+                          key={'one'}
+                          control={
+                          <Checkbox checked={switchData.is_corona_positive}
+                            onChange={handleSwitchChange}
+                            name="is_corona_positive" />
+                          }
+                          label="Are you COVID Positive ?"
+                      />
+                      <FormControlLabel
+                          key={'two'}
+                          control={<Checkbox checked={switchData.is_diabetic}
+                            onChange={handleSwitchChange} 
+                            name="is_diabetic" />
+                          }
+                          label="Are you diabetic?"
+                      />
+                      <FormControlLabel
+                          key={'three'}
+                          control={
+                          <Checkbox checked={switchData.is_heart_patient}
+                            onChange={handleSwitchChange}
+                            name="is_heart_patient" />
+                          }
+                          label="Do you have heart complications ?"
+                      />
+                      <FormControlLabel
+                          key={'four'}
+                          control={
+                          <Checkbox checked={switchData.on_medications}
+                            onChange={handleSwitchChange}
+                            name="on_medications" />
+                          }
+                          label="Are you on some medication ?"
+                      />
+                </FormGroup>
+                  <FormControl style={{width:'100%'}}>
+                    <InputLabel id="demo-simple-select-label">Number of Vaccines Doses Taken</InputLabel>
+                      <Select
+                        labelId="vaccine"
+                        value={vaccine_info}
+                        onChange={(e)=>setVaccineinfo(e.target.value)}
+                      >
+                        <MenuItem value={'No Doses Taken'}>No Doses Taken</MenuItem>
+                        <MenuItem value={'First Dose Over'}>First Dose Over</MenuItem>
+                        <MenuItem value={'All Doses Over'}>All Doses Over</MenuItem>
+                      </Select>
                 </FormControl>
-            </Paper>
-           <TextField
-                variant="outlined"
-                label="Your Aadhar Number"
-                type="text"
-                margin="normal"
-                value={aadharNumber}
-                error={errors}
-                helperText={errors?"Enter a valid number":null}
-                onChange={handleChange}
-                fullWidth
-                required
-            />
-            <Box style={{margin:10,display:'flex',justifyContent:'space-between'}}>
-                <Button color="primary">
-                    Reset
-                </Button>
-                <Button color="primary">
-                    Proceed
-                </Button>
-            </Box>
-       </Paper>
+                <div style={{
+                  display:'flex',
+                  justifyContent : 'space-between',
+                  alignItems : 'center',
+                  width : '100%'
+              }}>
+                  <Typography variant='h6'>
+                      Add Required Documents
+                  </Typography>
+                  {UploadButtons()}
+              </div> 
+              <Box style={{margin:10}}>
+                {documents.map(document=>(
+                  <Paper elevation={3} onClick={handleDisplayFile.bind(this,document)}
+                  style={{margin:10,display:'flex',justifyContent:'space-between'}}>
+                    <Typography variant='caption'>{document.name}</Typography>
+                    <Button variant='contained' color='secondary' 
+                      onClick={handlefileDelete.bind(this,document.name)}>Remove</Button>
+                  </Paper>
+                ))}
+              </Box>
+                <Box style={{margin:10,display:'flex',justifyContent:'space-between'}}>
+                    <Button color="primary" variant='contained'>
+                        Reset
+                    </Button>
+                    <Button color="primary" variant='contained' onClick={handleSubmit}>
+                        Proceed
+                    </Button>
+                </Box>
+          </Paper> 
+       </Grid>
+        <Grid item container xs={12} md={6}>
+          <Paper elevation={3} style={{overflow:'hidden'}}>
+            <Document
+                file={url}
+                onLoadSuccess={onDocumentLoadSuccess}
+              >
+                <Page pageNumber={pageNumber} />
+              </Document>
+          </Paper>
+        </Grid>
+      </Grid>
     )
 }
 

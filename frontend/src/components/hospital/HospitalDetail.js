@@ -21,6 +21,7 @@ import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
 import Button from "@material-ui/core/Button";
 import 'react-chat-widget/lib/styles.css';
+import { useHistory } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -53,6 +54,7 @@ const HospitalDetail = (props) => {
     const [address, setAddress] = React.useState('');
     const [messages, setMessages] = React.useState([]);
     const classes = useStyles();
+    const history = useHistory();
 
     React.useEffect(() => {
         Geocode.setApiKey(process.env.REACT_APP_API_KEY);
@@ -133,18 +135,6 @@ const HospitalDetail = (props) => {
         setRender(true);
     }, [hospital])
 
-    // React.useEffect(() => {
-    //     axios.get(`${process.env.REACT_APP_API_URL}/portal/reviews/${props.match.params.slug}/`, {
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             Authorization: `Token ${getToken()}`,
-    //         }
-    //     }).then(res => {
-    //         setReviews(res.data);
-    //     })
-    //     setRender(true);
-    // }, [])
-
     const handleCreateChat = () => {
         axios.post(`${process.env.REACT_APP_API_URL}/chat/`,
             {
@@ -210,6 +200,7 @@ const HospitalDetail = (props) => {
                         <Button
                             color='primary'
                             variant='contained'
+                            onClick={()=>history.push(`/application/${hospital.slug}`)}
                             fullWidth
                         >
                             Apply for Bed
