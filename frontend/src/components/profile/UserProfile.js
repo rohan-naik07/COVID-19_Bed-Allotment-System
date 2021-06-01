@@ -20,6 +20,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import SaveIcon from '@material-ui/icons/Save';
+import jwtDecode from 'jwt-decode';
 
 const useStyles = makeStyles((theme) => ({
       root: {
@@ -100,11 +101,16 @@ export default function UserProfile(props) {
   const setProfileEdit = () => setEditable(editable=>!editable);
 
   useEffect(() => {
+      if(open===false){
+        return;
+      }
+      let email = jwtDecode(getToken()).email;
       if(errors.editError){
           setErrors({
               nameError: false,
               contactError: false,
-              editError: false})
+              editError: false
+          })
       }
       axios({
           method: 'GET',
@@ -112,7 +118,7 @@ export default function UserProfile(props) {
               "Content-Type" : "application/json",
               "Authorization": `Token ${getToken()}`,
           },
-          url: `${process.env.REACT_APP_API_URL}/portal/patient-details/`
+          url: `${process.env.REACT_APP_API_URL}/auth/users/${email}`
       }).then(res => {
           setValues({
               first_name: res.data.data.user.first_name,
