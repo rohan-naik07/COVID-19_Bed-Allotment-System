@@ -18,19 +18,6 @@ class PatientViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JSONWebTokenAuthentication, ]
 
-    def get(self, request):
-        try:
-            data = PatientSerializer(Patient.objects.get(user=request.user)).data
-        except Patient.DoesNotExist:
-            data = {'user': UserSerializer(request.user).data}
-
-        context = {
-            'success': True,
-            'data': data
-        }
-
-        return Response(context, status=status.HTTP_200_OK)
-
 
 class HospitalViewSet(ModelViewSet):
     serializer_class = HospitalSerializer
