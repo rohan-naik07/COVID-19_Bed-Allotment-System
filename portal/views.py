@@ -17,7 +17,9 @@ class PatientViewSet(ModelViewSet):
     queryset = Patient.objects.all()
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JSONWebTokenAuthentication, ]
-    filterset_fields = ['hospital__slug']
+
+    def filter_queryset(self, queryset):
+        return self.get_queryset().filter(hospital__staff=self.request.user)
 
 
 class HospitalViewSet(ModelViewSet):
