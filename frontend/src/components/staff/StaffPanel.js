@@ -7,6 +7,7 @@ import { LineChart,Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsiv
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { EventNote } from "@material-ui/icons";
+import ViewApplication from "./ViewApplication";
 
 const data = [
     {
@@ -53,39 +54,7 @@ const data = [
     }
   ]
 
-  const applications = [
-    {
-      _id : "1",
-      name : "Pohan Naik",
-      age : 46,
-      vaccine_status : "One dose over",
-      date : '17/5/2021'
-    },{
-      _id : "2",
-      name : "John Sena",
-      age : 50,
-      vaccine_status : "No doses taken",
-      date : '18/5/2021'
-    },{
-      _id : "3",
-      name : "MS Dhoni",
-      age : 40,
-      vaccine_status : "One dose over",
-      date : '15/5/2021'
-    },{
-      _id : "4",
-      name : "Sohan Naik",
-      age : 75,
-      vaccine_status : "Fully administered",
-      date : '14/5/2021'
-    },{
-      _id : "5",
-      name : "Sohan Naik",
-      age : 75,
-      vaccine_status : "Fully administered",
-      date : '14/5/2021'
-    }
-  ]
+  
 
 const useStyles = makeStyles((theme)=>({
     container: {
@@ -121,27 +90,45 @@ const StaffPanel = () => {
     const classes = useStyles();
     const [hospital,setHospital] = React.useState([]);
     const [edit,setEdit] = React.useState(false);
+    const [id,setId] = React.useState(null);
+    const [applications,setApplications] = React.useState([]);
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
     const closeAlert = (key,time)=>setTimeout(() => closeSnackbar(key),time);
+    const [open,setOpen] = React.useState(false);
 
     React.useEffect(()=>{
       showAlert('data','Loading...','info');
       let slug = token==='' ? '' : jwtDecode(token).hospital_slug;
       if(slug===''){ return; }
       axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${slug}/`,{
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Token ${getToken()}`,
-                }
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${getToken()}`,
+            }
+        }).then(res=>{
+          closeAlert('data',2000);
+          setHospital(res.data)
+          showAlert('data','Loading applications...','info');
+          axios.get(`${process.env.REACT_APP_API_URL}/portal/patients/`,{
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${getToken()}`,
+            }
             }).then(res=>{
               closeAlert('data',2000);
-              setHospital(res.data)
+              setApplications(res.data);
+              console.log(res.data);
             }).catch(err=>{
               closeAlert('data',2000);
               showAlert('chats_error',err.message,'error');
               closeAlert('chats_error',2000);
             })
+        }).catch(err=>{
+          closeAlert('data',2000);
+          showAlert('chats_error',err.message,'error');
+          closeAlert('chats_error',2000);
+        })
     },[])
 
     return (
@@ -215,14 +202,18 @@ const StaffPanel = () => {
                         <Typography component="h1" variant="caption">
                           {application.date}
                         </Typography>
-                        <Button variant='contained' color='primary'>View Details</Button>
+                        <Button variant='contained' color='primary' onClick={()=>{
+                          setOpen(true);
+                          setId(application._id);
+                        }}>View Details</Button>
                       </Box>
                     </Paper>
                   ))}
               </Box>           
             </Grid>
         </Grid>
-        </Container>
+        {/*<ViewApplication open={open} setOpen={open} id={id}/>*/}
+      </Container>
     )
 }
 

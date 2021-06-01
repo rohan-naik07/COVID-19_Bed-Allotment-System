@@ -11,10 +11,7 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = ['is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'accepted',
-                  'user', 'hospital']
-        extra_kwargs = {
-            'hospital': {'lookup_field': 'slug'}
-        }
+                  'user']
 
 
 class HospitalSerializer(serializers.ModelSerializer):
