@@ -15,6 +15,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'password', 'contact', 'weight', 'birthday']
+        extra_kwargs = {
+            'password': {
+                'write_only': True
+            }
+        }
+        lookup_fields = ['id', 'email']
 
     def create(self, validated_data):
         try:

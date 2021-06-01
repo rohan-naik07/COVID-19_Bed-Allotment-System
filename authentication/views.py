@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from .serializers import *
 
@@ -62,6 +63,14 @@ class LoginView(APIView):
         }
 
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    authentication_classes = [JSONWebTokenAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = UserSerializer
+    lookup_field = 'email'
 
 
 class VerifyView(APIView):

@@ -15,7 +15,6 @@ class PatientSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'hospital': {'lookup_field': 'slug'}
         }
-        lookup_fields = ['id', 'hospital__slug']
 
 
 class HospitalSerializer(serializers.ModelSerializer):

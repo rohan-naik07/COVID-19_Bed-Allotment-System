@@ -17,7 +17,7 @@ class PatientViewSet(ModelViewSet):
     queryset = Patient.objects.all()
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JSONWebTokenAuthentication, ]
-    lookup_fields = ['id', 'hospital__slug']
+    filterset_fields = ['hospital__slug']
 
 
 class HospitalViewSet(ModelViewSet):
