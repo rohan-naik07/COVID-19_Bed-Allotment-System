@@ -68,9 +68,8 @@ class LoginView(APIView):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     authentication_classes = [JSONWebTokenAuthentication, ]
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     serializer_class = UserSerializer
-    lookup_field = 'email'
 
 
 class VerifyView(APIView):
