@@ -14,9 +14,13 @@ class Patient(models.Model):
     is_diabetic = models.BooleanField(default=False)
     is_heart_patient = models.BooleanField(default=False)
     accepted = models.BooleanField(default=False)
+    rejected = models.BooleanField(default=False)
+    is_first_dose = models.BooleanField(default=False)
+    is_second_dose = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Patient Profile', related_name='applications')
     hospital = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True, related_name='patients')
     documents = ArrayField(models.FileField(upload_to=f'Documents/'), null=True, blank=True)
+    priority = models.IntegerField(default=1)
 
     def __str__(self):
         return self.user.username

@@ -31,21 +31,6 @@ class PatientViewSet(ModelViewSet):
 
         return Response(context, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        serializer = PatientSerializer(data=request.data)
-
-        if serializer.is_valid(raise_exception=True):
-            try:
-                patient = serializer.save(patient=Patient.objects.get(user=request.user))
-            except Patient.DoesNotExist:
-                patient = serializer.save()
-            patient.user = request.user
-            patient.save()
-
-            return Response({'success': True}, status=status.HTTP_201_CREATED)
-
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-
 
 class HospitalViewSet(ModelViewSet):
     serializer_class = HospitalSerializer
