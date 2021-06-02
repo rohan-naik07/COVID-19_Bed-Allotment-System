@@ -181,8 +181,7 @@ const CreateApplication = () => {
                         <Select
                             labelId="vaccine"
                             value={vaccine_info}
-                            onChange={(e)=>setVaccineinfo(e.target.value)}
-                        >
+                            onChange={(e)=>setVaccineinfo(e.target.value)}>
                             <MenuItem value={'No Doses Taken'}>No Doses Taken</MenuItem>
                             <MenuItem value={'First Dose Over'}>First Dose Over</MenuItem>
                             <MenuItem value={'All Doses Over'}>All Doses Over</MenuItem>

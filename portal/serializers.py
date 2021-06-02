@@ -16,7 +16,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         if instance:
-            return instance.file.path
+            return instance.file.url
         else:
             return instance
 
@@ -29,10 +29,10 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ['is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'accepted', 'rejected',
+        fields = ['id', 'is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'accepted', 'rejected',
                   'is_first_dose', 'is_second_dose', 'priority',
                   'user', 'user_id', 'hospital_slug', 'documents']
-        read_only_fields = ['user', 'applied_date']
+        read_only_fields = ['id', 'user', 'applied_date']
 
     def create(self, validated_data):
         hospital_slug = validated_data.pop('hospital_slug')

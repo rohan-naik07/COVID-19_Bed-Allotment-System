@@ -8,31 +8,32 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import axios from 'axios';
 import { useSnackbar } from "notistack";
 import {getToken} from "../authentication/cookies";
-import { Box, Chip, Grid, Paper, Typography } from '@material-ui/core';
+import { Box, Chip, Grid, Link, Paper, Typography } from '@material-ui/core';
 
 const ViewApplication = ({ open, setOpen ,application }) => {
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const token = getToken();
     const [errors, setErrors] = useState("")
     const handleClose = () => setOpen(false);
     const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
     const closeAlert = (key,time)=>setTimeout(() => closeSnackbar(key),time);
 
     const handleSubmit = (accepted) => {
-
-        let data = {
-            ...application,
-            accepted : accepted,
-            rejected : !accepted
-        };
+        showAlert('try_data','Sending...','error');
         axios({
             method: 'PATCH',
             headers: {
-                "Content-Type" : "application/json"
+                "Content-Type" : "application/json",
+                Authorization: `Token ${token}`
             },
-            data : data,
-            url: `${process.env.REACT_APP_API_URL}/portal/patients/${id}/`
+            data : {
+                accepted : accepted
+            },
+            url: `${process.env.REACT_APP_API_URL}/portal/patients/${application.id}/`
         }).then(response => {
-            closeAlert('data',2000);
+            closeAlert('try_data',2000);
+            showAlert('try_data','Successfully updated status!','error');
+            closeAlert('try_data',2000);
         }).catch(error => {
             closeAlert('data',2000);
             showAlert('error',error.message,'error');
@@ -96,9 +97,21 @@ const ViewApplication = ({ open, setOpen ,application }) => {
                         variant="primary"
                         style={{ margin: '1% 1% 0 0'}}/> 
                  </Paper>
-                <Paper elevation={3} style={{padding:10}}>
+                <Box style={{padding:10}}>
                     <Typography variant='h6'>{`Required Documents`}</Typography>
-                </Paper>
+                    {application.documents.map(document=>(
+                        <Paper elevation={3} 
+                        style={{margin:10,
+                            padding:10,
+                            display:'flex',
+                            justifyContent:'space-between'}}>
+                            <Typography variant='caption'>{document.split('/')[3]}</Typography>
+                            <Button variant='contained' color='secondary'
+                              onClick={()=>window.open(`${process.env.REACT_APP_API_URL}${document}`)}
+                            >View Document</Button>
+                        </Paper>
+                    ))}
+                </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleSubmit.bind(this,true)} color="primary" variant='contained'>
