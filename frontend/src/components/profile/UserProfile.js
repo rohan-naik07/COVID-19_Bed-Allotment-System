@@ -85,13 +85,7 @@ export default function UserProfile(props) {
   const styles = useStyles();
   const [spinner, setSpinner] = useState(true);
   const [selectedDate, handleDateChange] = useState(new Date());
-  const [values, setValues] = useState({
-      first_name: '',
-      last_name: '',
-      contact: null,
-      email: '',
-      birthday: '',
-      weight : 0});
+  const [values, setValues] = useState({});
   const [editable,setEditable] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [errors, setErrors] = useState({
@@ -118,17 +112,10 @@ export default function UserProfile(props) {
               "Content-Type" : "application/json",
               "Authorization": `Token ${getToken()}`,
           },
-          url: `${process.env.REACT_APP_API_URL}/auth/users/${email}`
+          url: `${process.env.REACT_APP_API_URL}/auth/users/${jwtDecode(getToken()).id}`
       }).then(res => {
-          setValues({
-              first_name: res.data.data.user.first_name,
-              last_name: res.data.data.user.last_name,
-              contact: res.data.data.user.contact,
-              email: res.data.data.user.email,
-              birthday: res.data.data.user.birthday,
-              weight: res.data.data.user.weight,
-          });
-          handleDateChange(new Date(res.data.data.user.birthday));
+          setValues(res.data);
+          handleDateChange(new Date(res.data.birthday));
           return true;
       }).then(val => {
           setSpinner(false);
