@@ -12,37 +12,14 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 # Create your views here.
 
-class PatientView(APIView):
+class PatientViewSet(ModelViewSet):
+    serializer_class = PatientSerializer
+    queryset = Patient.objects.all()
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JSONWebTokenAuthentication, ]
 
-    def get(self, request):
-        try:
-            data = PatientSerializer(Patient.objects.get(user=request.user)).data
-        except Patient.DoesNotExist:
-            data = {'user': UserSerializer(request.user).data}
-
-        context = {
-            'success': True,
-            'data': data
-        }
-
-        return Response(context, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        serializer = PatientSerializer(data=request.data)
-
-        if serializer.is_valid(raise_exception=True):
-            try:
-                patient = serializer.save(patient=Patient.objects.get(user=request.user))
-            except Patient.DoesNotExist:
-                patient = serializer.save()
-            patient.user = request.user
-            patient.save()
-
-            return Response({'success': True}, status=status.HTTP_201_CREATED)
-
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+    def get_queryset(self):
+        return self.queryset.filter(hospital__staff=self.request.user)
 
 
 class HospitalViewSet(ModelViewSet):
@@ -61,7 +38,7 @@ class HospitalViewSet(ModelViewSet):
     @action(methods=['GET'], detail=False, lookup_field='name')
     def search(self, request):
         params = request.query_params
-        return Response(self.get_serializer(Hospital.objects.filter(name__contains=params['name']), many=True).data,
+        return Response(self.get_serializer(Hospital.objects.filter(name__icontains=params['name']), many=True).data,
                         status=status.HTTP_200_OK)
 
 

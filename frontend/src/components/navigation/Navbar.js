@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useEffect} from 'react';
 import {
     makeStyles,
@@ -30,6 +31,7 @@ import {ThemeContext} from "../../context/ThemeContext";
 import HospitalDetail from "../hospital/HospitalDetail";
 import StaffChat from '../staff/StaffChat';
 import jwtDecode from 'jwt-decode';
+import CreateApplication from '../application/CreateApplication';
 
 const drawerWidth = 80;
 
@@ -69,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
     },
     content: {
         flexShrink: 1,
-        margin: theme.spacing(2),
+        margin: theme.spacing(1),
         paddingTop: theme.spacing(2),
     },
     themer: {
@@ -189,7 +191,7 @@ const Navbar = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <Tooltip title='Search Hospitals'>
-                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}}>
+                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/hospital')}>
                                     <LocalHospital />
                                 </IconButton>
                             </Tooltip>
@@ -314,6 +316,7 @@ const Navbar = () => {
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
+                    <Route exact path='/application/:slug' component={CreateApplication}/>
                     <Route path='/hospital/:slug' component={HospitalDetail}/>
                     <Route exact path='/staffchat' component={StaffChat}/>
                 </Switch>

@@ -35,6 +35,26 @@ class ChatConsumer(WebsocketConsumer):
         }
         return self.send_chat_message(content)
 
+    def broadcast_message(self, data):
+        text = data['message']
+        chats = Chat.objects.filter(hospital=Hospital.objects.get(staff=get_user(data['from'])))
+        message = Message.objects.create(user=get_user(data['from']), text=text)
+        message.save()
+        for chat in chats:
+            chat.messages.add(message)
+            chat.save()
+            async_to_sync(self.channel_layer.group_send)(
+                f'chat_{chat.slug}',
+                {
+                    'type': 'chat_message',
+                    'message': {
+                        'command' : 'broadcast_message',
+                        'message': self.message_to_json(message),
+                        'messages': self.messages_to_json(chat.messages.all())
+                    }
+                }
+            )
+
     def messages_to_json(self, messages):
         result = []
         for message in messages:
@@ -51,7 +71,8 @@ class ChatConsumer(WebsocketConsumer):
 
     commands = {
         'fetch_messages': fetch_messages,
-        'new_message': new_message
+        'new_message': new_message,
+        'broadcast_message': broadcast_message,
     }
 
     def connect(self):

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
@@ -23,7 +25,7 @@ class OTP(models.Model):
 
     @property
     def is_valid(self):
-        change = timezone.now() - self.created.replace(tzinfo=None)
+        change = datetime.now() - self.created.replace(tzinfo=None)
         seconds = change.seconds
         day = change.days
 

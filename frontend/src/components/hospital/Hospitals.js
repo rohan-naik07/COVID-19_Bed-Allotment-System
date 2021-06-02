@@ -17,13 +17,13 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.background.paper,
     },
     gridList: {
-        flexWrap: 'nowrap',
         // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-        overflowX: 'scroll',
-        transform: 'translateZ(0)'
+        transform: 'translateZ(0)',
+        minWidth: 500,
+        maxWidth: 750
     },
     icon: {
-      color: 'rgba(255, 255, 255, 0.54)',
+      color: 'rgba(0, 150, 255, 0.54)',
     },
     text : {
       padding : 5,
@@ -46,10 +46,8 @@ const Hospitals = (props) => {
 
      const displayMarkers = () => {
       return stores.map((store, index) => {
-          return <Marker key={index} id={index} position={{
-                                                      lat: store.latitude,
-                                                      lng: store.longitude
-                                                  }} />
+
+          return <Marker key={index} id={index} position={{ lat: store.lat, lng: store.lng}} />
       })
     }
 
@@ -93,8 +91,9 @@ const Hospitals = (props) => {
                         prob : (obj.available_beds/obj.total_beds)*100
                     });
                     markers.push({
-                      latitude : obj.latitude,
-                      longitude : obj.longitude
+                        slug: obj.slug,
+                        lat : obj.latitude,
+                        lng: obj.longitude
                   })
                 });
 
@@ -118,8 +117,8 @@ const Hospitals = (props) => {
     const getCenter = () => {
          let lat = 0, lng = 0;
          stores.map(store => {
-             lat += store.latitude;
-             lng += store.longitude
+             lat += store.lat;
+             lng += store.lng
          })
          return {
              lat: lat/stores.length,
@@ -135,63 +134,60 @@ const Hospitals = (props) => {
                  Authorization: `Token ${getToken()}`,
              }
          })
-             .then(res => setResults(res.data))
+             .then(res => setTileData(res.data))
              .catch(err => setError(true))
     }
 
     return (
             <Grid container direction="row" spacing={2} item justify="center">
                 <Grid item xs={12}>
-                 <Paper elevation={10} style={{padding:10}}>
+                    <Paper elevation={10} style={{padding:10}}>
                     <Typography variant='h5'>{address}</Typography>
                     <Divider/>
-                    <div className={classes.text}>
-                      <Typography variant='h6' color='primary'>
-                        {`Most chances are in ${maxBedHospital.name} (${maxBedHospital.prob}%)`}
-                      </Typography>
-                    </div>
-                 </Paper>
+                        <Typography variant='h6' color='primary' className={classes.text}>
+                            {`Most chances are in ${maxBedHospital.name} (${maxBedHospital.prob}%)`}
+                        </Typography>
+                    </Paper>
                 </Grid>
-                <Grid item xs={12}>
-                <Paper elevation={10} style={{ overflow: 'hidden', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around'}}>
-                    <GridList xs={12} className={classes.gridList} cols={3}>
-                        {tileData.map((tile, i) => (
-                            <GridListTile key={i} style={{margin:10}}>
-                                <img src={tile.imageUrl} alt={tile.name} />
-                                <GridListTileBar
-                                    title={tile.name}
-                                    classes={{
-                                        title: classes.title,
-                                    }}
-                                    actionIcon={
-                                        <IconButton
-                                            aria-label={`star ${tile.name}`}
-                                            color='primary'
-                                            onClick={() => history.push(`/hospital/${tile.slug}`)}
-                                        >
-                                            <MenuBookSharp className={classes.title} />
-                                        </IconButton>
-                                    }
-                                />
-                            </GridListTile>
-                        ))}
-                    </GridList>
-                </Paper>
-                </Grid>
-                <Grid item xs={12} container direction="column" alignItems="center">
-                    <TextField
-                        id='search'
-                        label='Search Hospital'
-                        placeholder='Enter the name of hospital'
-                        name='search'
-                        margin='normal'
-                        error={error}
-                        variant='outlined'
-                        autoFocus
-                        onChange={handleSearch}
-                        color='primary'
-                        value={search}
-                    />
+                <Grid item xs={12} container direction="column" alignItems="center" spacing={2}>
+                    <Grid item xs={12}>
+                        <TextField
+                            id='search'
+                            label='Search Hospital'
+                            placeholder='Enter the name of hospital'
+                            name='search'
+                            margin='normal'
+                            error={error}
+                            variant='outlined'
+                            autoFocus
+                            onChange={handleSearch}
+                            color='primary'
+                            value={search}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Paper elevation={10} style={{ padding: '1%'}}>
+                            <GridList cellHeight={180} className={classes.gridList} cols={tileData.length>1?2:1}>
+                                {tileData.map((tile, i) => (
+                                    <GridListTile key={i}>
+                                        <img src={tile.imageUrl} alt={tile.name} />
+                                        <GridListTileBar
+                                            title={tile.name}
+                                            actionIcon={
+                                                <IconButton
+                                                    aria-label={`info about ${tile.title}`}
+                                                    color='primary'
+                                                    onClick={() => history.push(`/hospital/${tile.slug}`)}
+                                                >
+                                                    <MenuBookSharp />
+                                                </IconButton>
+                                            }
+                                        />
+                                    </GridListTile>
+                                ))}
+                            </GridList>
+                        </Paper>
+                    </Grid>
                 </Grid>
             </Grid>
     )

@@ -1,11 +1,13 @@
 import React from "react";
-import {Box, Divider, Grid, makeStyles, TextField,Typography,Paper,Button,Chip} from "@material-ui/core";
+import {Box, Divider, Grid, makeStyles, TextField,Typography,Paper,Button,Chip, Container} from "@material-ui/core";
 import { Redirect } from "react-router";
 import jwtDecode from 'jwt-decode'
 import {getToken} from "../authentication/cookies";
 import { LineChart,Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import { EventNote } from "@material-ui/icons";
+import ViewApplication from "./ViewApplication";
 
 const data = [
     {
@@ -52,6 +54,8 @@ const data = [
     }
   ]
 
+  
+
 const useStyles = makeStyles((theme)=>({
     container: {
         position: 'relative',
@@ -86,31 +90,50 @@ const StaffPanel = () => {
     const classes = useStyles();
     const [hospital,setHospital] = React.useState([]);
     const [edit,setEdit] = React.useState(false);
+    const [id,setId] = React.useState(null);
+    const [applications,setApplications] = React.useState([]);
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
     const closeAlert = (key,time)=>setTimeout(() => closeSnackbar(key),time);
+    const [open,setOpen] = React.useState(false);
 
     React.useEffect(()=>{
       showAlert('data','Loading...','info');
       let slug = token==='' ? '' : jwtDecode(token).hospital_slug;
       if(slug===''){ return; }
       axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${slug}/`,{
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Token ${getToken()}`,
-                }
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${getToken()}`,
+            }
+        }).then(res=>{
+          closeAlert('data',2000);
+          setHospital(res.data)
+          showAlert('data','Loading applications...','info');
+          axios.get(`${process.env.REACT_APP_API_URL}/portal/patients/`,{
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${getToken()}`,
+            }
             }).then(res=>{
               closeAlert('data',2000);
-              setHospital(res.data)
+              setApplications(res.data);
+              console.log(res.data);
             }).catch(err=>{
               closeAlert('data',2000);
               showAlert('chats_error',err.message,'error');
               closeAlert('chats_error',2000);
             })
+        }).catch(err=>{
+          closeAlert('data',2000);
+          showAlert('chats_error',err.message,'error');
+          closeAlert('chats_error',2000);
+        })
     },[])
 
     return (
-        <Grid container>
+      <Container>
+        <Grid container style={{padding:5}} spacing={2}>
             <Grid item xs={12} sm={6}>
                 <Paper className={classes.container} style={{ backgroundImage: `url(${hospital.imageUrl})` }}>
                     {/* Increase the priority of the hero background image */}
@@ -140,12 +163,12 @@ const StaffPanel = () => {
                             Total Beds
                         </Typography>
                         <TextField variant='outlined' value={hospital.total_beds} disabled={edit}/>
-                        <Button variant='outlined' color='primary'onClick={()=>setEdit(!edit)}>Edit</Button>
+                        <Button variant='outlined' color='primary' onClick={()=>setEdit(!edit)}>Edit</Button>
                     </Box>                     
                 </Paper>
                 <Paper elevation={3} style={{padding:10,marginTop:20}}>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart width={600} height={250} data={data}
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart width={600} height={200} data={data}
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
@@ -158,9 +181,39 @@ const StaffPanel = () => {
                   </ResponsiveContainer>
                 </Paper>
             </Grid>
-            <Grid item xs={12} sm={6} style={{height:'100%'}}>              
+            <Grid item xs={12} sm={6}>
+              <Paper elevation={3} style={{padding:10,display:'flex',alignItems:'center'}}>
+                <EventNote fontSize='large' color='primary'/>
+                <Typography component="h1" variant="h4" style={{marginLeft:10}}>
+                  Applications
+                </Typography>
+              </Paper>
+              <Box style={{padding:10,height:600,overflow:'auto'}}>
+                  {applications.map(application=>(
+                    <Paper elevation={3} key={application._id} style={{padding:10,marginTop:10}}>
+                      <Typography component="h1" variant="h5">
+                        {application.name}
+                      </Typography>
+                      <Box style={{display:'flex',justifyContent:'space-between',padding:5}}>
+                        <Chip size='medium' label={`Age ${application.age}`} color='primary'/>
+                        <Chip size='medium' label={application.vaccine_status}/>
+                      </Box>
+                      <Box style={{display:'flex',justifyContent:'space-between',padding:5,alignItems:'center'}}>
+                        <Typography component="h1" variant="caption">
+                          {application.date}
+                        </Typography>
+                        <Button variant='contained' color='primary' onClick={()=>{
+                          setOpen(true);
+                          setId(application._id);
+                        }}>View Details</Button>
+                      </Box>
+                    </Paper>
+                  ))}
+              </Box>           
             </Grid>
         </Grid>
+        {/*<ViewApplication open={open} setOpen={open} id={id}/>*/}
+      </Container>
     )
 }
 

@@ -14,7 +14,13 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password', 'contact', 'weight', 'birthday']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'contact', 'weight', 'birthday', 'id']
+        extra_kwargs = {
+            'password': {
+                'write_only': True
+            }
+        }
+        read_only_fields = ['id']
 
     def create(self, validated_data):
         try:
@@ -61,6 +67,7 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Invalid login Credentials')
 
         payload = jwt_payload_handler(user)
+        payload['id'] = user.id
         payload['is_staff'] = user.is_staff
         if user.is_staff and user.is_verified:
             payload['hospital_slug'] = Hospital.objects.get(staff=user).slug

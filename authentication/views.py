@@ -1,17 +1,19 @@
-import traceback
-from datetime import datetime
+import json
+import os
+import random
 
 from django.conf import settings
 from django.core.mail import send_mail
-from rest_framework.response import Response
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import *
-from .models import *
-from rest_framework_jwt.settings import api_settings
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
 from rest_framework.views import APIView
-import random
+from rest_framework.viewsets import ModelViewSet
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
+from .serializers import *
+import os
+import json
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -66,6 +68,13 @@ class LoginView(APIView):
         }
 
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    authentication_classes = [JSONWebTokenAuthentication, ]
+    permission_classes = [AllowAny, ]
+    serializer_class = UserSerializer
 
 
 class VerifyView(APIView):
