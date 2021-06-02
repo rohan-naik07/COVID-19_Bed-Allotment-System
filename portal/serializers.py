@@ -7,12 +7,24 @@ import traceback
 
 class PatientSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=False)
+    user_id = serializers.IntegerField(write_only=True, required=True)
+    hospital_slug = serializers.SlugField(write_only=True, required=True)
 
     class Meta:
         model = Patient
         fields = ['is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'accepted', 'rejected',
-                  'is_first_dose', 'is_second_dose', 'priority', 'applied_date',
-                  'user']
+                  'is_first_dose', 'is_second_dose', 'priority',
+                  'user', 'user_id', 'hospital_slug', 'documents']
+        read_only_fields = ['user', 'applied_date']
+
+    def create(self, validated_data):
+        hospital_slug = validated_data.pop('hospital_slug')
+        patient = Patient(**validated_data, hospital=Hospital.objects.get(slug=hospital_slug))
+        for document in validated_data.get('documents'):
+            patient.documents.append(document)
+        patient.save()
+
+        return patient
 
 
 class HospitalSerializer(serializers.ModelSerializer):

@@ -10,6 +10,7 @@ import { useSnackbar } from "notistack";
 import { CloudUpload } from "@material-ui/icons";
 import { Document, Page, pdfjs  } from 'react-pdf';
 import { useHistory } from "react-router";
+import jwtDecode from "jwt-decode";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const useStyles = makeStyles(theme=>({
@@ -103,11 +104,14 @@ const CreateApplication = () => {
         let data = new FormData();
         let dataObj = {
           ...switchData,
-          vaccines : vaccine_info,
           slug : hospital.slug
         }
-        data.append('data',JSON.stringify(dataObj));
-        documents.forEach((document,index)=>data.append(`file ${index}`,document.file));
+        Object.keys(dataObj).map((key, i) => {
+            data.append(key, dataObj[key]);
+        })
+        data.append('user_id', jwtDecode(token).id);
+        data.append('hospital_slug', hospital.slug);
+        documents.forEach((document,index)=>data.append(`documents[${index}]`,document));
 
         enqueueSnackbar('Sending data....', {variant: "info", key: 'try_signUp'})
         axios({
