@@ -2,7 +2,6 @@ from rest_framework import serializers
 from authentication.serializers import UserSerializer
 from chat.models import Chat
 from .models import *
-import traceback
 
 
 class DocumentSerializer(serializers.ModelSerializer):
