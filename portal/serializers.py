@@ -5,10 +5,27 @@ from .models import *
 import traceback
 
 
+class DocumentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Document
+        fields = ['file', ]
+
+    def to_internal_value(self, data):
+        return {'file': data}
+
+    def to_representation(self, instance):
+        if instance:
+            return instance.file.path
+        else:
+            return instance
+
+
 class PatientSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=False)
     user_id = serializers.IntegerField(write_only=True, required=True)
     hospital_slug = serializers.SlugField(write_only=True, required=True)
+    documents = DocumentSerializer(many=True, default=[])
 
     class Meta:
         model = Patient
@@ -19,9 +36,13 @@ class PatientSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         hospital_slug = validated_data.pop('hospital_slug')
-        patient = Patient(**validated_data, hospital=Hospital.objects.get(slug=hospital_slug))
-        for document in validated_data.get('documents'):
-            patient.documents.append(document)
+        documents = validated_data.pop('documents')
+        patient = Patient.objects.create(**validated_data, hospital=Hospital.objects.get(slug=hospital_slug))
+
+        for document in documents:
+            doc = Document(application=patient, **document)
+            doc.save()
+
         patient.save()
 
         return patient

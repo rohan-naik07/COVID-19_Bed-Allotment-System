@@ -8,6 +8,11 @@ import uuid
 from authentication.models import User
 
 
+class Document(models.Model):
+    application = models.ForeignKey('portal.Patient', null=True, on_delete=models.CASCADE, related_name='documents')
+    file = models.FileField(upload_to=f'Documents/')
+
+
 class Patient(models.Model):
     is_corona_positive = models.BooleanField(default=False)
     on_medications = models.BooleanField(default=False)
@@ -19,7 +24,6 @@ class Patient(models.Model):
     is_second_dose = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Patient Profile', related_name='applications')
     hospital = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True, related_name='patients')
-    documents = ArrayField(models.FileField(upload_to=f'Documents/'), null=True, blank=True)
     priority = models.IntegerField(default=1)
     applied_date = models.DateTimeField(auto_now_add=True, null=True)
 
