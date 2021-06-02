@@ -131,6 +131,18 @@ const StaffPanel = () => {
         })
     },[])
 
+    const filters =(application)=>{
+      let object = {
+        "First dose taken" : application.is_first_dose,
+        "Second dose taken" : application.is_second_dose,
+      }
+      let key = Object.keys(object).filter(key=>filters[key]===true);
+      if(key.length===0){
+        return "No doses taken";
+      } 
+      return key[0];
+    } 
+
     return (
       <Container>
         <Grid container style={{padding:5}} spacing={2}>
@@ -190,29 +202,31 @@ const StaffPanel = () => {
               </Paper>
               <Box style={{padding:10,height:600,overflow:'auto'}}>
                   {applications.map(application=>(
-                    <Paper elevation={3} key={application._id} style={{padding:10,marginTop:10}}>
+                    <Paper elevation={3} key={application.user.id} style={{padding:10,marginTop:10}}>
                       <Typography component="h1" variant="h5">
-                        {application.name}
+                        {`${application.user.first_name} ${application.user.last_name}`}
                       </Typography>
                       <Box style={{display:'flex',justifyContent:'space-between',padding:5}}>
-                        <Chip size='medium' label={`Age ${application.age}`} color='primary'/>
-                        <Chip size='medium' label={application.vaccine_status}/>
+                        <Chip size='medium' label={`Age ${Math.round(
+                          (new Date().getTime()-new Date(application.user.birthday).getTime())/(365*1000*60*60*24)
+                          )}`} color='primary'/>
+                        <Chip size='medium' label={filters(application)}/>
                       </Box>
                       <Box style={{display:'flex',justifyContent:'space-between',padding:5,alignItems:'center'}}>
                         <Typography component="h1" variant="caption">
-                          {application.date}
+                          {new Date(application.applied_date).toDateString()}
                         </Typography>
                         <Button variant='contained' color='primary' onClick={()=>{
                           setOpen(true);
-                          setId(application._id);
+                          setId(application);
                         }}>View Details</Button>
                       </Box>
                     </Paper>
                   ))}
               </Box>           
             </Grid>
+            {id ? <ViewApplication open={open} setOpen={setOpen} application={id}/> : null}
         </Grid>
-        {/*<ViewApplication open={open} setOpen={open} id={id}/>*/}
       </Container>
     )
 }
