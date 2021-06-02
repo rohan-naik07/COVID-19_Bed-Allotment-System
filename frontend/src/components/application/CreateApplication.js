@@ -14,16 +14,16 @@ import jwtDecode from "jwt-decode";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const useStyles = makeStyles(theme=>({
-  map : {
-      padding : 10
-  },
-  large: {
-      width: theme.spacing(5),
-      height: theme.spacing(5),
-  },
-  input: {
-      display: 'none',
-  }
+    map : {
+        padding : 10
+    },
+    large: {
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+    },
+    input: {
+        display: 'none',
+    }
 }))
 
 const CreateApplication = () => {
@@ -44,71 +44,70 @@ const CreateApplication = () => {
     const [documents,setDocuments] = React.useState([]);
     const [pageNumber, setPageNumber] = React.useState(1);
     const onDocumentLoadSuccess = ({ numPages })=> setNumPages(numPages);
-    
+
 
     const UploadButtons = ()=> {
-      return (
-        <React.Fragment>
-          <input
-            className={classes.input}
-            onChange={handlefileUpload}
-            type="file"
-          />
-          <input className={classes.input} id="icon-button-file" type="file" onChange={handlefileUpload}/>
-          <label htmlFor="icon-button-file">
-            <IconButton color="primary" aria-label="upload picture" component="span">
-              <CloudUpload fontSize='large'/>
-            </IconButton>
-          </label>
-          
-        </React.Fragment>
-      );
+        return (
+            <React.Fragment>
+                <input
+                    className={classes.input}
+                    onChange={handlefileUpload}
+                    type="file"
+                />
+                <input className={classes.input} id="icon-button-file" type="file" onChange={handlefileUpload}/>
+                <label htmlFor="icon-button-file">
+                    <IconButton color="primary" aria-label="upload picture" component="span">
+                        <CloudUpload fontSize='large'/>
+                    </IconButton>
+                </label>
+
+            </React.Fragment>
+        );
     }
 
     const base64toBlob = (data) => {
-      // Cut the prefix `data:application/pdf;base64` from the raw base 64
-      let base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
-      let bytes = atob(base64WithoutPrefix);
-      let length = bytes.length;
-      let out = new Uint8Array(length);
-      while (length--) {
-          out[length] = bytes.charCodeAt(length);
-      }
-      return new Blob([out], { type: 'application/pdf' });
+        // Cut the prefix `data:application/pdf;base64` from the raw base 64
+        let base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+        let bytes = atob(base64WithoutPrefix);
+        let length = bytes.length;
+        let out = new Uint8Array(length);
+        while (length--) {
+            out[length] = bytes.charCodeAt(length);
+        }
+        return new Blob([out], { type: 'application/pdf' });
     };
 
     const handlefileUpload = (event)=>{
-      handleDisplayFile(event.target.files[0]);
-      setDocuments([...documents,event.target.files[0]]);
+        handleDisplayFile(event.target.files[0]);
+        setDocuments([...documents,event.target.files[0]]);
     }
 
     const handleDisplayFile = (file)=>{
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = function () {
-        let blob = base64toBlob(reader.result);
-        let url = URL.createObjectURL(blob);
-        setUrl(url)
-      }.bind(this);
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = function () {
+            let blob = base64toBlob(reader.result);
+            let url = URL.createObjectURL(blob);
+            setUrl(url)
+        }.bind(this);
     }
     const handlefileDelete=(name)=>{
-      setDocuments(documents.filter(document=>document.name!==name));
-      setUrl(null);
+        setDocuments(documents.filter(document=>document.name!==name));
+        setUrl(null);
     }
     const handleSwitchChange = (event) =>setswitchData({ ...switchData, [event.target.name]: event.target.checked });
-    
+
 
     const handleSubmit = () => {
         let data = new FormData();
         let dataObj = {
-          ...switchData,
-          slug : hospital.slug
+            ...switchData,
+            user_id: jwtDecode(token).id,
+            hospital_slug: hospital.slug
         }
         Object.keys(dataObj).map((key, i) => {
             data.append(key, dataObj[key]);
-        })
-        data.append('user_id', jwtDecode(token).id);
-        data.append('hospital_slug', hospital.slug);
+        });
         documents.forEach((document,index)=>data.append(`documents[${index}]`,document));
 
         enqueueSnackbar('Sending data....', {variant: "info", key: 'try_signUp'})
@@ -133,117 +132,117 @@ const CreateApplication = () => {
     }
 
     return (
-      <Grid container spacing={2} justify='center'>
-        <Grid item xs={12} md={6} justify='center' alignItems='center'>
-          <Paper elevation={3} style={{padding:10,width:'100%',textAlign:'center'}}>
-              <Typography variant='h4'>Create an Application for Bed</Typography>
-              <Paper elevation={4} style={{padding:10}}>
-                <Typography variant='h5' color='textSecondary'>{hospital.name}</Typography>
-              </Paper>
-                  <FormGroup style={{padding:10}}>
-                      <FormControlLabel
-                          key={'one'}
-                          control={
-                          <Checkbox checked={switchData.is_corona_positive}
-                            onChange={handleSwitchChange}
-                            name="is_corona_positive" />
-                          }
-                          label="Are you COVID Positive ?"
-                      />
-                      <FormControlLabel
-                          key={'two'}
-                          control={<Checkbox checked={switchData.is_diabetic}
-                            onChange={handleSwitchChange} 
-                            name="is_diabetic" />
-                          }
-                          label="Are you diabetic?"
-                      />
-                      <FormControlLabel
-                          key={'three'}
-                          control={
-                          <Checkbox checked={switchData.is_heart_patient}
-                            onChange={handleSwitchChange}
-                            name="is_heart_patient" />
-                          }
-                          label="Do you have heart complications ?"
-                      />
-                      <FormControlLabel
-                          key={'four'}
-                          control={
-                          <Checkbox checked={switchData.on_medications}
-                            onChange={handleSwitchChange}
-                            name="on_medications" />
-                          }
-                          label="Are you on some medication ?"
-                      />
-                </FormGroup>
-                  <FormControl style={{width:'100%'}}>
-                    <InputLabel id="demo-simple-select-label">Number of Vaccines Doses Taken</InputLabel>
-                      <Select
-                        labelId="vaccine"
-                        value={vaccine_info}
-                        onChange={(e)=>setVaccineinfo(e.target.value)}
-                      >
-                        <MenuItem value={'No Doses Taken'}>No Doses Taken</MenuItem>
-                        <MenuItem value={'First Dose Over'}>First Dose Over</MenuItem>
-                        <MenuItem value={'All Doses Over'}>All Doses Over</MenuItem>
-                      </Select>
-                </FormControl>
-                <div style={{
-                  display:'flex',
-                  justifyContent : 'space-between',
-                  alignItems : 'center',
-                  width : '100%'
-              }}>
-                  <Typography variant='h6'>
-                      Add Required Documents
-                  </Typography>
-                  {UploadButtons()}
-              </div> 
-              <Box style={{margin:10}}>
-                {documents.map(document=>(
-                  <Paper elevation={3} onClick={handleDisplayFile.bind(this,document)}
-                        style={{margin:10,
-                                padding:10,
-                                display:'flex',
-                                justifyContent:'space-between'}}>
-                    <Typography variant='caption'>{document.name}</Typography>
-                    <Button variant='contained' color='secondary' 
-                      onClick={handlefileDelete.bind(this,document.name)}>Remove</Button>
-                  </Paper>
-                ))}
-              </Box>
-                <Box style={{margin:10,display:'flex',justifyContent:'space-between'}}>
-                    <Button color='secondary' variant='contained' onClick={()=>{
-                      setDocuments([]);
-                      setVaccineinfo("");
-                      setswitchData({
-                        is_diabetic: false,
-                        is_corona_positive : false,
-                        is_heart_patient : false,
-                        on_medications: false
-                      });
-                      setUrl(null);
+        <Grid container spacing={2} justify='center'>
+            <Grid item xs={12} md={6}>
+                <Paper elevation={3} style={{padding:10,width:'100%',textAlign:'center'}}>
+                    <Typography variant='h4'>Create an Application for Bed</Typography>
+                    <Paper elevation={2} style={{padding:10}}>
+                        <Typography variant='h5' color='textSecondary'>{hospital.name}</Typography>
+                    </Paper>
+                    <FormGroup style={{padding:10}}>
+                        <FormControlLabel
+                            key={'one'}
+                            control={
+                                <Checkbox checked={switchData.is_corona_positive}
+                                          onChange={handleSwitchChange}
+                                          name="is_corona_positive" />
+                            }
+                            label="Are you COVID Positive ?"
+                        />
+                        <FormControlLabel
+                            key={'two'}
+                            control={<Checkbox checked={switchData.is_diabetic}
+                                               onChange={handleSwitchChange}
+                                               name="is_diabetic" />
+                            }
+                            label="Are you diabetic?"
+                        />
+                        <FormControlLabel
+                            key={'three'}
+                            control={
+                                <Checkbox checked={switchData.is_heart_patient}
+                                          onChange={handleSwitchChange}
+                                          name="is_heart_patient" />
+                            }
+                            label="Do you have heart complications ?"
+                        />
+                        <FormControlLabel
+                            key={'four'}
+                            control={
+                                <Checkbox checked={switchData.on_medications}
+                                          onChange={handleSwitchChange}
+                                          name="on_medications" />
+                            }
+                            label="Are you on some medication ?"
+                        />
+                    </FormGroup>
+                    <FormControl style={{width:'100%'}}>
+                        <InputLabel id="demo-simple-select-label">Number of Vaccines Doses Taken</InputLabel>
+                        <Select
+                            labelId="vaccine"
+                            value={vaccine_info}
+                            onChange={(e)=>setVaccineinfo(e.target.value)}
+                        >
+                            <MenuItem value={'No Doses Taken'}>No Doses Taken</MenuItem>
+                            <MenuItem value={'First Dose Over'}>First Dose Over</MenuItem>
+                            <MenuItem value={'All Doses Over'}>All Doses Over</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <div style={{
+                        display:'flex',
+                        justifyContent : 'space-between',
+                        alignItems : 'center',
+                        width : '100%'
                     }}>
-                        Reset
-                    </Button>
-                    <Button color="primary" variant='contained' onClick={handleSubmit}>
-                        Proceed
-                    </Button>
-                </Box>
-          </Paper> 
-       </Grid>
-        <Grid item container xs={12} md={6} justify='center' alignItems='center'>
-          <Paper elevation={3} style={{overflow:'hidden'}}>
-            <Document
-                file={url}
-                onLoadSuccess={onDocumentLoadSuccess}
-              >
-                <Page pageNumber={pageNumber} />
-              </Document>
-          </Paper>
+                        <Typography variant='h6'>
+                            Add Required Documents
+                        </Typography>
+                        {UploadButtons()}
+                    </div>
+                    <Box style={{margin:10}}>
+                        {documents.map(document=>(
+                            <Paper elevation={3} onClick={handleDisplayFile.bind(this,document)}
+                                   style={{margin:10,
+                                       padding:10,
+                                       display:'flex',
+                                       justifyContent:'space-between'}}>
+                                <Typography variant='caption'>{document.name}</Typography>
+                                <Button variant='contained' color='secondary'
+                                        onClick={handlefileDelete.bind(this,document.name)}>Remove</Button>
+                            </Paper>
+                        ))}
+                    </Box>
+                    <Box style={{margin:10,display:'flex',justifyContent:'space-between'}}>
+                        <Button color='secondary' variant='contained' onClick={()=>{
+                            setDocuments([]);
+                            setVaccineinfo("");
+                            setswitchData({
+                                is_diabetic: false,
+                                is_corona_positive : false,
+                                is_heart_patient : false,
+                                on_medications: false
+                            });
+                            setUrl(null);
+                        }}>
+                            Reset
+                        </Button>
+                        <Button color="primary" variant='contained' onClick={handleSubmit}>
+                            Proceed
+                        </Button>
+                    </Box>
+                </Paper>
+            </Grid>
+            <Grid item container xs={12} md={6} justify='center' alignItems='center'>
+                <Paper elevation={3} style={{overflow:'hidden'}}>
+                    <Document
+                        file={url}
+                        onLoadSuccess={onDocumentLoadSuccess}
+                    >
+                        <Page pageNumber={pageNumber} />
+                    </Document>
+                </Paper>
+            </Grid>
         </Grid>
-      </Grid>
     )
 }
 
