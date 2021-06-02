@@ -190,12 +190,12 @@ const StaffPanel = () => {
               </Paper>
               <Box style={{padding:10,height:600,overflow:'auto'}}>
                   {applications.map(application=>(
-                    <Paper elevation={3} key={application._id} style={{padding:10,marginTop:10}}>
+                    <Paper elevation={3} key={application.user.id} style={{padding:10,marginTop:10}}>
                       <Typography component="h1" variant="h5">
-                        {application.name}
+                        {`${application.user.first_name} ${application.user.last_name}`}
                       </Typography>
                       <Box style={{display:'flex',justifyContent:'space-between',padding:5}}>
-                        <Chip size='medium' label={`Age ${application.age}`} color='primary'/>
+                        <Chip size='medium' label={`Age ${(new Date().getTime()-new Date(application.user.birthday).getTime())/(365*1000)}`} color='primary'/>
                         <Chip size='medium' label={application.vaccine_status}/>
                       </Box>
                       <Box style={{display:'flex',justifyContent:'space-between',padding:5,alignItems:'center'}}>
