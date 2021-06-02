@@ -77,6 +77,8 @@ const CreateApplication = () => {
     };
 
     const handlefileUpload = (event)=>{
+      console.log(event.target.files[0])
+      console.log(url)
       handleDisplayFile(event.target.files[0]);
       setDocuments([...documents,event.target.files[0]]);
     }
@@ -105,7 +107,7 @@ const CreateApplication = () => {
           slug : hospital.slug
         }
         data.append('data',JSON.stringify(dataObj));
-        documents.forEach((document,index)=>data.append(`file ${index}`,document));
+        documents.forEach((document,index)=>data.append(`file ${index}`,document.file));
 
         enqueueSnackbar('Sending data....', {variant: "info", key: 'try_signUp'})
         axios({
@@ -133,7 +135,7 @@ const CreateApplication = () => {
         <Grid item xs={12} md={6} justify='center' alignItems='center'>
           <Paper elevation={3} style={{padding:10,width:'100%',textAlign:'center'}}>
               <Typography variant='h4'>Create an Application for Bed</Typography>
-              <Paper elevation={4} style={{padding:10}}>
+              <Paper elevation={2} style={{padding:10}}>
                 <Typography variant='h5' color='textSecondary'>{hospital.name}</Typography>
               </Paper>
                   <FormGroup style={{padding:10}}>
