@@ -21,6 +21,7 @@ class Patient(models.Model):
     hospital = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True, related_name='patients')
     documents = ArrayField(models.FileField(upload_to=f'Documents/'), null=True, blank=True)
     priority = models.IntegerField(default=1)
+    applied_date = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.user.username
