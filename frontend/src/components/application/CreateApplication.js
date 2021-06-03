@@ -176,10 +176,12 @@ const CreateApplication = () => {
                             label="Are you on some medication ?"
                         />
                     </FormGroup>
+                    <Typography variant='caption'>Number of vaccine doses taken</Typography>
                     <FormControl style={{width:'100%'}}>
-                        <InputLabel id="demo-simple-select-label">Number of Vaccines Doses Taken</InputLabel>
                         <Select
                             labelId="vaccine"
+                            variant='outlined'
+                            placeholder='Number of Vaccines Doses Taken'
                             value={vaccine_info}
                             onChange={(e)=>setVaccineinfo(e.target.value)}>
                             <MenuItem value={'No Doses Taken'}>No Doses Taken</MenuItem>

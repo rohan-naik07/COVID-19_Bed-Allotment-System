@@ -183,20 +183,6 @@ const Navbar = () => {
                             </Tooltip>
                         </Grid>
                         <Grid item xs={12}>
-                            <Tooltip title='Your Chats'>
-                                <IconButton style={{ backgroundColor: colors.yellow[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.yellow[theme.palette.type==='dark'?600:700])}}>
-                                    <ChatBubble/>
-                                </IconButton>
-                            </Tooltip>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Tooltip title='Search Hospitals'>
-                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/hospital')}>
-                                    <LocalHospital />
-                                </IconButton>
-                            </Tooltip>
-                        </Grid>
-                        <Grid item xs={12}>
                             <Tooltip title='Logout'>
                                 <IconButton onClick={() => setLogout(true)} style={{ backgroundColor: colors.red[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.red[theme.palette.type==='dark'?600:700])}}>
                                     <ExitToApp />

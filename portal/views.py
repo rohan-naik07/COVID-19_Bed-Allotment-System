@@ -46,7 +46,7 @@ class PatientViewSet(ModelViewSet):
         elif instance.rejected:
             try:
                 send_mail(
-                    'Application Accepted',
+                    'Application Rejected',
                     f"Dear {instance.user.first_name} {instance.user.last_name},\nYour application for a bed in the "
                     f"hospital "
                     f"{instance.hospital.name} has been rejected. You may apply again or please try for other hospitals"
