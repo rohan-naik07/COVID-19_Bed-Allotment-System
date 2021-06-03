@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, {useState} from 'react';
+import React from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -8,12 +8,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import axios from 'axios';
 import { useSnackbar } from "notistack";
 import {getToken} from "../authentication/cookies";
-import { Box, Chip, Grid, Link, Paper, Typography } from '@material-ui/core';
+import { Box, Chip, Paper, Typography } from '@material-ui/core';
 
 const ViewApplication = ({ open, setOpen ,application }) => {
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const token = getToken();
-    const [errors, setErrors] = useState("")
     const handleClose = () => setOpen(false);
     const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
     const closeAlert = (key,time)=>setTimeout(() => closeSnackbar(key),time);
@@ -56,7 +55,21 @@ const ViewApplication = ({ open, setOpen ,application }) => {
 
     return (
         <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-login" fullWidth={true}>
-            <DialogTitle id="form-dialog-login">{`Application by ${application.user.first_name} ${application.user.last_name}`}</DialogTitle>
+            <DialogTitle id="form-dialog-login" 
+                disableTypography
+                children={
+                    <React.Fragment>
+                        <Typography variant='h5'>{`Application by ${application.user.first_name} ${application.user.last_name}`}</Typography>
+                        <Chip
+                            label={application.accepted===true ? "Accepted" : application.rejected ===true ? 'Rejected' : 'Standby'}
+                            variant="default"
+                            color={application.accepted===true ? "primary" : 
+                                application.rejected ===true ? "secondary" : null}
+                            style={{ margin: '1% 1% 0 0'}}/>    
+                    </React.Fragment>
+                }
+            style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            </DialogTitle>
             <DialogContent>
                 <Paper elevation={3} style={{margin:10,padding:10,display:'flex',justifyContent:'space-between'}}>
                     <Typography variant='h6' color='textSecondary'> {`Email`}</Typography>
@@ -75,7 +88,7 @@ const ViewApplication = ({ open, setOpen ,application }) => {
                     <Typography variant='h6' color='textSecondary'>{`Weight`}</Typography>
                     <Typography variant='h6' color='primary'>{application.user.weight}</Typography>
                 </Paper>
-                <Paper elevation={3} style={{display:'flex',justifyContent:'center'}}>
+                <Paper elevation={3} style={{display:'flex',justifyContent:'space-around',padding:10}}>
                     {application.is_diabetic ? <Chip
                         label="Diabetic"
                         variant="default"
@@ -106,21 +119,22 @@ const ViewApplication = ({ open, setOpen ,application }) => {
                             display:'flex',
                             justifyContent:'space-between'}}>
                             <Typography variant='caption'>{document.split('/')[3]}</Typography>
-                            <Button variant='contained' color='secondary'
+                            <Button variant='outlined' color='primary'
                               onClick={()=>window.open(`${process.env.REACT_APP_API_URL}${document}`)}
                             >View Document</Button>
                         </Paper>
                     ))}
                 </Box>
             </DialogContent>
-            <DialogActions>
+            {application.accepted===true || application.rejected===true ? null :
+            <DialogActions style={{width : '100%',display:'flex',justifyContent:'space-around'}}>
                 <Button onClick={handleSubmit.bind(this,true)} color="primary" variant='contained'>
                     Accept
                 </Button>
                 <Button onClick={handleSubmit.bind(this,false)} color="secondary" variant='contained'>
                     Reject
                 </Button>
-            </DialogActions>
+            </DialogActions>}
         </Dialog>
     );
 }
