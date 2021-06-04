@@ -43,6 +43,7 @@ class Hospital(models.Model):
                                  null=True)
     required_documents = ArrayField(models.CharField(max_length=20, null=True), null=True, blank=True)
     slug = models.SlugField(max_length=8, unique=True, null=True)
+    email = models.EmailField(null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:

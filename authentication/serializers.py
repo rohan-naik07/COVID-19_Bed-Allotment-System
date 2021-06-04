@@ -12,9 +12,10 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password', 'contact', 'weight', 'birthday', 'id']
+        fields = ['first_name', 'last_name', 'email', 'password', 'contact', 'weight', 'birthday', 'id', 'is_staff']
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -26,14 +27,9 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             user = User.objects.get(email=validated_data['email'])
         except User.DoesNotExist:
-            user = User.objects.create(first_name=validated_data['first_name'],
-                                       last_name=validated_data['last_name'],
-                                       email=validated_data['email'],
-                                       username=validated_data['email'],
-                                       contact=validated_data['contact'],
-                                       birthday=validated_data['birthday'],
-                                       weight=validated_data['weight'])
-            user.set_password(validated_data['password'])
+            password = validated_data.pop('password')
+            user = User.objects.create(**validated_data)
+            user.set_password(password)
         user.save()
 
         return user
