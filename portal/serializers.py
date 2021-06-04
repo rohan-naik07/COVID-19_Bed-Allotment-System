@@ -30,7 +30,7 @@ class PatientSerializer(serializers.ModelSerializer):
         model = Patient
         fields = ['id', 'is_corona_positive', 'is_diabetic', 'is_heart_patient', 'on_medications', 'accepted', 'rejected',
                   'is_first_dose', 'is_second_dose', 'priority',
-                  'user', 'user_id', 'hospital_slug', 'documents']
+                  'user', 'user_id', 'hospital_slug', 'documents', 'applied_date']
         read_only_fields = ['id', 'user', 'applied_date']
 
     def create(self, validated_data):
