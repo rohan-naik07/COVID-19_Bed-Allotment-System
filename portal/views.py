@@ -20,7 +20,10 @@ class PatientViewSet(ModelViewSet):
     authentication_classes = [JSONWebTokenAuthentication, ]
 
     def get_queryset(self):
-        return self.queryset.filter(hospital__staff=self.request.user)
+        if self.request.user.is_staff:
+            return self.queryset.filter(hospital__staff=self.request.user)
+        else:
+            return self.queryset.filter(user=self.request.user)
 
     def perform_update(self, serializer):
         instance = serializer.save()

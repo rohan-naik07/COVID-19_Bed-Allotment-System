@@ -48,7 +48,7 @@ class ChatConsumer(WebsocketConsumer):
                 {
                     'type': 'chat_message',
                     'message': {
-                        'command' : 'broadcast_message',
+                        'command': 'broadcast_message',
                         'message': self.message_to_json(message),
                         'messages': self.messages_to_json(chat.messages.all())
                     }

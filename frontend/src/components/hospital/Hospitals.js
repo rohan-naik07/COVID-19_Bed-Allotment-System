@@ -274,11 +274,13 @@ const Hospitals = (props) => {
                                 icon: getToken()?Link:LinkOff,
                                 tooltip: 'Book a Bed',
                                 onClick: (event, rowData) => {
-                                    if(!getToken())
-                                        return enqueueSnackbar('You need to login first', {
+                                    if(!getToken()){
+                                        enqueueSnackbar('You need to login first', {
                                             variant: 'error',
                                             key: 'login'
-                                        })
+                                        });
+                                        return closeSnackbar('login')
+                                    }
                                     return history.push(`/hospital/${rowData.slug}`)
                                 }
                             }

@@ -36,7 +36,11 @@ class PatientSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         hospital_slug = validated_data.pop('hospital_slug')
         documents = validated_data.pop('documents')
-        patient = Patient.objects.create(**validated_data, hospital=Hospital.objects.get(slug=hospital_slug))
+        try:
+            Patient.objects.get(user_id=validated_data['user_id'], hospital__slug=hospital_slug)
+            raise serializers.ValidationError({'detail': 'Already Applied'})
+        except Patient.DoesNotExist:
+            patient = Patient.objects.create(**validated_data, hospital=Hospital.objects.get(slug=hospital_slug))
 
         for document in documents:
             doc = Document(application=patient, **document)
@@ -45,6 +49,12 @@ class PatientSerializer(serializers.ModelSerializer):
         patient.save()
 
         return patient
+
+    def to_representation(self, instance):
+        response = super(PatientSerializer, self).to_representation(instance)
+        response['hospital_name'] = instance.hospital.name
+
+        return response
 
 
 class HospitalSerializer(serializers.ModelSerializer):
@@ -70,13 +80,11 @@ class HospitalSerializer(serializers.ModelSerializer):
         try:
             request = self.context.get('request', None)
             if request:
-                if not request.user:
-                    response['chat_slug'] = None
-                elif request.user.is_staff:
+                if request.user.is_staff:
                     response['chats'] = [{'chat_slug': chat.slug,
                                           'name': f'{chat.user.first_name} {chat.user.last_name}',
                                           'user_email': chat.user.email,
-                                          'last_message': chat.messages.last().text}
+                                          'last_message': chat.messages.last().text if chat.messages.last() else None}
                                          for chat in Chat.objects.filter(hospital=instance)]
                 else:
                     try:

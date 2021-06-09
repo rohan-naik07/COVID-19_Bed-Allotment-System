@@ -226,7 +226,7 @@ const StaffChat = () => {
     )
     const renderChats = ()=>(
         <React.Fragment>
-            {chats.map(chat=>( 
+            {chats && chats.map(chat=>(
                 <Paper elevation={2} key={chat.chat_slug} 
                         style={{marginTop:10,padding:10,display:"flex",justifyContent:'space-between'}}
                         onClick={handleChange.bind(this,chat.user_email,chat.name,chat.chat_slug)}

@@ -131,7 +131,7 @@ const CreateApplication = () => {
             setTimeout(() => closeSnackbar('signUp_success'), 2000);
         }).catch(error => {
             closeSnackbar('try_signUp')
-            enqueueSnackbar('Failed to Register Application', { variant: 'error', key: 'signUp_error'})
+            enqueueSnackbar('Failed or Already applied', { variant: 'error', key: 'signUp_error'})
             setTimeout(() => closeSnackbar('signUp_error'), 2000)
         })
     }
