@@ -1,9 +1,17 @@
 import React from "react";
-import {Box, Typography,Checkbox,Paper,Grid, FormControl, Select, InputLabel,makeStyles,IconButton} from "@material-ui/core";
-import Button from '@material-ui/core/Button';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import {Box,
+        Typography,
+        Checkbox,
+        Paper,
+        Grid,
+        FormControl,
+        Button,
+        MenuItem,
+        FormGroup,
+        FormControlLabel,
+        Select,
+        makeStyles,
+        IconButton} from "@material-ui/core";
 import {getToken} from "../authentication/cookies";
 import axios from "axios";
 import { useSnackbar } from "notistack";
@@ -40,10 +48,8 @@ const CreateApplication = () => {
         is_heart_patient : false,
         on_medications: false
     });
-    const [numPages, setNumPages] = React.useState(null);
     const [documents,setDocuments] = React.useState([]);
-    const [pageNumber, setPageNumber] = React.useState(1);
-    const onDocumentLoadSuccess = ({ numPages })=> setNumPages(numPages);
+    const onDocumentLoadSuccess = () => {};
 
 
     const UploadButtons = ()=> {
@@ -89,7 +95,7 @@ const CreateApplication = () => {
             let blob = base64toBlob(reader.result);
             let url = URL.createObjectURL(blob);
             setUrl(url)
-        }.bind(this);
+        }
     }
     const handlefileDelete=(name)=>{
         setDocuments(documents.filter(document=>document.name!==name));
@@ -106,7 +112,7 @@ const CreateApplication = () => {
             hospital_slug: hospital.slug
         }
         Object.keys(dataObj).map((key, i) => {
-            data.append(key, dataObj[key]);
+            return data.append(key, dataObj[key]);
         });
         documents.forEach((document,index)=>data.append(`documents[${index}]`,document));
 
@@ -121,13 +127,12 @@ const CreateApplication = () => {
             url: `${process.env.REACT_APP_API_URL}/portal/patients/`
         }).then(response => {
             closeSnackbar('try_signUp')
-            enqueueSnackbar('Application Successfull!', { variant: 'success', key: 'signUp_success'})
-            setTimeout(() => closeSnackbar('signUp_success'), 5000);
-            enqueueSnackbar('Sending OTP...', {variant: 'info', key: 'send-otp'})
+            enqueueSnackbar('Application Successful', { variant: 'success', key: 'signUp_success'})
+            setTimeout(() => closeSnackbar('signUp_success'), 2000);
         }).catch(error => {
             closeSnackbar('try_signUp')
             enqueueSnackbar('Failed to Register Application', { variant: 'error', key: 'signUp_error'})
-            setTimeout(() => closeSnackbar('signUp_error'), 5000)
+            setTimeout(() => closeSnackbar('signUp_error'), 2000)
         })
     }
 
@@ -239,7 +244,7 @@ const CreateApplication = () => {
                         file={url}
                         onLoadSuccess={onDocumentLoadSuccess}
                     >
-                        <Page pageNumber={pageNumber} />
+                        <Page pageNumber={1} />
                     </Document>
                 </Paper>
             </Grid>

@@ -7,7 +7,7 @@ from .serializers import *
 from .models import *
 from django.core.mail import send_mail
 from django.conf import settings
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, SAFE_METHODS
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 
@@ -64,10 +64,10 @@ class PatientViewSet(ModelViewSet):
 
 
 class HospitalViewSet(ModelViewSet):
+    permission_classes = [AllowAny, ]
+    authentication_classes = [JSONWebTokenAuthentication, ]
     serializer_class = HospitalSerializer
     queryset = Hospital.objects.all()
-    authentication_classes = [JSONWebTokenAuthentication, ]
-    permission_classes = [AllowAny, ]
     lookup_field = 'slug'
 
     def get_serializer_context(self):

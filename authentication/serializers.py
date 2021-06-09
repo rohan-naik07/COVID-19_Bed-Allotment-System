@@ -16,11 +16,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'password', 'contact', 'weight', 'birthday', 'id', 'is_staff']
-        extra_kwargs = {
-            'password': {
-                'write_only': True
-            }
-        }
         read_only_fields = ['id']
 
     def create(self, validated_data):
@@ -34,15 +29,15 @@ class UserSerializer(serializers.ModelSerializer):
 
         return user
 
-    def update(self, user, data):
-        user.first_name = data.get('first_name')
-        user.last_name = data.get('last_name')
-        user.contact = data.get('contact')
-        user.weight = data.get('weight')
-        user.birthday = data.get('birthday')
-        user.save()
 
-        return user
+class OTPSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=False)
+    user_id = serializers.IntegerField(write_only=True, read_only=False)
+
+    class Meta:
+        model = OTP
+        fields = ['otp', 'user', 'created', 'counter', 'user_id']
+        read_only_fields = ['user']
 
 
 class LoginSerializer(serializers.Serializer):

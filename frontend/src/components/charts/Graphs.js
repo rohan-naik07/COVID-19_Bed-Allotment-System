@@ -151,49 +151,47 @@ const Graphs = () => {
                             <Typography variant="h6">Loading your data..</Typography>
                         </div>
                     ):(
-                        <Container>
-                             <Grid container className={classes.root} spacing={3}>
-                             <Grid item xs={8} className={classes.root}>
-                            <Card className={classes.card}>
-                                <Typography variant="h4" align="center" style={{fontWeight:'lighter', paddingTop: '20px'}}>
-                                    {type==='totalConfirmed'?'Total Confirmed Cases':
-                                    type==='totalDeaths'?'Total Deaths':'Total Recovered'}
-                                </Typography>
-                                <Typography variant="h4" align="center" style={{fontWeight:'lighter', paddingTop: '20px'}}>
-                                    <TextField
-                                        type='text'
-                                        select
-                                        value={type}
-                                        variant='standard'
-                                        color='primary'
-                                        margin='normal'
-                                        onChange={(event) => setType(event.target.value)}
-                                    >
-                                        <MenuItem value='totalConfirmed'>Total Confirmed Cases</MenuItem>
-                                        <MenuItem value='totalDeaths'>Total Deaths</MenuItem>
-                                        <MenuItem value='totalRecovered'>Total Recovered</MenuItem>
-                                    </TextField>
-                                </Typography>
-                                <div style = {{padding: "10px"}}>
-                                    {
-                                    toggle.switch1 ?
-                                        <Bar {...generateChart(location, type==='totalConfirmed'?
-                                            Confirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/> :
-                                        <Doughnut {...generateChart(location, type==='totalConfirmed'?
-                                            Confirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/>
-                                    }
-                                    <FormGroup row>
-                                        <FormControlLabel
-                                            control={<Switch onChange={handleSwitch} id="switch1" />}
-                                            label="Switch Graph Type"
-                                        />
-                                    </FormGroup>
-                                </div>
-                            </Card>
-                             </Grid>
-                             <Fade in={true} timeout={1000}>
-                                <Grid item xs={4}>
-                                    <Card>
+                        <>
+                            <Grid item xs={12}>
+                                <Card className={classes.card}>
+                                    <Typography variant="h4" align="center" style={{fontWeight:'lighter', paddingTop: '20px'}}>
+                                        {type==='totalConfirmed'?'Total Confirmed Cases':
+                                            type==='totalDeaths'?'Total Deaths':'Total Recovered'}
+                                    </Typography>
+                                    <Typography variant="h4" align="center" style={{fontWeight:'lighter', paddingTop: '20px'}}>
+                                        <TextField
+                                            type='text'
+                                            select
+                                            value={type}
+                                            variant='standard'
+                                            color='primary'
+                                            margin='normal'
+                                            onChange={(event) => setType(event.target.value)}
+                                        >
+                                            <MenuItem value='totalConfirmed'>Total Confirmed Cases</MenuItem>
+                                            <MenuItem value='totalDeaths'>Total Deaths</MenuItem>
+                                            <MenuItem value='totalRecovered'>Total Recovered</MenuItem>
+                                        </TextField>
+                                    </Typography>
+                                    <div style = {{padding: "10px"}}>
+                                        {
+                                            toggle.switch1 ?
+                                                <Bar {...generateChart(location, type==='totalConfirmed'?
+                                                    Confirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/> :
+                                                <Doughnut {...generateChart(location, type==='totalConfirmed'?
+                                                    Confirmed:type==='totalDeaths'?deaths:discharged, type.slice(5, type.length))}/>
+                                        }
+                                        <FormGroup row>
+                                            <FormControlLabel
+                                                control={<Switch onChange={handleSwitch} id="switch1" />}
+                                                label="Switch Graph Type"
+                                            />
+                                        </FormGroup>
+                                    </div>
+                                </Card>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Card>
                                     <CardContent>
                                         <Typography
                                             className={"MuiTypography--heading"}
@@ -227,11 +225,9 @@ const Graphs = () => {
                                         </Typography>
                                         <Divider className={classes.divider} light />
                                     </CardContent>
-                                    </Card>
-                                </Grid>
-                             </Fade>
-                             </Grid> 
-                        </Container>
+                                </Card>
+                            </Grid>
+                        </>
                     )
             }
         </div>

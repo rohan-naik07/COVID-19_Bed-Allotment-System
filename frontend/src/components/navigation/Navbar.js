@@ -70,6 +70,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     content: {
+        display: 'flex',
         flexShrink: 1,
         margin: theme.spacing(1),
         paddingTop: theme.spacing(2),

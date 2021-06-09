@@ -41,7 +41,6 @@ class Hospital(models.Model):
     contact = models.CharField(max_length=120, null=True)
     staff = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, related_name='hospital',
                                  null=True)
-    required_documents = ArrayField(models.CharField(max_length=20, null=True), null=True, blank=True)
     slug = models.SlugField(max_length=8, unique=True, null=True)
     email = models.EmailField(null=True)
 

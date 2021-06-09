@@ -69,6 +69,7 @@ const StaffChat = () => {
                     socket.close();
                 }
             }
+            // eslint-disable-next-line
     }, []);
 
     

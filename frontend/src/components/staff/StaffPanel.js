@@ -84,6 +84,7 @@ const StaffPanel = () => {
           showAlert('chats_error',err.message,'error');
           closeAlert('chats_error',2000);
         })
+        // eslint-disable-next-line
     },[])
 
     const getGraphData = (applications)=>{

@@ -70,7 +70,9 @@ class HospitalSerializer(serializers.ModelSerializer):
         try:
             request = self.context.get('request', None)
             if request:
-                if request.user.is_staff:
+                if not request.user:
+                    response['chat_slug'] = None
+                elif request.user.is_staff:
                     response['chats'] = [{'chat_slug': chat.slug,
                                           'name': f'{chat.user.first_name} {chat.user.last_name}',
                                           'user_email': chat.user.email,
