@@ -55,7 +55,7 @@ const StaffPanel = () => {
       showAlert('data','Loading...','info');
       let slug = token==='' ? '' : jwtDecode(token).hospital_slug;
       if(slug===''){ return; }
-      axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${jwtDecode(getToken())}/`,{
+      axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/${slug}/`,{
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Token ${getToken()}`,
