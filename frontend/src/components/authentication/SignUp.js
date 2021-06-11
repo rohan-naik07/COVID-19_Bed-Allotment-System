@@ -102,6 +102,7 @@ export const SignUp = ({ open, setOpen,setOTP }) => {
         {
             let data = {
                 first_name: values.first_name,
+                username: values.email,
                 last_name: values.last_name,
                 contact: values.contact,
                 email: values.email,
