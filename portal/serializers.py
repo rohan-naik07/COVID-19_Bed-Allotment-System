@@ -65,7 +65,7 @@ class HospitalSerializer(serializers.ModelSerializer):
         model = Hospital
         fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff',
                   'patients']
-        read_only_fields = ['staff', 'patients']
+        read_only_fields = ['staff', 'patients', 'slug']
         lookup_fields = ['slug', 'id']
 
     def create(self, validated_data):
