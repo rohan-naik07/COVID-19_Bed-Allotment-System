@@ -20,7 +20,7 @@ import Search from "@material-ui/icons/Search";
 import ArrowDownward from "@material-ui/icons/ArrowDownward";
 import Remove from "@material-ui/icons/Remove";
 import ViewColumn from "@material-ui/icons/ViewColumn";
-import {Delete, Update} from "@material-ui/icons";
+import {Delete, Update, LocalHospital} from "@material-ui/icons";
 require('dotenv').config();
 
 const tableIcons = {
@@ -62,18 +62,32 @@ const ViewUserApplications = (props) => {
     }, [])
 
     return (
-        <Grid container direction="row" spacing={2} justify="center" style={{ textAlign: 'center'}}>
-            <Grid item xs={12}>
-                <motion.h1
-                    initial={{ opacity: 0 }}
+        <Grid item container direction="row" spacing={2} justify="center" xs={12}>
+            <Grid item xs={12} style={{ textAlign: 'center'}}>
+                <motion.div
+                    initial={{ opacity: 0, y: "-50%" }}
                     animate={{
                         opacity: 1,
+                        y: "0%",
                         transition: {
                             duration: 1.5,
                             ease: [0.43, 0.13, 0.23, 0.96]
                         }
                     }}
-                    style={{ color: colors.blue[300], fontSize: '3.5rem'}}
+                >
+                    <LocalHospital style={{ fontSize: '4.5rem', color: colors.green[700]}}/>
+                </motion.div>
+                <motion.h1
+                    initial={{ opacity: 0, x: "-50%" }}
+                    animate={{
+                        opacity: 1,
+                        x: "0%",
+                        transition: {
+                            duration: 1.5,
+                            ease: [0.43, 0.13, 0.23, 0.96]
+                        }
+                    }}
+                    style={{ color: colors.green[700], fontSize: '3.5rem'}}
                 >
                     Your Applications
                 </motion.h1>
@@ -94,7 +108,7 @@ const ViewUserApplications = (props) => {
                         searchFieldAlignment: 'left',
                         actionsColumnIndex: -1,
                         headerStyle: {
-                            color: colors.blue[300],
+                            color: colors.green[300],
                             fontSize: '1.5rem',
                             fontWeight: '600'
                         },

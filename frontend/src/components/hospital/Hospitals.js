@@ -178,10 +178,10 @@ const Hospitals = (props) => {
     }
 
     return (
-            <Grid item container spacing={2} direction="row" alignItems="center" justify="center" style={{ textAlign: "center"}}>
+            <Grid item container spacing={2} direction="row" alignItems="center" justify="center">
                 <Grid item xs={12} sm={6} container direction="column" alignItems="center" spacing={1}>
                     <Grid item xs={12}>
-                        <Paper elevation={10} style={{ padding: '1%', width: '100%', height: '50vh%'}}>
+                        <Paper elevation={10} style={{ padding: '1%', width: '100%', height: '50vh%', textAlign: 'center'}}>
                             <motion.h1
                                 initial={{ scale: 0}}
                                 animate={{

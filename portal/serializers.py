@@ -59,13 +59,13 @@ class PatientSerializer(serializers.ModelSerializer):
 
 class HospitalSerializer(serializers.ModelSerializer):
     staff = UserSerializer(required=False)
-    required_documents = serializers.ListField(child=serializers.CharField(max_length=20), required=False)
     patients = PatientSerializer(required=False, many=True)
 
     class Meta:
         model = Hospital
         fields = ['name', 'total_beds', 'imageUrl', 'available_beds', 'latitude', 'longitude', 'contact', 'staff',
-                  'patients', 'required_documents']
+                  'patients']
+        read_only_fields = ['staff', 'patients']
         lookup_fields = ['slug', 'id']
 
     def create(self, validated_data):

@@ -71,8 +71,6 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     content: {
-        display: 'flex',
-        flexShrink: 1,
         margin: theme.spacing(1),
         paddingTop: theme.spacing(2),
     },
@@ -312,7 +310,7 @@ const Navbar = () => {
             <OTP open={otp} setOpen={setOTP} setLoggedIn={setLoggedIn}/>
             <Logout open={logout} setOpen={setLogout} setLoggedIn={setLoggedIn}/>
             <UserProfile open={openProfile} handleClose = {handleProfileClose}/>
-            <Grid container direction="column" alignItems="center" className={classes.content}>
+            <Grid container direction="column" alignItems="center" justify="center" className={classes.content}>
                 <Toolbar variant='dense'/>
                 <Switch>
                     <Route exact path='/' component={Home}/>
