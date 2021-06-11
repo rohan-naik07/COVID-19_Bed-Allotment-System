@@ -6,7 +6,6 @@ from portal.models import Hospital
 from .models import *
 from rest_framework_jwt.settings import api_settings
 
-
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
@@ -18,7 +17,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'email', 'username', 'password',
                   'contact', 'weight', 'birthday', 'id', 'is_staff']
-        read_only_fields = ['id', 'password']
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
     def create(self, validated_data):
         try:

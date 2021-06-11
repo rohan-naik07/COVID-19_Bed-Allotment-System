@@ -57,7 +57,7 @@ export const SignUp = ({ open, setOpen,setOTP }) => {
 
     useEffect(() => {
         // eslint-disable-line react-hooks/exhaustive-deps
-        if(stage==2){
+        if(stage===2){
             showAlert('try_data','Fetching Hospitals...','info');
             axios({
                 method: 'GET',
