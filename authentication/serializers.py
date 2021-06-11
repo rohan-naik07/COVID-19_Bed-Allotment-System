@@ -12,6 +12,7 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
 class UserSerializer(serializers.ModelSerializer):
+    is_staff = serializers.BooleanField(required=False, default=False)
 
     class Meta:
         model = User
