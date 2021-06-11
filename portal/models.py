@@ -44,11 +44,6 @@ class Hospital(models.Model):
     slug = models.SlugField(max_length=8, unique=True, null=True)
     email = models.EmailField(null=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(str(uuid.uuid4()[:8]))
-        super(Hospital, self).save(*args, **kwargs)
-
     def __str__(self):
         return self.name
 
