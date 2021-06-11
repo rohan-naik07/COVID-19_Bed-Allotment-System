@@ -30,13 +30,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         return user
 
-    def update(self, instance, validated_data):
-        password = validated_data.pop('password')
-        instance.password = password
-        instance.save()
-
-        return instance
-
 
 class OTPSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=False)
