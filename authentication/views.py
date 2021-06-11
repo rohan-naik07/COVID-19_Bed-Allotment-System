@@ -30,6 +30,8 @@ class RegisterView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             payload = jwt_payload_handler(user)
+            payload['user_id'] = user.id
+            payload['hospital_slug'] = None
             jwt = jwt_encode_handler(payload)
 
             if user.is_staff:
