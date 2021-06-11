@@ -1,5 +1,4 @@
 import React from "react";
-import {Typography} from "@material-ui/core";
 import {getToken} from "../authentication/cookies";
 import jwtDecode from "jwt-decode";
 import Hospitals from "../hospital/Hospitals";

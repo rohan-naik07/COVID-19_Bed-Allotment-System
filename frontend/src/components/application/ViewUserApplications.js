@@ -46,7 +46,6 @@ const tableIcons = {
 const ViewUserApplications = (props) => {
     const [applications, setApplications] = React.useState([]);
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const [view, setView] = React.useState({});
 
     React.useEffect(() => {
         axios.get(`${process.env.REACT_APP_API_URL}/portal/patients/`, {

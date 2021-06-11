@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Typography, CircularProgress, Container, FormGroup, FormControlLabel, Switch, Card,CardContent } from '@material-ui/core';
+import { Typography, CircularProgress, FormGroup, FormControlLabel, Switch, Card,CardContent } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Grid from '@material-ui/core/Grid';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
-import Fade from "@material-ui/core/Fade";
 import Divider from "@material-ui/core/Divider";
 
 
