@@ -236,22 +236,6 @@ const HospitalDetail = (props) => {
                             {address}
                         </Typography>
                     </CardContent>
-                    <CardContent style={{ justifyContent: 'space-between', display: 'flex'}}>
-                        {reviews.map((review, i) => (
-                            <Chip
-                                avatar={
-                                    <Avatar style={{ 
-                                        backgroundColor: colors.blue[theme.palette.type==='light'?700:400],
-                                        color: theme.palette.getContrastText(colors.blue[theme.palette.type==='light'?700:400])
-                                    }}>
-                                        {review.overallRating}
-                                    </Avatar>
-                                }
-                                label={review.feedback}
-                                key={i}
-                            />
-                        ))}
-                    </CardContent>
                 </Card>
             </Grid>
             {hospital.chat_slug && (

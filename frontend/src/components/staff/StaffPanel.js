@@ -1,6 +1,5 @@
 import React from "react";
 import {Box, Divider, Grid, makeStyles, TextField,Typography,Paper,Button,Chip, Container} from "@material-ui/core";
-import { Redirect } from "react-router";
 import jwtDecode from 'jwt-decode'
 import {getToken} from "../authentication/cookies";
 import { LineChart,Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -8,53 +7,6 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import { EventNote } from "@material-ui/icons";
 import ViewApplication from "./ViewApplication";
-
-const data = [
-    {
-      "name": "Page A",
-      "uv": 4000,
-      "pv": 2400,
-      "amt": 2400
-    },
-    {
-      "name": "Page B",
-      "uv": 3000,
-      "pv": 1398,
-      "amt": 2210
-    },
-    {
-      "name": "Page C",
-      "uv": 2000,
-      "pv": 9800,
-      "amt": 2290
-    },
-    {
-      "name": "Page D",
-      "uv": 2780,
-      "pv": 3908,
-      "amt": 2000
-    },
-    {
-      "name": "Page E",
-      "uv": 1890,
-      "pv": 4800,
-      "amt": 2181
-    },
-    {
-      "name": "Page F",
-      "uv": 2390,
-      "pv": 3800,
-      "amt": 2500
-    },
-    {
-      "name": "Page G",
-      "uv": 3490,
-      "pv": 4300,
-      "amt": 2100
-    }
-  ]
-
-  
 
 const useStyles = makeStyles((theme)=>({
     container: {
@@ -91,6 +43,8 @@ const StaffPanel = () => {
     const [hospital,setHospital] = React.useState([]);
     const [edit,setEdit] = React.useState(false);
     const [id,setId] = React.useState(null);
+    const [beds,setBeds] = React.useState(0);
+    const [graphData,setgraphData] = React.useState([]);
     const [applications,setApplications] = React.useState([]);
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
@@ -109,6 +63,7 @@ const StaffPanel = () => {
         }).then(res=>{
           closeAlert('data',2000);
           setHospital(res.data)
+          setBeds(res.data.total_beds);
           showAlert('data','Loading applications...','info');
           axios.get(`${process.env.REACT_APP_API_URL}/portal/patients/`,{
             headers: {
@@ -118,7 +73,7 @@ const StaffPanel = () => {
             }).then(res=>{
               closeAlert('data',2000);
               setApplications(res.data);
-              console.log(res.data);
+              getGraphData(res.data);
             }).catch(err=>{
               closeAlert('data',2000);
               showAlert('chats_error',err.message,'error');
@@ -129,14 +84,59 @@ const StaffPanel = () => {
           showAlert('chats_error',err.message,'error');
           closeAlert('chats_error',2000);
         })
+        // eslint-disable-next-line
     },[])
+
+    const getGraphData = (applications)=>{
+      let data = [];
+      let obj={}
+      applications.forEach(application=>obj[new Date(application.applied_date).toDateString()] = 0);
+      applications.forEach(application=>obj[new Date(application.applied_date).toDateString()] +=1);
+      Object.keys(obj).map(key=>data.push({date : key,number:obj[key]}));
+      setgraphData(data);
+    }
+
+    const updateBeds = ()=>{
+      let slug = token==='' ? '' : jwtDecode(token).hospital_slug;
+      if(slug===''){ 
+        return; 
+      }
+      showAlert('bed','Updating bed capacity...','info');
+      axios.patch(`${process.env.REACT_APP_API_URL}/portal/hospitals/${slug}/`,{
+        total_beds : beds
+      },{
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${getToken()}`,
+            }
+        }).then(res=>{
+          closeAlert('bed',2000);
+          showAlert('bed_update','Successfully updated bed capacity!','info');
+          closeAlert('bed_update',2000);
+        }).catch(err=>{
+          closeAlert('bed',2000);
+          showAlert('bed_error',err.message,'error');
+          closeAlert('bed_error',2000);
+        })
+    }
+
+    const filters =(application)=>{
+      let object = {
+        "First dose taken" : application.is_first_dose,
+        "Second dose taken" : application.is_second_dose,
+      }
+      let key = Object.keys(object).filter(key=>filters[key]===true);
+      if(key.length===0){
+        return "No doses taken";
+      } 
+      return key[0];
+    } 
 
     return (
       <Container>
         <Grid container style={{padding:5}} spacing={2}>
             <Grid item xs={12} sm={6}>
                 <Paper className={classes.container} style={{ backgroundImage: `url(${hospital.imageUrl})` }}>
-                    {/* Increase the priority of the hero background image */}
                     {<img style={{ display: 'none',marginTop:"10Px" }} src={`url(${hospital.imageUrl})`} alt='bg'/>}
                     <div className={classes.overlay} />
                     <Box className={classes.content}>
@@ -156,27 +156,32 @@ const StaffPanel = () => {
                     <Divider/>
                     <Box style={{display:'flex',padding:10,justifyContent:'space-around'}}>
                         <Chip size='medium' label={`${hospital.available_beds} Beds Available`} color='primary'/>
-                        <Chip size='medium' label={`${100-(Math.round(hospital.available_beds/hospital.total_beds*100))}% occupied`}/>
+                        <Chip size='medium' label={`${100-(Math.round(hospital.available_beds/beds*100))}% occupied`}/>
                     </Box>
                     <Box style={{display:'flex',justifyContent:'space-between',padding:10,alignItems:'center'}}>
                         <Typography  variant="h5">
                             Total Beds
                         </Typography>
-                        <TextField variant='outlined' value={hospital.total_beds} disabled={edit}/>
-                        <Button variant='outlined' color='primary' onClick={()=>setEdit(!edit)}>Edit</Button>
+                        <TextField variant='outlined' value={beds} disabled={edit===true} onChange={event=>setBeds(event.target.value)}/>
+                        {edit===false ? 
+                          <Button variant='outlined' color='primary' onClick={()=>{
+                            updateBeds();
+                            setEdit(!edit);
+                          }}>Update</Button> :
+                          <Button variant='outlined' color='primary' onClick={()=>setEdit(!edit)}>Edit</Button>
+                        }
                     </Box>                     
                 </Paper>
                 <Paper elevation={3} style={{padding:10,marginTop:20}}>
                   <ResponsiveContainer width="100%" height={200}>
-                    <LineChart width={600} height={200} data={data}
+                    <LineChart width={600} height={200} data={graphData}
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
+                        <XAxis dataKey="date" />
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="pv" stroke="#ffc107" />
-                        <Line type="monotone" dataKey="uv" stroke="#1565c0" />
+                        <Line type="monotone" dataKey="number" stroke="#ffc107" />
                     </LineChart>
                   </ResponsiveContainer>
                 </Paper>
@@ -190,29 +195,31 @@ const StaffPanel = () => {
               </Paper>
               <Box style={{padding:10,height:600,overflow:'auto'}}>
                   {applications.map(application=>(
-                    <Paper elevation={3} key={application._id} style={{padding:10,marginTop:10}}>
+                    <Paper elevation={3} key={application.user.id} style={{padding:10,marginTop:10}}>
                       <Typography component="h1" variant="h5">
-                        {application.name}
+                        {`${application.user.first_name} ${application.user.last_name}`}
                       </Typography>
                       <Box style={{display:'flex',justifyContent:'space-between',padding:5}}>
-                        <Chip size='medium' label={`Age ${application.age}`} color='primary'/>
-                        <Chip size='medium' label={application.vaccine_status}/>
+                        <Chip size='medium' label={`Age ${Math.round(
+                          (new Date().getTime()-new Date(application.user.birthday).getTime())/(365*1000*60*60*24)
+                          )}`} color='primary'/>
+                        <Chip size='medium' label={filters(application)}/>
                       </Box>
                       <Box style={{display:'flex',justifyContent:'space-between',padding:5,alignItems:'center'}}>
                         <Typography component="h1" variant="caption">
-                          {application.date}
+                          {new Date(application.applied_date).toDateString()}
                         </Typography>
                         <Button variant='contained' color='primary' onClick={()=>{
                           setOpen(true);
-                          setId(application._id);
+                          setId(application);
                         }}>View Details</Button>
                       </Box>
                     </Paper>
                   ))}
               </Box>           
             </Grid>
+            {id ? <ViewApplication open={open} setOpen={setOpen} application={id}/> : null}
         </Grid>
-        {/*<ViewApplication open={open} setOpen={open} id={id}/>*/}
       </Container>
     )
 }

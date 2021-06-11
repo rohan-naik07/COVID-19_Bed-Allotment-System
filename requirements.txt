@@ -2,8 +2,10 @@ asgiref==3.3.1
 attrs==20.3.0
 autobahn==20.12.3
 Automat==20.2.0
+certifi==2021.5.30
 cffi==1.14.4
 channels==3.0.3
+chardet==4.0.0
 click==7.1.2
 constantly==15.1.0
 cryptography==3.3.1
@@ -17,7 +19,7 @@ gunicorn==20.1.0
 h11==0.12.0
 httptools==0.2.0
 hyperlink==20.0.1
-idna==3.1
+idna==2.10
 incremental==17.5.0
 joblib==1.0.0
 nltk==3.5
@@ -31,6 +33,7 @@ pyOpenSSL==20.0.1
 python-dotenv==0.17.1
 pytz==2020.4
 regex==2020.11.13
+requests==2.25.1
 service-identity==18.1.0
 six==1.15.0
 sqlparse==0.4.1

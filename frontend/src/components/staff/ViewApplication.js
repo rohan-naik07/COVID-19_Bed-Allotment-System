@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, {useState} from 'react';
+import React from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -8,108 +8,133 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import axios from 'axios';
 import { useSnackbar } from "notistack";
 import {getToken} from "../authentication/cookies";
-import { Chip, Grid, Paper } from '@material-ui/core';
+import { Box, Chip, Paper, Typography } from '@material-ui/core';
 
-const ViewApplication = ({ open, setOpen ,id }) => {
+const ViewApplication = ({ open, setOpen ,application }) => {
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
-    const [errors, setErrors] = useState("")
-    const [application,setApplication] = useState(null);
-    const [status,setStatus] = React.useState({
-        accepted : false,
-        rejected : false
-    });
+    const token = getToken();
     const handleClose = () => setOpen(false);
     const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
     const closeAlert = (key,time)=>setTimeout(() => closeSnackbar(key),time);
 
-    React.useEffect(() => {
-        showAlert('data','Loading...','info');
-        axios.get(`${process.env.REACT_APP_API_URL}/portal/patients/${id}/`,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Token ${getToken()}`,
-                }
-            }).then(res => {
-                closeAlert('data',2000);
-                setApplication(res.data);
-                console.log(res.data);
-            }).catch(err=>{
-                closeAlert('data',2000);
-                setErrors(err.message)
-                showAlert('error',err.message,'error');
-                closeAlert('error',2000);
-            })
-    }, []);
-
-
     const handleSubmit = (accepted) => {
-        let data = {
-            ...application,
-            accepted : accepted,
-            rejected : !accepted
-        };
+        showAlert('try_data','Sending...','error');
         axios({
             method: 'PATCH',
             headers: {
-                "Content-Type" : "application/json"
+                "Content-Type" : "application/json",
+                Authorization: `Token ${token}`
             },
-            data : data,
-            url: `${process.env.REACT_APP_API_URL}/portal/patients/${id}/`
+            data : {
+                accepted : accepted
+            },
+            url: `${process.env.REACT_APP_API_URL}/portal/patients/${application.id}/`
         }).then(response => {
-            closeAlert('data',2000);
+            closeAlert('try_data',2000);
+            showAlert('try_data','Successfully updated status!','error');
+            closeAlert('try_data',2000);
         }).catch(error => {
             closeAlert('data',2000);
             showAlert('error',error.message,'error');
             closeAlert('error',2000);
         })
     }
+
+    const filters =()=>{
+        let object = {
+          "First dose taken" : application.is_first_dose,
+          "Second dose taken" : application.is_second_dose,
+        }
+        let key = Object.keys(object).filter(key=>filters[key]===true);
+        if(key.length===0){
+          return "No doses taken";
+        } 
+        return key[0];
+      } 
     
 
     return (
-        <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-login">
-            <DialogTitle id="form-dialog-login">Application</DialogTitle>
+        <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-login" fullWidth={true}>
+            <DialogTitle id="form-dialog-login" 
+                disableTypography
+                children={
+                    <React.Fragment>
+                        <Typography variant='h5'>{`Application by ${application.user.first_name} ${application.user.last_name}`}</Typography>
+                        <Chip
+                            label={application.accepted===true ? "Accepted" : application.rejected ===true ? 'Rejected' : 'Standby'}
+                            variant="default"
+                            color={application.accepted===true ? "primary" : 
+                                application.rejected ===true ? "secondary" : null}
+                            style={{ margin: '1% 1% 0 0'}}/>    
+                    </React.Fragment>
+                }
+            style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            </DialogTitle>
             <DialogContent>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={6} justify='center' alignItems='center'>
-                        <Paper elevation={3} style={{display:'flex',justifyContent:'center'}}>
-                            {application.is_diabetic ? <Chip
-                                label="Diabetic"
-                                variant="default"
-                                style={{ margin: '1% 1% 0 0'}}/> : null}
-                            {application.is_corona_positive ? <Chip
-                                label="Corona Positive"
-                                variant="default"
-                                style={{ margin: '1% 1% 0 0'}}/> : null}
-                            {application.is_heart_patient ? <Chip
-                                label="Heart Patient"
-                                variant="default"
-                                style={{ margin: '1% 1% 0 0'}}/> : null}
-                            {application.on_medications ? <Chip
-                                label="On Medications"
-                                variant="default"
-                                style={{ margin: '1% 1% 0 0'}}/> : null}
+                <Paper elevation={3} style={{margin:10,padding:10,display:'flex',justifyContent:'space-between'}}>
+                    <Typography variant='h6' color='textSecondary'> {`Email`}</Typography>
+                    <Typography variant='h6' color='primary'> {`${application.user.email}`}</Typography>
+                </Paper>
+                <Paper elevation={3} style={{margin:10,padding:10,display:'flex',justifyContent:'space-between'}}>
+                    <Typography variant='h6' color='textSecondary'> {`Age`}</Typography>
+                    <Typography variant='h6' color='primary'> {Math.round(
+                        (new Date().getTime()-new Date(application.user.birthday).getTime())/(365*1000*60*60*24))}</Typography>
+                </Paper>
+                <Paper elevation={3} style={{margin:10,padding:10,display:'flex',justifyContent:'space-between'}}>
+                    <Typography variant='h6' color='textSecondary'>{`Contact`}</Typography>
+                    <Typography variant='h6' color='primary'>{application.user.contact}</Typography>
+                </Paper>
+                <Paper elevation={3} style={{margin:10,padding:10,display:'flex',justifyContent:'space-between'}}>
+                    <Typography variant='h6' color='textSecondary'>{`Weight`}</Typography>
+                    <Typography variant='h6' color='primary'>{application.user.weight}</Typography>
+                </Paper>
+                <Paper elevation={3} style={{display:'flex',justifyContent:'space-around',padding:10}}>
+                    {application.is_diabetic ? <Chip
+                        label="Diabetic"
+                        variant="default"
+                        style={{ margin: '1% 1% 0 0'}}/> : null}
+                    {application.is_corona_positive ? <Chip
+                        label="Corona Positive"
+                        variant="default"
+                        style={{ margin: '1% 1% 0 0'}}/> : null}
+                    {application.is_heart_patient ? <Chip
+                        label="Heart Patient"
+                        variant="default"
+                        style={{ margin: '1% 1% 0 0'}}/> : null}
+                    {application.on_medications ? <Chip
+                        label="On Medications"
+                        variant="default"
+                        style={{ margin: '1% 1% 0 0'}}/> : null}
+                    <Chip
+                        label={filters()}
+                        variant="primary"
+                        style={{ margin: '1% 1% 0 0'}}/> 
+                 </Paper>
+                <Box style={{padding:10}}>
+                    <Typography variant='h6'>{`Required Documents`}</Typography>
+                    {application.documents.map(document=>(
+                        <Paper elevation={3} 
+                        style={{margin:10,
+                            padding:10,
+                            display:'flex',
+                            justifyContent:'space-between'}}>
+                            <Typography variant='caption'>{document.split('/')[3]}</Typography>
+                            <Button variant='outlined' color='primary'
+                              onClick={()=>window.open(`${process.env.REACT_APP_API_URL}${document}`)}
+                            >View Document</Button>
                         </Paper>
-                        <Paper elevation={3} style={{padding:10,textAlign:'center'}}>
-                            {application.vaccines}
-                        </Paper>
-                        <Paper elevation={3} style={{padding:10}}>
-                            
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={12} md={6} justify='center' alignItems='center'>
-                        
-                    </Grid>
-                </Grid>
+                    ))}
+                </Box>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={handleSubmit.bind(this,true)} color="primary">
+            {application.accepted===true || application.rejected===true ? null :
+            <DialogActions style={{width : '100%',display:'flex',justifyContent:'space-around'}}>
+                <Button onClick={handleSubmit.bind(this,true)} color="primary" variant='contained'>
                     Accept
                 </Button>
-                <Button onClick={handleSubmit.bind(this,false)} color="secondary">
+                <Button onClick={handleSubmit.bind(this,false)} color="secondary" variant='contained'>
                     Reject
                 </Button>
-            </DialogActions>
+            </DialogActions>}
         </Dialog>
     );
 }

@@ -7,12 +7,14 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from "@material-ui/core/IconButton";
+import Paper from "@material-ui/core/Paper";
 import {Visibility, VisibilityOff} from "@material-ui/icons";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import {getToken, setCookie} from "./cookies";
 import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
+import { Typography } from '@material-ui/core';
 
 export const SignUp = ({ open, setOpen,setOTP }) => {
     const [selectedDate, handleDateChange] = useState(new Date());
@@ -37,6 +39,10 @@ export const SignUp = ({ open, setOpen,setOTP }) => {
         signUpError: false,
     })
     const [visible, setVisible] = useState(false);
+    const [hospitals,setHospitals] = useState([]);
+    const [selectedHospital,setselectedHospital] = useState(0);
+    const showAlert = (key,message,variant)=>enqueueSnackbar(message, {variant: variant, key: key});
+    const closeAlert = (key,time)=>setTimeout(() => closeSnackbar(key),time);
 
     const handleClose = () => {
         setOpen(false);
@@ -50,9 +56,26 @@ export const SignUp = ({ open, setOpen,setOTP }) => {
     }
 
     useEffect(() => {
-        setStage(0);
         // eslint-disable-line react-hooks/exhaustive-deps
-    }, [open])
+        if(stage==2){
+            showAlert('try_data','Fetching Hospitals...','info');
+            axios({
+                method: 'GET',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                url: `${process.env.REACT_APP_API_URL}/portal/hospitals/`
+            }).then(response => {
+                closeAlert('try_data',2000);
+                console.log(response.data);
+                setHospitals(response.data);
+            }).catch(error => {
+                closeAlert('try_data',2000);
+                showAlert('error',error.message,'error');
+                closeAlert('error',2000);
+            })
+        }
+    }, [open,stage])
 
     const handleSubmit = () => {
         if (values.first_name === null || values.first_name === '' || values.last_name === null || values.last_name === '') {
@@ -77,21 +100,29 @@ export const SignUp = ({ open, setOpen,setOTP }) => {
         }
         if(!(errors.passwordError || errors.emailError || errors.confirmPasswordError || errors.nameError || errors.emailError))
         {
+            let data = {
+                first_name: values.first_name,
+                last_name: values.last_name,
+                contact: values.contact,
+                email: values.email,
+                password: values.password,
+                weight: values.weight,
+                birthday: selectedDate.getUTCFullYear() + "-" + (selectedDate.getUTCMonth()+1) + "-" + selectedDate.getUTCDate(),
+            };
+            if(stage===2){
+                data = {
+                    ...data,
+                    is_staff : false,
+                    hospital_slug : hospitals[hospital].slug
+                } 
+            }
             enqueueSnackbar('Sending data....', {variant: "info", key: 'try_signUp'})
             axios({
                 method: 'POST',
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                data: {
-                    first_name: values.first_name,
-                    last_name: values.last_name,
-                    contact: values.contact,
-                    email: values.email,
-                    password: values.password,
-                    weight: values.weight,
-                    birthday: selectedDate.getUTCFullYear() + "-" + (selectedDate.getUTCMonth()+1) + "-" + selectedDate.getUTCDate(),
-                },
+                data: data,
                 url: `${process.env.REACT_APP_API_URL}/auth/register/`
             }).then(response => {
                 closeSnackbar('try_signUp')
@@ -131,8 +162,8 @@ export const SignUp = ({ open, setOpen,setOTP }) => {
 
     return (
         <div>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-login">
-                <DialogTitle id="form-dialog-login">SignUp</DialogTitle>
+            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-login" fullWidth={true}>
+                <DialogTitle id="form-dialog-login">{stage===2 ? 'Select Hospital' : 'SignUp'}</DialogTitle>
                 <DialogContent>
                     {stage===0?(
                         <>
@@ -245,7 +276,7 @@ export const SignUp = ({ open, setOpen,setOTP }) => {
                                 Next
                             </Button>
                         </>
-                    ):(
+                    ):stage==1 ? (
                         <>
                             <TextField
                                 id="weight"
@@ -286,18 +317,51 @@ export const SignUp = ({ open, setOpen,setOTP }) => {
                                 Back
                             </Button>
                         </>
-                    )}
+                    ) : stage==2 ? (
+                        <React.Fragment>
+                            {hospitals.map((hospital,index)=>(
+                                <Paper key = {hospital.name} elevation={3} 
+                                    style={{margin:10,
+                                        padding:10,
+                                        display:'flex',
+                                        justifyContent:'space-between'}}>
+                                    <Typography variant='caption'>{hospital.name}</Typography>
+                                    <Button variant='outlined' color='primary'
+                                        onClick={()=>setselectedHospital(index)}
+                                    >Select</Button>
+                                </Paper>
+                            ))}
+                        </React.Fragment>
+                    ): null}
                 </DialogContent>
                 {stage===1?(
                     <DialogActions>
-                        <Button onClick={handleClose} color="primary">
+                        <Button onClick={()=>setStage(0)} color="primary">
+                            Back
+                        </Button>
+                        <Button onClick={handleClose} color="secondary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSubmit} color="primary">
+                            SignUp
+                        </Button>
+                        <Button onClick={()=>setStage(2)} color="primary">
+                            Sign Up as Staff
+                        </Button>
+                    </DialogActions>
+                ): stage===2 ? (
+                    <DialogActions>
+                         <Button onClick={()=>setStage(1)} color="primary">
+                            Back
+                        </Button>
+                        <Button onClick={handleClose} color="secondary">
                             Cancel
                         </Button>
                         <Button onClick={handleSubmit} color="primary">
                             SignUp
                         </Button>
                     </DialogActions>
-                ):(
+                ) : (
                     <DialogActions/>
                 )}
             </Dialog>

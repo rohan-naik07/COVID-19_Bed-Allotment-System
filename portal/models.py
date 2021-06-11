@@ -8,6 +8,11 @@ import uuid
 from authentication.models import User
 
 
+class Document(models.Model):
+    application = models.ForeignKey('portal.Patient', null=True, on_delete=models.CASCADE, related_name='documents')
+    file = models.FileField(upload_to=f'Documents/')
+
+
 class Patient(models.Model):
     is_corona_positive = models.BooleanField(default=False)
     on_medications = models.BooleanField(default=False)
@@ -19,8 +24,8 @@ class Patient(models.Model):
     is_second_dose = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Patient Profile', related_name='applications')
     hospital = models.ForeignKey('portal.Hospital', on_delete=models.SET_NULL, null=True, related_name='patients')
-    documents = ArrayField(models.FileField(upload_to=f'Documents/'), null=True, blank=True)
     priority = models.IntegerField(default=1)
+    applied_date = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -36,13 +41,8 @@ class Hospital(models.Model):
     contact = models.CharField(max_length=120, null=True)
     staff = models.OneToOneField('authentication.User', on_delete=models.SET_NULL, related_name='hospital',
                                  null=True)
-    required_documents = ArrayField(models.CharField(max_length=20, null=True), null=True, blank=True)
     slug = models.SlugField(max_length=8, unique=True, null=True)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(str(uuid.uuid4()[:8]))
-        super(Hospital, self).save(*args, **kwargs)
+    email = models.EmailField(null=True)
 
     def __str__(self):
         return self.name

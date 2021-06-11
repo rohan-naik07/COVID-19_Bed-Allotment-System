@@ -1,19 +1,19 @@
-import json
-import os
 import random
+import os
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives, send_mail
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from dotenv import load_dotenv
 
 from .serializers import *
-import os
-import json
+
+load_dotenv(os.path.join(os.getcwd(), '.env'))
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -24,12 +24,27 @@ class RegisterView(APIView):
     permission_classes = [AllowAny, ]
 
     def post(self, request):
+        hospital_slug = request.data.get('hospital_slug', None)
         serializer = UserSerializer(data=request.data)
 
         if serializer.is_valid():
             user = serializer.save()
             payload = jwt_payload_handler(user)
             jwt = jwt_encode_handler(payload)
+
+            if user.is_staff:
+                hospital = Hospital.objects.get(slug=hospital_slug)
+                text = f"To,\nThe {hospital.name}"
+                html = f"<h1>Click the link below to approve the" \
+                       f"user named {user.first_name} {user.last_name} as staff for your hospital<h1>" \
+                       f"<p><a href='{os.environ.get('API_URL')}/auth/approve?hospital={hospital.id}&user={user.id}'>" \
+                       f"Send Approval</a></p>"
+                message = EmailMultiAlternatives('Staff Approval', text, settings.EMAIL_HOST_USER, [
+                    'newalkarpranjal2410.pn@gmail.com', 'royalronny12@gmail.com',
+                    hospital.email
+                ])
+                message.attach_alternative(html, 'text/html')
+                message.send()
 
             context = {
                 'token': jwt,
@@ -73,7 +88,7 @@ class LoginView(APIView):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     authentication_classes = [JSONWebTokenAuthentication, ]
-    permission_classes = [AllowAny, ]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = UserSerializer
 
 
@@ -119,7 +134,7 @@ class VerifyView(APIView):
         user = request.user
         key = request.data.get('otp')
         try:
-            otp = OTP.objects.get(user=user, otp=key)
+            OTP.objects.get(user=user, otp=key)
             user.is_verified = True
             user.save()
             context = {
@@ -133,3 +148,10 @@ class VerifyView(APIView):
                 'success': False,
             }
             return Response(context, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+def approveView(request):
+    hospital = Hospital.objects.get(pk=request.query_params.get('hospital'))
+    hospital.staff = User.objects.get(pk=request.query_params.get('user'))
+
+    hospital.save()

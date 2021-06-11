@@ -32,6 +32,7 @@ import HospitalDetail from "../hospital/HospitalDetail";
 import StaffChat from '../staff/StaffChat';
 import jwtDecode from 'jwt-decode';
 import CreateApplication from '../application/CreateApplication';
+import ViewUserApplications from "../application/ViewUserApplications";
 
 const drawerWidth = 80;
 
@@ -70,7 +71,6 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     content: {
-        flexShrink: 1,
         margin: theme.spacing(1),
         paddingTop: theme.spacing(2),
     },
@@ -176,23 +176,16 @@ const Navbar = () => {
                 ): !is_staff? (
                     <Grid container direction="column" alignItems="center" spacing={3} justify="center">
                         <Grid item xs={12}>
+                            <Tooltip title='Home'>
+                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/')}>
+                                    <LocalHospital/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
                             <Tooltip title='Your Applications'>
-                                <IconButton style={{ backgroundColor: colors.blue[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.blue[theme.palette.type==='dark'?600:700])}}>
+                                <IconButton style={{ backgroundColor: colors.blue[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.blue[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/applications')}>
                                     <ListAlt />
-                                </IconButton>
-                            </Tooltip>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Tooltip title='Your Chats'>
-                                <IconButton style={{ backgroundColor: colors.yellow[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.yellow[theme.palette.type==='dark'?600:700])}}>
-                                    <ChatBubble/>
-                                </IconButton>
-                            </Tooltip>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Tooltip title='Search Hospitals'>
-                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/hospital')}>
-                                    <LocalHospital />
                                 </IconButton>
                             </Tooltip>
                         </Grid>
@@ -206,6 +199,13 @@ const Navbar = () => {
                     </Grid>
                 ) : (
                     <Grid container direction="column" alignItems="center" spacing={3} justify="center">
+                        <Grid item xs={12}>
+                            <Tooltip title='Home'>
+                                <IconButton style={{ backgroundColor: colors.green[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.green[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/')}>
+                                    <LocalHospital/>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
                         <Grid item xs={12}>
                             <Tooltip title='Chats'>
                                 <IconButton style={{ backgroundColor: colors.cyan[theme.palette.type==='dark'?600:700], color: theme.palette.getContrastText(colors.cyan[theme.palette.type==='dark'?600:700])}} onClick={() => history.push('/staffchat')}>
@@ -310,12 +310,13 @@ const Navbar = () => {
             <OTP open={otp} setOpen={setOTP} setLoggedIn={setLoggedIn}/>
             <Logout open={logout} setOpen={setLogout} setLoggedIn={setLoggedIn}/>
             <UserProfile open={openProfile} handleClose = {handleProfileClose}/>
-            <Grid container direction="column" alignItems="center" className={classes.content}>
+            <Grid container direction="column" alignItems="center" justify="center" className={classes.content}>
                 <Toolbar variant='dense'/>
                 <Switch>
                     <Route exact path='/' component={Home}/>
                     <Route exact path='/about' component={About}/>
                     <Route exact path='/graphs' component={Graphs}/>
+                    <Route exact path='/applications' component={ViewUserApplications}/>
                     <Route exact path='/application/:slug' component={CreateApplication}/>
                     <Route path='/hospital/:slug' component={HospitalDetail}/>
                     <Route exact path='/staffchat' component={StaffChat}/>

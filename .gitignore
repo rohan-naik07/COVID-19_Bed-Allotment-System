@@ -7,3 +7,4 @@ BedAllotmentSystem\settings.py
 .env
 node_modules
 github_key
+media
