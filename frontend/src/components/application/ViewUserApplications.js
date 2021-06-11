@@ -20,7 +20,7 @@ import Search from "@material-ui/icons/Search";
 import ArrowDownward from "@material-ui/icons/ArrowDownward";
 import Remove from "@material-ui/icons/Remove";
 import ViewColumn from "@material-ui/icons/ViewColumn";
-import {Delete, Update, LocalHospital} from "@material-ui/icons";
+import {Delete, LocalHospital} from "@material-ui/icons";
 require('dotenv').config();
 
 const tableIcons = {

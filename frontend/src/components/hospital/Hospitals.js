@@ -5,7 +5,6 @@ import {motion} from 'framer-motion';
 import {
     Paper,
     Grid,
-    makeStyles,
     colors,
 } from "@material-ui/core";
 import {getToken} from "../authentication/cookies";
@@ -52,51 +51,10 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
  };
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'space-around',
-      backgroundColor: theme.palette.background.paper,
-    },
-    modal: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    media: {
-        height: 0,
-        paddingTop: '50%', // 16:9
-    },
-    icon: {
-      color: 'rgba(0, 150, 255, 0.54)',
-    },
-    text : {
-      padding : 5,
-      borderWidth:5,
-      borderRadius:10,
-      borderColor : '#64b5f6'
-    },
-    paper: {
-        backgroundColor: theme.palette.background.paper,
-        border: '2px solid #000',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-    },
-}));
-
 const Hospitals = (props) => {
-     const classes = useStyles();
      const {enqueueSnackbar, closeSnackbar} = useSnackbar();
-     const [address, setAddress] = React.useState('')
-     const [data, setData] = React.useState({});
-     const [maxBedHospital,setHospital] = React.useState("");
      const [stores,setStores] = React.useState([])
      const [tileData, setTileData] = React.useState([]);
-     const [results, setResults] = React.useState([]);
-     const [search, setSearch] = React.useState('');
-     const [error, setError] = React.useState(false);
-     const [render, setRender] = React.useState(false);
      const history = useHistory();
 
      const displayMarkers = () => {
@@ -147,7 +105,6 @@ const Hospitals = (props) => {
                     return 0; // sort according to decreasing frequencies
                 });
 
-                setHospital(probs[0])
                 setStores(markers);
                 setTileData(res.data);
          })
@@ -158,23 +115,12 @@ const Hospitals = (props) => {
          stores.map(store => {
              lat += store.lat;
              lng += store.lng
+             return 0;
          })
          return {
              lat: lat/stores.length,
              lng: lng/stores.length
          }
-    }
-
-    const handleSearch = (event) => {
-         setSearch(event.target.value);
-         axios.get(`${process.env.REACT_APP_API_URL}/portal/hospitals/search/?name=${event.target.value}`, {
-             headers: {
-                 "Content-Type": "application/json",
-                 Authorization: `Token ${getToken()}`,
-             }
-         })
-             .then(res => setTileData(res.data))
-             .catch(err => setError(true))
     }
 
     return (
@@ -208,23 +154,6 @@ const Hospitals = (props) => {
                                 <motion.li>You can chat with the staff of any hospital</motion.li>
                                 <motion.li>You will be notified once your application is accepted in any hospital via email</motion.li>
                             </motion.ul>
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Paper elevation={10} style={{ padding: '1%'}}>
-                            <motion.h2 style={{ color: colors.blue[300]}}
-                                       initial={{ opacity: 0, x: '50%' }}
-                                       animate={{
-                                           opacity: 1,
-                                           x: '0%',
-                                           transition: {
-                                               duration: 1.5,
-                                               ease: [0.43, 0.13, 0.23, 0.96]
-                                           }
-                                       }}
-                            >
-                                {address}
-                            </motion.h2>
                         </Paper>
                     </Grid>
                 </Grid>
